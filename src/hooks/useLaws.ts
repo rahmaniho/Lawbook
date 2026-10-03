@@ -19,5 +19,5 @@ export function useLaw(id: string | undefined): Law | null | undefined {
 }
 
 export function useCatalogMeta() {
-  return useLiveQuery(() => getMeta<Pick<CatalogFile, 'hierarchy' | 'categories'> & { file: string }>(CATALOG_KEY), [])
+  return useLiveQuery(() => getMeta<Pick<CatalogFile, 'hierarchy' | 'categories' | 'qindex'> & { file: string }>(CATALOG_KEY), [])
 }

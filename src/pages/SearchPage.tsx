@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Filter, History, Loader2, Search, Sparkles, Trash2, X, Zap, Hash, Quote } from 'lucide-react'
+import { ChevronLeft, Filter, History, Library, Loader2, Search, Sparkles, Trash2, X, Zap, Hash, Quote } from 'lucide-react'
 import { AppBar } from '../components/layout/AppBar'
 import { ArticleCard } from '../components/law/ArticleCard'
 import { Sheet } from '../components/ui/Sheet'
@@ -60,6 +60,9 @@ export default function SearchPage() {
   const debounced = useDebounce(q, 200)
   const inputRef = useRef<HTMLInputElement>(null)
   const history = useLiveQuery(() => db.history.orderBy('timestamp').reverse().limit(15).toArray(), [])
+  const catalog = useCatalogMeta()
+  const allLaws = useLaws()
+  const lawTitle = (id: string) => allLaws?.find((l) => l.id === id)?.shortTitle ?? id
 
   useEffect(() => {
     if (!initial) inputRef.current?.focus()
@@ -108,7 +111,7 @@ export default function SearchPage() {
   }, [res])
 
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar>
         <form
           role="search"
@@ -227,6 +230,12 @@ export default function SearchPage() {
               <b className="text-fg">{toFaDigits(res.total)}</b> نتیجه در {toFaDigits(res.tookMs)} میلی‌ثانیه
             </span>
             {kindLabel && <span className="rounded-full bg-surface-2 px-2 py-0.5">{kindLabel}</span>}
+            {res.parsed?.redirectedFrom && (
+              <span className="rounded-full bg-ok-soft px-2 py-0.5 text-ok">
+                ماده {toFaDigits(res.parsed.redirectedFrom.number)} {lawTitle(res.parsed.redirectedFrom.lawId)} = ماده {toFaDigits(res.parsed.number ?? '')}{' '}
+                {lawTitle(res.parsed.lawId ?? '')}
+              </span>
+            )}
             {!!res.expandedWith?.length && (
               <span className="flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-accent">
                 <Sparkles className="h-3 w-3" /> {res.expandedWith.join('، ')}
@@ -260,6 +269,7 @@ export default function SearchPage() {
                 نمایش نتایج بیشتر
               </Button>
             )}
+            <EnactmentsBridge q={q.trim()} count={catalog?.qindex?.count} />
             {!res.hits.length && !preparing && (
               <EmptyState
                 icon={<Search className="h-7 w-7" />}
@@ -287,6 +297,24 @@ export default function SearchPage() {
         onSemantic={(v) => updateSettings({ semanticSearch: v })}
       />
     </div>
+  )
+}
+
+/** پل به «فهرست مصوبات»: جستجوی همان عبارت در عنوان ۱۵۰ هزار مصوبه سامانه ملی قوانین */
+function EnactmentsBridge({ q, count }: { q: string; count?: number }) {
+  if (!q) return null
+  return (
+    <Link
+      to={`/enactments?q=${encodeURIComponent(q)}`}
+      className="flex items-center gap-3 rounded-2xl border border-dashed border-brand/40 bg-surface px-4 py-3 text-[13.5px] text-brand-strong"
+    >
+      <Library className="h-5 w-5 shrink-0" />
+      <span className="min-w-0 flex-1 leading-6">
+        جستجوی «{q}» در عنوان {count ? toFaDigits(count.toLocaleString('fa-IR')) : 'همه'} مصوبه سامانه ملی قوانین
+        <span className="block text-[11.5px] text-muted">قوانین، مقررات، آرای وحدت رویه و نظریات مشورتی — با پیوند متن رسمی</span>
+      </span>
+      <ChevronLeft className="h-4.5 w-4.5 shrink-0" />
+    </Link>
   )
 }
 

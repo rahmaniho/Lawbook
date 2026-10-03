@@ -11,7 +11,7 @@ const TOOLS = [
 
 export default function ToolsPage() {
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar back title="ابزارهای حقوقی" />
       <main className="mx-auto max-w-3xl space-y-3 px-4 pt-4">
         {TOOLS.map((t) => (

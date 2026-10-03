@@ -74,8 +74,8 @@ export function DataStatus() {
         <div className="min-w-0 flex-1">
           <p className="font-bold">آماده استفاده آفلاین</p>
           <p className="truncate text-[12.5px] text-muted">
-            {toFaDigits((meta?.articleCount ?? 0).toLocaleString('fa-IR'))} ماده · نسخه داده {toFaDigits(meta?.version ?? '')}
-            {search.state === 'building' ? ' · ساخت ایندکس جستجو…' : search.state === 'ready' ? ' · جستجو آماده' : ''}
+            {toFaDigits((meta?.articleCount ?? 0).toLocaleString('fa-IR'))} ماده • نسخه داده {toFaDigits(meta?.version ?? '')}
+            {search.state === 'building' ? ' • ساخت ایندکس جستجو…' : search.state === 'ready' ? ' • جستجو آماده' : ''}
           </p>
         </div>
       </div>

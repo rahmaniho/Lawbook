@@ -35,6 +35,8 @@
   "rawFile": "data/raw/qavanin-text/financial-convictions.txt",
   "rawSha256": "2f129d9bff651eb40a579797b682cd57f398e68a9bb81c604512159da33c884d",
   "segment": null,
+  "qavaninId": 249938,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/249938",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

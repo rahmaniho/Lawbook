@@ -35,6 +35,8 @@
   "rawFile": "data/raw/qavanin-text/constitution.txt",
   "rawSha256": "887a89004f2fbd5134a83bf64cf76e2720aa08e1fe9165ce3d328516d1e48d29",
   "segment": null,
+  "qavaninId": 38162,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/38162",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

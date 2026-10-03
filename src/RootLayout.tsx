@@ -5,10 +5,12 @@ import { BottomNav } from './components/layout/BottomNav'
 import { OfflineIndicator } from './components/layout/OfflineIndicator'
 import { InstallBanner } from './components/layout/InstallBanner'
 import { UpdatePrompt } from './components/layout/UpdatePrompt'
+import { AppFooter } from './components/layout/AppFooter'
 import { Toaster } from './components/ui/Toaster'
 import { startData, refreshData } from './lib/data/store'
 import { resetSearch } from './lib/search/client'
 import { useUi } from './lib/ui'
+import { dismissSplash } from './lib/splash'
 
 const loadFeatures = () => import('./lib/motion-features').then((r) => r.default)
 
@@ -16,6 +18,7 @@ export function RootLayout() {
   const { immersive } = useUi()
 
   useEffect(() => {
+    dismissSplash()
     void startData()
     const onMessage = (e: MessageEvent) => {
       if (e.data?.type === 'DATA_UPDATED') {
@@ -28,8 +31,11 @@ export function RootLayout() {
 
   return (
     <LazyMotion features={loadFeatures} strict>
-      <div className="min-h-dvh">
-        <Outlet />
+      <div className="flex min-h-dvh flex-col">
+        <div className="flex-1">
+          <Outlet />
+        </div>
+        <AppFooter immersive={immersive} />
       </div>
       <AnimatePresence>
         {!immersive && (

@@ -39,6 +39,8 @@ import { formatBytes, jalaliDate, relativeTime } from '../lib/format'
 import { toFaDigits } from '../lib/normalize'
 import { toast } from '../lib/toast'
 import { subscribePush, pushSupported } from '../lib/push'
+import { openInstallDialog } from '../lib/pwa-install'
+import { QIndexOfflineRow } from '../components/settings/QIndexOfflineRow'
 
 function Section({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
@@ -152,7 +154,7 @@ export default function SettingsPage() {
   const meta = data.meta
 
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar title="تنظیمات" />
       <main className="mx-auto max-w-3xl space-y-6 px-4 pt-4">
         <Section title="ظاهر" icon={<Palette className="h-4 w-4" />}>
@@ -177,7 +179,7 @@ export default function SettingsPage() {
           <Row label={<span className="flex items-center gap-2"><Vibrate className="h-4 w-4" /> بازخورد لمسی</span>} hint="لرزش کوتاه هنگام نشان‌گذاری و حرکات لمسی">
             <Switch checked={s.haptics} onChange={(v) => updateSettings({ haptics: v })} label="بازخورد لمسی" />
           </Row>
-          <Row label={<span className="flex items-center gap-2"><Type className="h-4 w-4" /> تنظیمات مطالعه</span>} hint={`قلم ${s.readerFont === 'naskh' ? 'نسخ' : 'وزیرمتن'} · اندازه ${toFaDigits(s.fontScale)} · فاصله خطوط ${toFaDigits(s.lineHeight.toFixed(1))}`} onClick={() => setReaderOpen(true)} />
+          <Row label={<span className="flex items-center gap-2"><Type className="h-4 w-4" /> تنظیمات مطالعه</span>} hint={`قلم ${s.readerFont === 'naskh' ? 'نسخ' : 'وزیرمتن'} • اندازه ${toFaDigits(s.fontScale)} • فاصله خطوط ${toFaDigits(s.lineHeight.toFixed(1))}`} onClick={() => setReaderOpen(true)} />
         </Section>
 
         <Section title="جستجو" icon={<Search className="h-4 w-4" />}>
@@ -227,6 +229,7 @@ export default function SettingsPage() {
             <Switch checked={s.autoUpdate} onChange={(v) => updateSettings({ autoUpdate: v })} label="به‌روزرسانی خودکار" />
           </Row>
           <Row label="دریافت مجدد کامل داده‌ها" hint="در صورت بروز خطا در داده‌ها" onClick={() => void reinstall()} />
+          <QIndexOfflineRow />
         </Section>
 
         <Section title="اعلان‌ها" icon={<Bell className="h-4 w-4" />}>
@@ -248,6 +251,7 @@ export default function SettingsPage() {
               label={<span className="flex items-center gap-2"><Download className="h-4 w-4" /> افزودن به صفحه اصلی</span>}
               hint="اجرای تمام‌صفحه و آفلاین مانند اپ بومی"
               onClick={async () => {
+                if (await openInstallDialog()) return
                 if (canPrompt) await promptInstall()
                 else if (isIos()) setIosOpen(true)
                 else toast('از منوی مرورگر گزینه «نصب برنامه» یا «Add to Home screen» را انتخاب کنید.')
@@ -291,9 +295,12 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        <Section title="درباره" icon={<Info className="h-4 w-4" />}>
+        <Section title="درباره ما" icon={<Info className="h-4 w-4" />}>
           <Link to="/about" className="flex items-center gap-3 px-4 py-3.5">
-            <span className="flex-1 text-[14.5px] font-medium">منابع، پوشش قوانین و سلب مسئولیت</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[14.5px] font-medium">درباره ما، منابع و پوشش قوانین</span>
+              <span className="block text-[12px] text-muted">جمع‌آوری و تدوین: وکیل پایه یک دادگستری لیلا آبکه • توسعه: کارن سافت</span>
+            </span>
             <ChevronLeft className="h-4.5 w-4.5 text-muted" />
           </Link>
           <Link to="/tools" className="flex items-center gap-3 px-4 py-3.5">

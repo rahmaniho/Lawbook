@@ -35,6 +35,8 @@
   "rawFile": "data/raw/qavanin-text/administrative-court.txt",
   "rawSha256": "ff4d8021126808909846acd232fbf76e2a429c6466654d7c6acc283a6c462334",
   "segment": null,
+  "qavaninId": 205259,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/205259",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

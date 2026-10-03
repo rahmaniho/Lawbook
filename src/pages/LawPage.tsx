@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import Dexie from 'dexie'
 import { useWindowVirtualizer } from '@tanstack/react-virtual'
 import { AnimatePresence, m } from 'framer-motion'
-import { BookOpenText, ChevronDown, ExternalLink, Info, ListTree, Loader2, Search, X, Hash, Clock3, Link2 } from 'lucide-react'
+import { BookOpenCheck, BookOpenText, ChevronDown, ChevronLeft, ExternalLink, Info, Library, ListTree, Loader2, Search, X, Hash, Clock3, Link2 } from 'lucide-react'
 import { AppBar, AppBarAction } from '../components/layout/AppBar'
 import { Disclaimer } from '../components/layout/Disclaimer'
 import { ArticleCard } from '../components/law/ArticleCard'
@@ -24,32 +24,59 @@ import { searchLaws } from '../lib/search/client'
 import { toFaDigits, toLatinDigits } from '../lib/normalize'
 import { articlePath, cn, lawPath } from '../lib/utils'
 import { toast } from '../lib/toast'
-import { useDataState } from '../lib/data/store'
+import { useDataSelector } from '../lib/data/store'
 import type { Article, Law, SearchHit, TocNode } from '../lib/types'
 
 type Row = { type: 'heading'; node: TocNode } | { type: 'article'; article: Article; hit?: SearchHit }
 
-export function officialSearchLinks(law: Pick<Law, 'title'>) {
+export function officialSearchLinks(law: Pick<Law, 'title' | 'source'>) {
   const q = encodeURIComponent(law.title)
+  const official = law.source?.officialUrl
   return [
-    { label: 'سامانه ملی قوانین (qavanin.ir)', href: 'https://qavanin.ir/' },
-    { label: 'روزنامه رسمی (rrk.ir)', href: 'https://rrk.ir/Laws/' },
-    { label: 'مرکز پژوهش‌های مجلس', href: 'https://rc.majlis.ir/fa/law' },
-    { label: 'جستجوی عنوان در سامانه ملی قوانین', href: `https://www.google.com/search?q=site%3Aqavanin.ir+%22${q}%22` },
+    ...(official ? [{ label: 'متن رسمی همین مورد در سامانه ملی قوانین', href: official, primary: true }] : []),
+    { label: 'سامانه ملی قوانین (qavanin.ir)', href: 'https://qavanin.ir/', primary: false },
+    { label: 'روزنامه رسمی (rrk.ir)', href: 'https://rrk.ir/Laws/', primary: false },
+    { label: 'مرکز پژوهش‌های مجلس', href: 'https://rc.majlis.ir/fa/law', primary: false },
+    ...(official ? [] : [{ label: 'جستجوی عنوان در سامانه ملی قوانین', href: `https://www.google.com/search?q=site%3Aqavanin.ir+%22${q}%22`, primary: false }]),
   ]
+}
+
+function OfficialLinks({ law, className }: { law: Law; className?: string }) {
+  return (
+    <div className={cn('space-y-2', className)}>
+      {officialSearchLinks(law).map((l) => (
+        <a
+          key={l.href}
+          href={l.href}
+          target="_blank"
+          rel="noreferrer"
+          className={cn(
+            'flex items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-[14px]',
+            l.primary ? 'border-transparent bg-brand font-bold text-brand-contrast' : 'border-line bg-surface',
+          )}
+        >
+          <span className="flex items-center gap-2">
+            {l.primary && <Library className="h-4.5 w-4.5" />}
+            {l.label}
+          </span>
+          <ExternalLink className={cn('h-4 w-4 shrink-0', l.primary ? '' : 'text-muted')} />
+        </a>
+      ))}
+    </div>
+  )
 }
 
 export default function LawPage() {
   const { lawId = '' } = useParams()
   const law = useLaw(lawId)
-  const data = useDataState()
+  const phase = useDataSelector((s) => s.state)
 
   if (law === undefined) return <LawSkeleton />
   if (law === null)
     return (
-      <div className="pb-nav">
+      <div className="pb-2">
         <AppBar back title="قانون یافت نشد" />
-        {data.state === 'installing' ? (
+        {phase === 'installing' ? (
           <div className="mx-auto max-w-3xl p-4">
             <ArticleSkeleton />
           </div>
@@ -64,7 +91,7 @@ export default function LawPage() {
 
 function LawSkeleton() {
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar back title={<Skeleton className="h-5 w-40" />} />
       <div className="mx-auto max-w-3xl space-y-4 p-4">
         <Skeleton className="h-36 rounded-card" />
@@ -193,7 +220,7 @@ function AvailableLaw({ law }: { law: Law }) {
   const crossLaws = (allLaws ?? []).filter((l) => law.crossLinks.includes(l.id))
 
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar
         back="/laws"
         title={law.shortTitle}
@@ -276,7 +303,7 @@ function AvailableLaw({ law }: { law: Law }) {
                 ))}
               </div>
             )}
-            <p className="mt-4 text-center text-[11.5px] text-muted">کارت را به راست بکشید: نشان‌گذاری · به چپ: اشتراک‌گذاری · ضربه: متن کامل</p>
+            <p className="mt-4 text-center text-[11.5px] text-muted">کارت را به راست بکشید: نشان‌گذاری • به چپ: اشتراک‌گذاری • ضربه: متن کامل</p>
           </>
         )}
         {hits && (
@@ -360,6 +387,19 @@ function LawHeader({ law, onInfo }: { law: Law; onInfo: () => void }) {
         </span>
         <ChevronDown className="h-4 w-4 -rotate-90 text-muted" />
       </button>
+      {law.source?.officialUrl && (
+        <a
+          href={law.source.officialUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 flex items-center justify-between gap-2 rounded-xl px-3 py-1.5 text-[12.5px] font-medium text-brand-strong"
+        >
+          <span className="flex items-center gap-2">
+            <Library className="h-4 w-4" /> متن رسمی و اصلاحات بعدی در سامانه ملی قوانین
+          </span>
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      )}
     </section>
   )
 }
@@ -434,6 +474,16 @@ export function LawInfo({ law }: { law: Law }) {
             </dd>
           </>
         )}
+        {src?.qavaninId && (
+          <>
+            <dt className="text-muted">شناسه سامانه</dt>
+            <dd>
+              <a href={src.officialUrl ?? undefined} target="_blank" rel="noreferrer" className="text-brand underline">
+                {toFaDigits(src.qavaninId)}
+              </a>
+            </dd>
+          </>
+        )}
         <dt className="text-muted">وضعیت تطبیق</dt>
         <dd>{src?.verification === 'verified' ? 'تطبیق‌شده با روزنامه رسمی' : 'برگرفته از سامانه ملی قوانین — تطبیق نهایی با روزنامه رسمی توصیه می‌شود'}</dd>
       </dl>
@@ -445,11 +495,7 @@ export function LawInfo({ law }: { law: Law }) {
       ))}
       <div className="space-y-2">
         <p className="font-bold">مراجعه به منابع رسمی</p>
-        {officialSearchLinks(law).map((l) => (
-          <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-xl border border-line px-3 py-2.5 text-[13.5px]">
-            {l.label} <ExternalLink className="h-4 w-4 text-muted" />
-          </a>
-        ))}
+        <OfficialLinks law={law} />
       </div>
       <Disclaimer compact />
     </div>
@@ -464,8 +510,8 @@ function UnavailableLaw({ law }: { law: Law }) {
   }, [law.id])
   const isInfo = law.kind === 'info'
   return (
-    <div className="pb-nav">
-      <AppBar back="/laws" title={law.shortTitle} subtitle={isInfo ? 'توضیحی' : 'در انتظار ورود متن'} />
+    <div className="pb-2">
+      <AppBar back="/laws" title={law.shortTitle} subtitle={law.seeAlso ? 'متن در قانون دیگر' : isInfo ? 'توضیحی' : 'در انتظار ورود متن'} />
       <main className="mx-auto max-w-3xl space-y-4 px-4 pt-4">
         <section className="rounded-card border border-line bg-surface p-4 shadow-soft">
           <h1 className="text-[18px] font-extrabold leading-8">{law.title}</h1>
@@ -479,16 +525,70 @@ function UnavailableLaw({ law }: { law: Law }) {
           </div>
         </section>
 
+        {law.seeAlso && (
+          <Link
+            to={articlePath(law.seeAlso.lawId, law.seeAlso.key)}
+            className="flex items-center gap-3 rounded-card border border-ok/30 bg-ok-soft p-4 text-[14px] leading-7 shadow-soft"
+          >
+            <BookOpenCheck className="h-6 w-6 shrink-0 text-ok" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-bold">متن کامل در اپ موجود است</span>
+              <span className="block text-[13px]">{law.seeAlso.label}</span>
+            </span>
+            <ChevronLeft className="h-5 w-5 shrink-0 text-muted" />
+          </Link>
+        )}
+
         {!isInfo && (
           <section className="rounded-card border border-accent/30 bg-accent-soft/60 p-4 text-[14px] leading-7">
             <p className="flex items-center gap-2 font-bold">
-              <Loader2 className="h-4.5 w-4.5 text-accent" /> متن این مورد هنوز وارد نشده است
+              <Loader2 className="h-4.5 w-4.5 text-accent" /> متن این مورد هنوز در اپ وارد نشده است
             </p>
             <p className="mt-1">
               برای حفظ دقت حقوقی، هیچ متنی بدون منبع معتبر وارد نمی‌شود. متن کامل باید با ابزار برداشت (scraper) از سامانه ملی قوانین دریافت و پس از
-              کنترل کیفیت منتشر شود. تا آن زمان به منابع رسمی زیر مراجعه کنید.
+              کنترل کیفیت منتشر شود.{' '}
+              {law.source?.officialUrl ? 'تا آن زمان متن رسمی را از پیوند زیر در سامانه ملی قوانین ببینید.' : 'تا آن زمان به منابع رسمی زیر مراجعه کنید.'}
             </p>
           </section>
+        )}
+
+        {!!law.members?.length && (
+          <section className="space-y-2">
+            <h2 className="font-extrabold">موارد این مجموعه</h2>
+            {law.members.map((mb) => (
+              <div key={mb.title} className="rounded-2xl border border-line bg-surface p-3.5 text-[13.5px] leading-7">
+                <p className="font-semibold">{toFaDigits(mb.title)}</p>
+                {(mb.date || mb.authority) && (
+                  <p className="text-[12px] text-muted">
+                    {mb.date && `مصوب ${toFaDigits(mb.date)}`}
+                    {mb.authority && ` — ${mb.authority}`}
+                  </p>
+                )}
+                {mb.note && <p className="text-[12px] text-muted">{mb.note}</p>}
+                {mb.qavaninId && (
+                  <a href={`https://qavanin.ir/Law/TreeText/${mb.qavaninId}`} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-brand-strong">
+                    <Library className="h-3.5 w-3.5" /> متن رسمی در سامانه ملی قوانین <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
+              </div>
+            ))}
+          </section>
+        )}
+
+        {law.qindex && (
+          <Link
+            to={`/enactments?t=${law.qindex.type}${law.qindex.authority ? `&a=${encodeURIComponent(law.qindex.authority)}` : ''}`}
+            className="flex items-center gap-3 rounded-card border border-brand/25 bg-brand-soft/50 p-4 shadow-soft"
+          >
+            <Library className="h-6 w-6 shrink-0 text-brand" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-bold">مشاهده عناوین در فهرست مصوبات</span>
+              <span className="block text-[12.5px] text-muted">
+                عنوان، تاریخ و مرجع هر مورد با پیوند متن رسمی در سامانه ملی قوانین{law.qindex.authority ? ` — ${law.qindex.authority}` : ''}
+              </span>
+            </span>
+            <ChevronLeft className="h-5 w-5 shrink-0 text-muted" />
+          </Link>
         )}
 
         {!!related?.length && (
@@ -507,11 +607,7 @@ function UnavailableLaw({ law }: { law: Law }) {
 
         <section className="space-y-2">
           <h2 className="font-extrabold">منابع رسمی</h2>
-          {officialSearchLinks(law).map((l) => (
-            <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-2xl border border-line bg-surface px-4 py-3 text-[14px]">
-              {l.label} <ExternalLink className="h-4 w-4 text-muted" />
-            </a>
-          ))}
+          <OfficialLinks law={law} />
         </section>
         <Disclaimer />
       </main>

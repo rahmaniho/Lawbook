@@ -131,13 +131,21 @@ export async function notifyBookmarkChanges(changedIds: string[]) {
   }
 }
 
+const subscribe = (cb: () => void) => {
+  listeners.add(cb)
+  return () => {
+    listeners.delete(cb)
+  }
+}
+
 export function useDataState(): DataState {
-  return useSyncExternalStore(
-    (cb) => {
-      listeners.add(cb)
-      return () => listeners.delete(cb)
-    },
-    () => state,
-    () => state,
-  )
+  return useSyncExternalStore(subscribe, () => state, () => state)
+}
+
+/**
+ * انتخاب بخشی از وضعیت داده‌ها؛ مؤلفه فقط وقتی همان بخش تغییر کند دوباره رندر می‌شود
+ * (مثلاً صفحه خانه با هر پیام پیشرفت نصب داده‌ها رندر نمی‌شود — کاهش TBT در بار اول).
+ */
+export function useDataSelector<T>(select: (s: DataState) => T): T {
+  return useSyncExternalStore(subscribe, () => select(state), () => select(state))
 }

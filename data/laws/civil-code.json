@@ -36,6 +36,8 @@
   "rawFile": "data/raw/qavanin-text/civil-code.txt",
   "rawSha256": "ef502342d6ede5f76ecc905023852234eeffb32167148c4e031963423ad4f4e8",
   "segment": null,
+  "qavaninId": 178971,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/178971",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

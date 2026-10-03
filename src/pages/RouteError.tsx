@@ -1,7 +1,10 @@
+import { useEffect } from 'react'
 import { isRouteErrorResponse, useRouteError, Link } from 'react-router'
+import { dismissSplash } from '../lib/splash'
 
 export function RouteError() {
   const err = useRouteError()
+  useEffect(() => dismissSplash(0), [])
   const msg = isRouteErrorResponse(err) ? `${err.status} ${err.statusText}` : err instanceof Error ? err.message : 'خطای نامشخص'
   const chunkError = /dynamically imported module|Failed to fetch|Loading chunk/i.test(msg)
   return (

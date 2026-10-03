@@ -34,6 +34,8 @@
   "rawFile": "data/raw/qavanin-text/dispute-councils.txt",
   "rawSha256": "e8a1d1b8f388831d923a0bec73fb55de9fbd640692544d222d7f38abddcb42dd",
   "segment": null,
+  "qavaninId": null,
+  "officialUrl": null,
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

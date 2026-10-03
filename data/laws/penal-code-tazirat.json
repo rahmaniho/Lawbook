@@ -8,9 +8,7 @@
   "کتاب پنجم",
   "قانون تعزیرات",
   "کتاب تعزیرات",
-  "بخش تعزیرات",
-  "جرائم رایانه ای",
-  "جرایم رایانه ای"
+  "بخش تعزیرات"
  ],
  "hierarchy": "statute",
  "category": "criminal",
@@ -42,6 +40,8 @@
    "start": "کتاب پنجم - تعزیرات",
    "end": null
   },
+  "qavaninId": 83566,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/83566",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

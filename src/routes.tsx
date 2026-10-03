@@ -14,6 +14,7 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, element: <HomePage /> },
       { path: 'laws', lazy: lazy(() => import('./pages/LawsPage')) },
+      { path: 'enactments', lazy: lazy(() => import('./pages/EnactmentsPage')) },
       { path: 'law/:lawId', lazy: lazy(() => import('./pages/LawPage')) },
       { path: 'law/:lawId/:key', lazy: lazy(() => import('./pages/ArticlePage')) },
       { path: 'search', lazy: lazy(() => import('./pages/SearchPage')) },

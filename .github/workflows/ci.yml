@@ -23,6 +23,10 @@ jobs:
           python3 scripts/pipeline/build_laws.py
           git diff --exit-code -- data/laws || (echo "data/laws is stale — run npm run data:laws and commit" && exit 1)
       - run: npm run test:py
+      - name: Scraper parser tests (offline fixtures)
+        run: |
+          pip install beautifulsoup4 lxml
+          python3 -m unittest discover -s scripts/scraper/tests -v
       - run: npm test
       - run: npm run build
       - run: npm run size

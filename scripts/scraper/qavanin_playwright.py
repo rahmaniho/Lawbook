@@ -11,17 +11,23 @@
   playwright install chromium
 
 نمونه‌ها:
-  # یافتن شناسه (IDS) قانون از روی عنوان
+  # یافتن شناسه سامانه یک قانون از روی عنوان
   python scripts/scraper/qavanin_playwright.py search "قانون تجارت الکترونیکی"
 
   # دریافت یک قانون با شناسه و ذخیره در data/raw/qavanin-text/electronic-commerce.txt
-  python scripts/scraper/qavanin_playwright.py fetch 93250 --slug electronic-commerce
+  python scripts/scraper/qavanin_playwright.py fetch 86054 --slug electronic-commerce
 
-  # دریافت همه قوانینی که در data/catalog.json فیلد source.qavaninId دارند
+  # دریافت متن همه موارد «در انتظار» کاتالوگ که source.qavaninId دارند (۲۹ مورد)
   python scripts/scraper/qavanin_playwright.py catalog
+  # … و به‌روزرسانی متن قوانین موجود از سامانه (بازنویسی فایل‌های خام؛ پس از آن منبع را در کاتالوگ اصلاح کنید)
+  python scripts/scraper/qavanin_playwright.py catalog --all
 
-پس از دریافت: در data/catalog.json منبع قانون را به {"kind": "qavanin-text", "file": "<slug>.txt"} تغییر دهید،
-سپس `npm run data:laws` و بازبینی data/qa-report.md و در نهایت `npm run data -- --release`.
+  # به‌روزرسانی «فهرست همه مصوبات» (عنوان/تاریخ/مرجع) — قابل ادامه پس از قطع
+  python scripts/scraper/qavanin_playwright.py list --out scripts/scraper/output/qavanin-list.tsv
+  python scripts/pipeline/import_qavanin_list.py --tsv scripts/scraper/output/qavanin-list.tsv --merge
+
+پس از دریافت متن: در data/catalog.json منبع قانون را به {"kind": "qavanin-text", "file": "<slug>.txt", "qavaninId": …}
+تغییر دهید، سپس `npm run data:laws` و بازبینی data/qa-report.md و در نهایت `npm run data -- --release`.
 """
 
 from __future__ import annotations
@@ -46,7 +52,36 @@ ROOT = Path(__file__).resolve().parents[2]
 RAW_DIR = ROOT / "data" / "raw" / "qavanin-text"
 HTML_DIR = Path(__file__).resolve().parent / "output" / "html"
 BASE = "https://qavanin.ir"
-LAW_URL = BASE + "/Law/TreeText/?IDS={id}"
+# نشانی متن هر مصوبه با شناسه عددی سامانه (همان شناسه فهرست مصوبات؛ مثلاً 178971 = قانون مدنی)
+LAW_URL = BASE + "/Law/TreeText/{id}"
+# شناسه‌های رمزشده طولانی (مانند ?IDS=4620049716372613096 در برخی پیوندهای سامانه)
+LAW_URL_IDS = BASE + "/Law/TreeText/?IDS={id}"
+LIST_URL = BASE + "/"
+LIST_HEADER = ["id", "title", "approval_date", "approval_authority"]
+_ID_IN_HREF = re.compile(r"(?:IDS=|/Law/TreeText/)(\d+)")
+
+
+def law_url(law_id: int) -> str:
+    return (LAW_URL_IDS if law_id > 10**9 else LAW_URL).format(id=law_id)
+
+
+def parse_list_page(html: str) -> list[dict]:
+    """ردیف‌های جدول فهرست مصوبات (table.slwTable): [ردیف، عنوان+پیوند، تاریخ تصویب، مرجع تصویب]"""
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "html.parser")
+    rows = []
+    for tr in soup.select("table.slwTable tr"):
+        tds = tr.find_all("td")
+        if len(tds) < 4:
+            continue
+        a = tds[1].find("a", href=True)
+        m = _ID_IN_HREF.search(a["href"]) if a else None
+        if not m:
+            continue
+        clean = lambda el: re.sub(r"\s+", " ", el.get_text(" ", strip=True)).strip()  # noqa: E731
+        rows.append({"id": int(m.group(1)), "title": clean(tds[1]), "date": clean(tds[2]), "authority": clean(tds[3])})
+    return rows
 SEARCH_URL = (
     BASE
     + "/?CAPTION={q}&Zone=&IsTitleSearch=true&IsTitleSearch=false&IsTextSearch=false&_isLaw=true&_isLaw=false"
@@ -127,8 +162,8 @@ def cmd_search(args) -> None:
 
         soup = BeautifulSoup(html, "html.parser")
         rows = []
-        for a in soup.select("table[class*='border'] a[href*='IDS=']"):
-            m = re.search(r"IDS=(\d+)", a.get("href", ""))
+        for a in soup.select("table[class*='border'] a[href*='IDS='], table[class*='border'] a[href*='/Law/TreeText/']"):
+            m = _ID_IN_HREF.search(a.get("href", ""))
             if not m:
                 continue
             tr = a.find_parent("tr")
@@ -141,7 +176,7 @@ def cmd_search(args) -> None:
 
 
 def fetch_one(page, polite: Politeness, law_id: int, slug: str, unit: str = "ماده") -> Path:
-    url = LAW_URL.format(id=law_id)
+    url = law_url(law_id)
     print(f"→ {url}")
     html = goto_with_retry(page, url, polite, "div[id*='treeText'] p[class*='SecTex']")
     HTML_DIR.mkdir(parents=True, exist_ok=True)
@@ -180,14 +215,21 @@ def cmd_fetch(args) -> None:
 
 def cmd_catalog(args) -> None:
     catalog = json.loads((ROOT / "data" / "catalog.json").read_text(encoding="utf-8"))
-    targets = [
-        (e["source"]["qavaninId"], e["source"].get("file", f"{e['id']}.txt").removesuffix(".txt"), e.get("unit", "ماده"))
-        for e in catalog["laws"]
-        if e.get("source", {}).get("qavaninId")
-    ]
+    targets = []
+    for e in catalog["laws"]:
+        src = e.get("source", {})
+        if not src.get("qavaninId") or e.get("kind") in ("info", "collection") or src.get("segment"):
+            continue  # بخش‌های یک فایل (segment) همراه فایل اصلی دریافت می‌شوند
+        if src.get("kind") != "pending" and not args.all:
+            continue  # پیش‌فرض: فقط موارد «در انتظار»؛ متن قوانین موجود بازنویسی نمی‌شود
+        targets.append((int(src["qavaninId"]), src.get("file", f"{e['id']}.txt").removesuffix(".txt"), e.get("unit", "ماده")))
+    if args.only:
+        wanted = set(args.only.split(","))
+        targets = [t for t in targets if t[1] in wanted]
     if not targets:
-        print("هیچ قانونی با source.qavaninId در کاتالوگ نیست. ابتدا با دستور search شناسه را پیدا کنید.")
+        print("موردی برای دریافت نیست (source.qavaninId در کاتالوگ؛ برای قوانین موجود از --all استفاده کنید).")
         return
+    print(f"{len(targets)} مورد: " + "، ".join(t[1] for t in targets))
     pw, browser, context = open_browser(not args.headed)
     polite = Politeness(args.interval)
     polite.load_robots(context)
@@ -203,6 +245,81 @@ def cmd_catalog(args) -> None:
         pw.stop()
 
 
+def _first_row_id(page) -> int | None:
+    try:
+        href = page.eval_on_selector("table.slwTable tr td a[href]", "a => a.getAttribute('href')")
+    except Exception:  # noqa: BLE001
+        return None
+    m = _ID_IN_HREF.search(href or "")
+    return int(m.group(1)) if m else None
+
+
+def _wait_table_change(page, previous: int | None, timeout: float = 90.0) -> None:
+    """پس از تغییر صفحه (ارسال فرم یا AJAX) تا عوض‌شدن نخستین ردیف جدول صبر می‌کند."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        time.sleep(1.0)
+        try:
+            page.wait_for_selector("table.slwTable", timeout=5000)
+        except Exception:  # noqa: BLE001
+            continue
+        current = _first_row_id(page)
+        if current is not None and current != previous:
+            return
+    raise TimeoutError("جدول فهرست مصوبات به‌روز نشد")
+
+
+def cmd_list(args) -> None:
+    """برداشت فهرست همه مصوبات از صفحه اصلی سامانه (جدول table.slwTable با انتخاب‌گرهای PageSize/PageNumber)."""
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    state_file = out.with_suffix(".state.json")
+    state = json.loads(state_file.read_text(encoding="utf-8")) if state_file.exists() and not args.restart else {}
+    start = args.start_page or state.get("next_page", 1)
+    seen: set[int] = set()
+    if out.exists() and not args.restart:
+        with out.open(encoding="utf-8") as f:
+            next(f, None)
+            seen = {int(line.split("\t", 1)[0]) for line in f if line.strip()}
+    else:
+        out.write_text("\t".join(LIST_HEADER) + "\n", encoding="utf-8")
+
+    pw, browser, context = open_browser(not args.headed)
+    polite = Politeness(args.interval)
+    polite.load_robots(context)
+    page = context.new_page()
+    try:
+        goto_with_retry(page, LIST_URL, polite, "table.slwTable")
+        if args.page_size:
+            before = _first_row_id(page)
+            page.select_option("#PageSize", str(args.page_size))
+            try:
+                _wait_table_change(page, before, timeout=30)
+            except TimeoutError:
+                pass  # ممکن است نخستین ردیف تغییر نکند
+        options = page.eval_on_selector_all("#PageNumber option", "els => els.map(e => e.value).filter(Boolean)")
+        last = min(len(options), start + args.max_pages - 1) if args.max_pages else len(options)
+        print(f"صفحات {start} تا {last} از {len(options)} (اندازه صفحه {args.page_size})")
+        for n in range(start, last + 1):
+            polite.wait()
+            if n != 1 or start != 1:
+                before = _first_row_id(page)
+                page.select_option("#PageNumber", str(n))
+                _wait_table_change(page, before)
+            rows = parse_list_page(page.content())
+            fresh = [r for r in rows if r["id"] not in seen]
+            with out.open("a", encoding="utf-8") as f:
+                for r in fresh:
+                    f.write("\t".join(str(r[k]).replace("\t", " ") for k in ("id", "title", "date", "authority")) + "\n")
+                    seen.add(r["id"])
+            state_file.write_text(json.dumps({"next_page": n + 1, "rows": len(seen), "updatedAt": datetime.now(timezone.utc).isoformat()}) + "\n")
+            print(f"  صفحه {n}: {len(rows)} ردیف (+{len(fresh)} جدید) — مجموع {len(seen):,}")
+    finally:
+        browser.close()
+        pw.stop()
+    print(f"✓ {out} — اکنون: python scripts/pipeline/import_qavanin_list.py --tsv {out} --merge")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--interval", type=float, default=8.0, help="حداقل فاصله بین درخواست‌ها (ثانیه)")
@@ -211,13 +328,22 @@ def main() -> None:
     s = sub.add_parser("search", help="جستجوی عنوان و نمایش شناسه‌ها")
     s.add_argument("query")
     s.set_defaults(fn=cmd_search)
-    f = sub.add_parser("fetch", help="دریافت یک قانون با شناسه IDS")
+    f = sub.add_parser("fetch", help="دریافت یک قانون با شناسه سامانه (مثلاً 86054 = قانون تجارت الکترونیکی)")
     f.add_argument("id", type=int)
     f.add_argument("--slug", required=True, help="نام فایل خروجی (بدون پسوند)، مثلاً electronic-commerce")
     f.add_argument("--unit", default="ماده", help="واحد شماره‌گذاری: ماده یا اصل")
     f.set_defaults(fn=cmd_fetch)
-    c = sub.add_parser("catalog", help="دریافت همه قوانین دارای qavaninId در کاتالوگ")
+    c = sub.add_parser("catalog", help="دریافت متن موارد کاتالوگ دارای qavaninId (پیش‌فرض: فقط موارد در انتظار)")
+    c.add_argument("--all", action="store_true", help="به‌روزرسانی متن قوانین موجود نیز (بازنویسی فایل‌های خام)")
+    c.add_argument("--only", help="فقط این slugها (جداشده با کاما)، مثلاً electronic-commerce,vat")
     c.set_defaults(fn=cmd_catalog)
+    li = sub.add_parser("list", help="برداشت فهرست همه مصوبات (عنوان، تاریخ، مرجع) — قابل ادامه")
+    li.add_argument("--out", default=str(Path(__file__).resolve().parent / "output" / "qavanin-list.tsv"))
+    li.add_argument("--page-size", type=int, default=1000, help="تعداد ردیف هر صفحه در سامانه")
+    li.add_argument("--start-page", type=int, default=0, help="شروع از این صفحه (پیش‌فرض: ادامه از آخرین صفحه)")
+    li.add_argument("--max-pages", type=int, default=0, help="حداکثر صفحات در این اجرا (۰ = همه)")
+    li.add_argument("--restart", action="store_true", help="شروع از ابتدا و بازنویسی خروجی")
+    li.set_defaults(fn=cmd_list)
     args = ap.parse_args()
     args.fn(args)
 

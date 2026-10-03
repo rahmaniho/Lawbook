@@ -4,6 +4,7 @@
  * - پیش‌کش (precache) پوسته اپ برای اجرای کاملاً آفلاین
  * - محتوای قوانین (/data/*) در Cache Storage با راهبرد Stale-While-Revalidate
  * - manifest داده‌ها با Network-First (تشخیص سریع نسخه جدید، با پشتیبان آفلاین)
+ * - «فهرست مصوبات» (۱۵۰ هزار عنوان) با Cache-First پس از نخستین دریافت، آفلاین در دسترس است
  * - Background Sync / Periodic Background Sync برای به‌روزرسانی هفتگی داده‌ها در IndexedDB
  * - Push و اعلان تغییر مواد نشان‌شده
  */
@@ -31,6 +32,16 @@ registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html'), { deny
 registerRoute(
   ({ url }) => url.origin === self.location.origin && url.pathname === '/data/manifest.json',
   new NetworkFirst({ cacheName: 'law-manifest', networkTimeoutSeconds: 4 }),
+)
+
+// «فهرست مصوبات» سامانه ملی قوانین: manifest با Network-First؛ بسته‌های نسخه‌دار (hash در نام فایل) با Cache-First
+registerRoute(
+  ({ url }) => url.origin === self.location.origin && url.pathname === '/data/qindex/manifest.json',
+  new NetworkFirst({ cacheName: 'qindex-manifest', networkTimeoutSeconds: 4 }),
+)
+registerRoute(
+  ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/data/qindex/'),
+  new CacheFirst({ cacheName: 'qindex', plugins: [new ExpirationPlugin({ maxEntries: 400, purgeOnQuotaError: true })] }),
 )
 
 // محتوای قوانین: Stale-While-Revalidate

@@ -33,7 +33,7 @@ export default function DiyehPage() {
   }
 
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar back="/tools" title="محاسبه دیه" subtitle={`نرخ رسمی سال ${toFaDigits(rate.year)}`} />
       <main className="mx-auto max-w-3xl space-y-4 px-4 pt-4">
         <section className="space-y-4 rounded-card border border-line bg-surface p-4 shadow-soft">
@@ -94,7 +94,7 @@ export default function DiyehPage() {
                       <Link to={articlePath('penal-code', l.item.article)} className="text-brand underline">
                         ماده {toFaDigits(l.item.article)}
                       </Link>
-                      {l.halved && <span className="text-accent"> · نصف برای زن</span>}
+                      {l.halved && <span className="text-accent"> • نصف برای زن</span>}
                     </p>
                   </div>
                   <button
@@ -161,7 +161,7 @@ export default function DiyehPage() {
             <p className="text-[12px] opacity-85">{fmt(result.totalRial)} ریال</p>
             {result.fundRial > 0 && (
               <p className="mt-2 text-[12.5px] opacity-95">
-                سهم مرتکب/عاقله: {fmt(result.offenderRial / 10)} تومان · سهم صندوق: {fmt(result.fundRial / 10)} تومان
+                سهم مرتکب/عاقله: {fmt(result.offenderRial / 10)} تومان • سهم صندوق: {fmt(result.fundRial / 10)} تومان
               </p>
             )}
           </section>
@@ -187,7 +187,7 @@ export default function DiyehPage() {
                 <span className="min-w-0 flex-1">
                   <span className="block text-[14px] font-medium">{i.title}</span>
                   <span className="text-[12px] text-muted">
-                    <span dir="ltr">{toFaDigits(`${i.fraction[0]}/${i.fraction[1]}`)}</span> دیه کامل · ماده {toFaDigits(i.article)}
+                    <span dir="ltr">{toFaDigits(`${i.fraction[0]}/${i.fraction[1]}`)}</span> دیه کامل • ماده {toFaDigits(i.article)}
                   </span>
                 </span>
                 {items.some((s) => s.id === i.id) ? <span className="text-[12px] text-ok">افزوده شد</span> : <Plus className="h-4.5 w-4.5 text-brand" />}

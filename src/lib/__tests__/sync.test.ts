@@ -1,7 +1,8 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '../db'
-import { applyPatch, bookmarkedAmong, findPatchChain, installDataset, updateDataset } from '../data/sync'
+import { applyPatch, bookmarkedAmong, CATALOG_KEY, CATALOG_SCHEMA, checkForUpdate, findPatchChain, installDataset, updateDataset } from '../data/sync'
+import { getMeta, setMeta } from '../db'
 import type { DataManifest } from '../types'
 
 const law = {
@@ -107,6 +108,26 @@ describe('نصب و به‌روزرسانی داده‌ها', () => {
     expect(await db.articles.get('civil-code:1')).toBeUndefined()
     expect((await db.articles.get('civil-code:3'))?.text).toBe('ماده جدید')
     expect(await bookmarkedAmong(res.changedArticleIds)).toEqual(['civil-code:2'])
+  })
+
+  it('کاتالوگ ذخیره‌شده با قالب قدیمی (اپ نسخه قبل) یک بار دوباره وارد می‌شود', async () => {
+    const qindex = { count: 3, latestDate: '1401/01/30', earliestYear: 1285, byType: { statute: 3 }, bytes: 1, transferBytes: 1, version: 'v' }
+    serve(manifestV1, {
+      'catalog.json': { schemaVersion: 1, hierarchy: [], categories: [], laws: [law], qindex },
+      'glossary.json': [],
+      'chunks/000.json': { laws: [{ ...law, toc, preamble: '' }], articles: [art('1', 'متن یک'), art('2', 'متن دو')] },
+    })
+    await installDataset()
+    expect((await getMeta<{ schema: number }>(CATALOG_KEY))?.schema).toBe(CATALOG_SCHEMA)
+    // شبیه‌سازی رکوردی که نسخه قبلی اپ (بدون schema و qindex) نوشته است
+    await setMeta(CATALOG_KEY, { hierarchy: [], categories: [], file: 'catalog.json' })
+    expect((await checkForUpdate()).available).toBe(true)
+    const res = await updateDataset()
+    expect(res.updated).toBe(false)
+    const cat = await getMeta<{ schema: number; qindex: typeof qindex }>(CATALOG_KEY)
+    expect(cat?.schema).toBe(CATALOG_SCHEMA)
+    expect(cat?.qindex.count).toBe(3)
+    expect((await checkForUpdate()).available).toBe(false)
   })
 
   it('applyPatch حذف قانون، مواد آن را هم حذف می‌کند', async () => {

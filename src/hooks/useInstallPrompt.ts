@@ -24,6 +24,17 @@ if (typeof window !== 'undefined') {
   })
 }
 
+/** رویداد beforeinstallprompt نگه‌داشته‌شده (برای تحویل به کامپوننت pwa-install) */
+export function getDeferredPrompt() {
+  return deferred
+}
+
+export function markInstalled() {
+  deferred = null
+  installed = true
+  refresh()
+}
+
 export function isIos() {
   const ua = navigator.userAgent
   return /iphone|ipad|ipod/i.test(ua) || (ua.includes('Macintosh') && navigator.maxTouchPoints > 1)

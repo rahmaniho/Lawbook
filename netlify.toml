@@ -5,6 +5,12 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# مسیرهای استاندارد ناموجود (مثلاً /.well-known/ai-catalog.json) نباید با صفحه SPA و وضعیت 200 پاسخ داده شوند
+[[redirects]]
+  from = "/.well-known/*"
+  to = "/index.html"
+  status = 404
+
 # مسیریابی SPA (فقط وقتی فایلی با این مسیر وجود نداشته باشد)
 [[redirects]]
   from = "/*"
@@ -25,6 +31,16 @@
   for = "/data/patches/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/data/qindex/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/data/qindex/manifest.json"
+  [headers.values]
+    Cache-Control = "no-cache"
 
 [[headers]]
   for = "/data/manifest.json"

@@ -40,6 +40,8 @@
   "rawFile": "data/raw/qavanin-text/penal-code.txt",
   "rawSha256": "abad038b1f5fb3cad2fbb55f3ace5859d197fa52912f9aaddf15522bf29c083d",
   "segment": null,
+  "qavaninId": 198907,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/198907",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

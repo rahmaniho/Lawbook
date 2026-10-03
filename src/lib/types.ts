@@ -81,6 +81,19 @@ export interface LawSource {
   snapshotDate?: string | null
   snapshotDateJalali?: string | null
   verification: 'source-copy' | 'verified' | 'pending' | 'info' | string
+  /** شناسه مصوبه در سامانه ملی قوانین و مقررات (qavanin.ir) */
+  qavaninId?: number | null
+  /** پیوند متن رسمی: https://qavanin.ir/Law/TreeText/{qavaninId} */
+  officialUrl?: string | null
+}
+
+/** عضو یک مجموعه (مثلاً قوانین برنامه‌های توسعه) */
+export interface LawMember {
+  title: string
+  qavaninId?: number
+  date?: string
+  authority?: string
+  note?: string
 }
 
 export interface Law {
@@ -103,6 +116,11 @@ export interface Law {
   expectedGaps?: { from: number; to: number; reason: string }[]
   expectedArticles?: number | null
   kind?: 'law' | 'collection' | 'info'
+  members?: LawMember[]
+  /** نمای فهرست مصوبات مرتبط (برای مجموعه‌هایی مانند آرای وحدت رویه و نظریات مشورتی) */
+  qindex?: { type: string; authority?: string }
+  /** متن این مورد با شماره‌گذاری دیگری در قانون دیگری موجود است */
+  seeAlso?: { lawId: string; key: string; label: string; offset?: number; max?: number }
   source: LawSource
   lastUpdated: string | null
   contentHash?: string
@@ -112,11 +130,20 @@ export interface Law {
   preamble?: string
 }
 
+export interface CategoryInfo {
+  id: CategoryId
+  title: string
+  icon: string
+  subtopics?: { title: string; laws: string[] }[]
+}
+
 export interface CatalogFile {
   schemaVersion: number
   hierarchy: { id: HierarchyId; rank: number; title: string; description: string }[]
-  categories: { id: CategoryId; title: string; icon: string }[]
+  categories: CategoryInfo[]
   laws: Law[]
+  /** خلاصه «فهرست مصوبات» سامانه ملی قوانین (src/lib/qindex) */
+  qindex?: import('./qindex/model').QIndexSummary
 }
 
 export interface GlossaryConcept {
@@ -234,6 +261,6 @@ export interface SearchResponse {
   total: number
   tookMs: number
   kind: 'keyword' | 'article' | 'phrase' | 'empty'
-  parsed?: { number?: number; suffix?: string; lawId?: string; lawTitle?: string; unit?: string }
+  parsed?: { number?: number; suffix?: string; lawId?: string; lawTitle?: string; unit?: string; redirectedFrom?: { lawId: string; number: number } }
   expandedWith?: string[]
 }

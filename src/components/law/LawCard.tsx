@@ -32,9 +32,12 @@ export function LawCard({ law, compact, className }: { law: Law; compact?: boole
               {toFaDigits(law.stats.articles)} {law.unit}
             </span>
           ) : (
-            <Badge tone="outline" className="py-0 text-[11px]">
-              {law.kind === 'info' ? 'توضیحی' : 'در انتظار ورود متن'}
-            </Badge>
+            <>
+              <Badge tone={law.seeAlso ? 'ok' : 'outline'} className="py-0 text-[11px]">
+                {law.seeAlso ? 'متن در قانون دیگر' : law.kind === 'info' ? 'توضیحی' : 'در انتظار ورود متن'}
+              </Badge>
+              {law.source?.officialUrl && !law.seeAlso && <span className="text-[11px]">پیوند متن رسمی</span>}
+            </>
           )}
         </span>
       </span>

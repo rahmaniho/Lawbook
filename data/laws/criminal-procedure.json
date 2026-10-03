@@ -38,6 +38,8 @@
   "rawFile": "data/raw/qavanin-text/criminal-procedure.txt",
   "rawSha256": "fc89dec0b9aa94b59dac9a6616953ad34a1fb30dfaacdee47cb4319629a7a295",
   "segment": null,
+  "qavaninId": 226595,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/226595",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

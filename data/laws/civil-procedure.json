@@ -38,6 +38,8 @@
   "rawFile": "data/raw/qavanin-text/civil-procedure.txt",
   "rawSha256": "2f60f6accfe42014f1ae9c8a806e4928146b75cdf18eb73c0d0ba8c3a56af452",
   "segment": null,
+  "qavaninId": 85500,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/85500",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

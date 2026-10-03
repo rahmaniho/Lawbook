@@ -60,8 +60,8 @@ export default function InheritancePage() {
   const noClassOne = !input.father && !input.mother && input.sons + input.daughters === 0
 
   return (
-    <div className="pb-nav">
-      <AppBar back="/tools" title="محاسبه سهم‌الارث" subtitle="طبقه اول + همسر · قانون مدنی" />
+    <div className="pb-2">
+      <AppBar back="/tools" title="محاسبه سهم‌الارث" subtitle="طبقه اول + همسر • قانون مدنی" />
       <main className="mx-auto max-w-3xl space-y-4 px-4 pt-4">
         <section className="rounded-card border border-line bg-surface p-4 shadow-soft">
           <p className="mb-2 text-sm font-bold">متوفی</p>

@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import re
@@ -28,7 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from normalize_fa import normalize_display, tokenize_search  # noqa: E402
+from normalize_fa import normalize_display, normalize_search, tokenize_search  # noqa: E402
 from parse_qavanin import parse_qavanin_lines, split_segments  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -217,9 +218,11 @@ def build_law(entry: dict, catalog: dict, tagger: Tagger, raw_cache: dict, segme
             "rawFile": str(raw_path.relative_to(ROOT)),
             "rawSha256": sha256_bytes(raw_bytes),
             "segment": src.get("segment"),
+            "qavaninId": src.get("qavaninId"),
+            "officialUrl": QAVANIN_LAW_URL.format(id=src["qavaninId"]) if src.get("qavaninId") else None,
             "snapshotDate": snapshot,
             "snapshotDateJalali": jalali_str(snapshot) if snapshot else None,
-            "verification": "source-copy",
+            "verification": src.get("verification", "source-copy"),
         },
         "lastUpdated": jalali_str(snapshot) if snapshot else None,
         "contentHash": content_hash,
@@ -230,6 +233,49 @@ def build_law(entry: dict, catalog: dict, tagger: Tagger, raw_cache: dict, segme
     }
     _ = heading_by_id
     return law, warnings
+
+
+QAVANIN_LAW_URL = "https://qavanin.ir/Law/TreeText/{id}"
+QINDEX_FILE = DATA / "raw" / "qavanin-index" / "qavanin-list.tsv.gz"
+
+
+def _match_key(s: str) -> str:
+    return re.sub(r"[\s\u200c()«»\"'،,\-]+", "", normalize_search(s))
+
+
+def check_qavanin_ids(catalog: dict) -> list[str]:
+    """شناسه‌های سامانه ملی قوانین در کاتالوگ باید در فهرست عناوین موجود و با عنوان/تاریخ تصویب سازگار باشند."""
+    if not QINDEX_FILE.exists():
+        return ["فهرست عناوین سامانه (data/raw/qavanin-index/qavanin-list.tsv.gz) یافت نشد؛ شناسه‌ها بررسی نشدند."]
+    wanted: dict[int, list[tuple[str, str, str]]] = {}
+    for e in catalog["laws"]:
+        refs = [(e.get("source") or {}).get("qavaninId")] + [m.get("qavaninId") for m in e.get("members", [])]
+        for q in refs:
+            if q:
+                wanted.setdefault(int(q), []).append((e["id"], e["title"], (e.get("approval") or {}).get("date", "")))
+    found: dict[int, tuple[str, str]] = {}
+    with gzip.open(QINDEX_FILE, "rt", encoding="utf-8") as f:
+        next(f)
+        for line in f:
+            parts = line.rstrip("\n").split("\t")
+            q = int(parts[0])
+            if q in wanted:
+                found[q] = (parts[1], parts[2])
+    warnings = []
+    for q, owners in wanted.items():
+        if q not in found:
+            warnings.append(f"شناسه {q} ({owners[0][0]}) در فهرست عناوین سامانه نیست.")
+            continue
+        title, approved = found[q]
+        for law_id, law_title, law_date in owners:
+            if law_id == "development-plans":
+                continue
+            core = _match_key(law_title.split(" (")[0])
+            if core not in _match_key(title) and _match_key(title) not in _match_key(law_title):
+                warnings.append(f"عنوان {law_id} («{law_title}») با عنوان شناسه {q} در سامانه («{title}») هم‌خوان نیست.")
+            if law_date and approved and law_date != approved and law_id not in ("civil-code",):
+                warnings.append(f"تاریخ تصویب {law_id} ({law_date}) با سامانه ({approved}، شناسه {q}) متفاوت است.")
+    return warnings
 
 
 def main() -> int:
@@ -258,8 +304,13 @@ def main() -> int:
     raw_cache: dict = {}
     index = []
     report = ["# گزارش کنترل کیفیت داده‌ها", "", f"تاریخ ساخت: {date.today().isoformat()}", ""]
-    if alias_warnings:
-        report += ["## هشدارهای کاتالوگ", ""] + [f"- {w}" for w in alias_warnings] + [""]
+    qid_warnings = check_qavanin_ids(catalog)
+    if alias_warnings or qid_warnings:
+        report += ["## هشدارهای کاتالوگ", ""] + [f"- {w}" for w in alias_warnings + qid_warnings] + [""]
+    linked = sum(1 for e in catalog["laws"] if (e.get("source") or {}).get("qavaninId"))
+    report += [f"شناسه سامانه ملی قوانین (qavaninId) برای {linked} مورد از {len(catalog['laws'])} مورد کاتالوگ ثبت و با فهرست عناوین تطبیق داده شد.", ""]
+    for w in qid_warnings:
+        print("⚠", w)
     report += ["## خلاصه", "", "| قانون | مواد | تبصره | منسوخ | اصلاحی | عناوین | هشدار |", "|---|---:|---:|---:|---:|---:|---:|"]
     details = []
     total_articles = 0

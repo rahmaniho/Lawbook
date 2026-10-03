@@ -40,3 +40,9 @@
 قواعد دقیق: `scripts/pipeline/normalize_fa.py` (و معادل TypeScript در `src/lib/normalize.ts`).
 
 نشانگرهای ویراستاری سامانه مانند «(اصلاحی 1370/8/14)» و «[تبصره … الحاق شده است]» عیناً حفظ و در رابط کاربری متمایز نمایش داده می‌شوند.
+
+## فهرست عناوین مصوبات سامانه ملی قوانین
+
+`data/raw/qavanin-index/qavanin-list.tsv.gz` — عنوان، تاریخ و مرجع تصویب همه مصوبات ثبت‌شده در سامانه (۱۲۸۵ به بعد)، برداشت‌شده با
+خزنده متن‌باز abdal و بایگانی‌شده در مخزن [fatemeq/standard](https://github.com/fatemeq/standard) (کامیت `ade1c0ecb06ac7136f2cd41393f0e971c746615d`).
+جزئیات و محدودیت‌ها: [`data/raw/qavanin-index/SOURCE.md`](raw/qavanin-index/SOURCE.md).

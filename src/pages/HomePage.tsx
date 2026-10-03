@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Calculator, ChevronLeft, Clock, Coins, QrCode, ScrollText, Sparkles } from 'lucide-react'
+import { Calculator, ChevronLeft, Clock, Coins, Library, QrCode, ScrollText, Sparkles } from 'lucide-react'
 import { AppBar } from '../components/layout/AppBar'
 import { PullToRefresh } from '../components/layout/PullToRefresh'
 import { Disclaimer } from '../components/layout/Disclaimer'
@@ -12,7 +12,7 @@ import { ArticleText } from '../components/law/ArticleText'
 import { Skeleton } from '../components/ui/Skeleton'
 import { useCatalogMeta, useLaws } from '../hooks/useLaws'
 import { db } from '../lib/db'
-import { refreshData, useDataState } from '../lib/data/store'
+import { refreshData, useDataSelector } from '../lib/data/store'
 import { useSettings } from '../lib/settings'
 import { toFaDigits } from '../lib/normalize'
 import { jalaliDate } from '../lib/format'
@@ -31,9 +31,9 @@ export default function HomePage() {
   const navigate = useNavigate()
   const laws = useLaws()
   const catalog = useCatalogMeta()
-  const data = useDataState()
+  const phase = useDataSelector((s) => s.state)
   const settings = useSettings()
-  const ready = data.state === 'ready'
+  const ready = phase === 'ready'
 
   const featured = useMemo(() => (laws ?? []).filter((l) => l.featured && l.available).slice(0, 10), [laws])
   const counts = useMemo(() => {
@@ -66,7 +66,7 @@ export default function HomePage() {
   }, [ready, today])
 
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar
         title={
           <span className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export default function HomePage() {
                       <span className="block text-[14px] font-bold leading-6">{l.shortTitle}</span>
                       <span className="text-[11.5px] text-muted">
                         {toFaDigits(l.stats.articles)} {l.unit}
-                        {l.approval?.year ? ` · ${toFaDigits(l.approval.year)}` : ''}
+                        {l.approval?.year ? ` • ${toFaDigits(l.approval.year)}` : ''}
                       </span>
                     </span>
                   </Link>
@@ -145,7 +145,7 @@ export default function HomePage() {
             )}
           </section>
 
-          {(daily === undefined || (daily === null && (data.state === 'installing' || data.state === 'checking'))) && (
+          {(daily === undefined || (daily === null && (phase === 'installing' || phase === 'checking'))) && (
             <Skeleton className="h-[236px] rounded-card" />
           )}
           {daily && (
@@ -205,6 +205,22 @@ export default function HomePage() {
             </section>
           )}
 
+          <Link
+            to="/enactments"
+            className="flex h-[76px] items-center gap-3 rounded-card border border-brand/25 bg-brand-soft/50 px-4 shadow-soft active:scale-[0.99]"
+          >
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand text-brand-contrast">
+              <Library className="h-5.5 w-5.5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[15px] font-extrabold leading-7">فهرست همه مصوبات</span>
+              <span className="block truncate text-[12px] text-muted">
+                {catalog?.qindex ? `${toFaDigits(catalog.qindex.count.toLocaleString('fa-IR'))} عنوان سامانه ملی قوانین` : 'عناوین سامانه ملی قوانین'} • جستجو در عنوان‌ها
+              </span>
+            </span>
+            <ChevronLeft className="h-5 w-5 shrink-0 text-muted" />
+          </Link>
+
           <section aria-labelledby="tools">
             <h2 id="tools" className="mb-3 text-[17px] font-extrabold">
               ابزارها
@@ -229,7 +245,7 @@ export default function HomePage() {
 
           <Link to="/about" className="flex items-center gap-3 rounded-2xl bg-surface-2/70 p-3.5 text-[13px]">
             <ScrollText className="h-5 w-5 text-brand" />
-            <span className="flex-1">منابع، پوشش قوانین و تاریخ به‌روزرسانی</span>
+            <span className="flex-1">درباره ما، منابع، پوشش قوانین و تاریخ به‌روزرسانی</span>
             <ChevronLeft className="h-4 w-4 text-muted" />
           </Link>
 

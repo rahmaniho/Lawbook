@@ -1,11 +1,13 @@
 import { Link } from 'react-router'
-import { CheckCircle2, Clock3, ExternalLink, Database, ShieldCheck, Scale } from 'lucide-react'
+import { BadgeCheck, CheckCircle2, ChevronLeft, Clock3, ExternalLink, Database, Library, ShieldCheck, Scale } from 'lucide-react'
 import { AppBar } from '../components/layout/AppBar'
 import { Disclaimer } from '../components/layout/Disclaimer'
-import { useLaws } from '../hooks/useLaws'
+import { useCatalogMeta, useLaws } from '../hooks/useLaws'
+import { Q_TYPES } from '../lib/qindex/model'
 import { useDataState } from '../lib/data/store'
 import { toFaDigits } from '../lib/normalize'
 import { lawPath, cn } from '../lib/utils'
+import { CREDITS } from '../lib/credits'
 
 const CHECKLIST: { title: string; laws: string[] }[] = [
   { title: 'قانون اساسی (۱۷۷ اصل)', laws: ['constitution'] },
@@ -36,14 +38,16 @@ const SOURCES = [
 
 export default function AboutPage() {
   const laws = useLaws()
+  const catalog = useCatalogMeta()
+  const qindex = catalog?.qindex
   const data = useDataState()
   const byId = new Map((laws ?? []).map((l) => [l.id, l]))
   const available = (laws ?? []).filter((l) => l.available)
   const snapshot = available.find((l) => l.source?.snapshotDateJalali)?.source
 
   return (
-    <div className="pb-nav">
-      <AppBar back title="درباره و منابع" />
+    <div className="pb-2">
+      <AppBar back title="درباره ما" subtitle="اعتبار، منابع و پوشش قوانین" />
       <main className="mx-auto max-w-3xl space-y-5 px-4 pt-4">
         <section className="rounded-card border border-line bg-surface p-5 shadow-soft">
           <div className="flex items-center gap-3">
@@ -67,6 +71,28 @@ export default function AboutPage() {
               <p className="text-[11px] text-muted">نسخه داده</p>
             </div>
           </div>
+        </section>
+
+        <section aria-labelledby="credits-title" className="rounded-card border border-brand/25 bg-brand-soft/50 p-4 shadow-soft">
+          <h2 id="credits-title" className="mb-2 flex items-center gap-2 font-extrabold">
+            <BadgeCheck className="h-5 w-5 text-brand" /> اعتبار و منبع
+          </h2>
+          <p className="text-[14px] leading-7">{CREDITS.statement}</p>
+          <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-2xl bg-surface p-3">
+              <dt className="text-[12px] text-muted">{CREDITS.compiler.role}</dt>
+              <dd className="mt-0.5 font-bold leading-7">{CREDITS.compiler.name}</dd>
+            </div>
+            <div className="rounded-2xl bg-surface p-3">
+              <dt className="text-[12px] text-muted">{CREDITS.developer.role}</dt>
+              <dd className="mt-0.5 font-bold leading-7">
+                {CREDITS.developer.name} —{' '}
+                <a href={CREDITS.developer.url} target="_blank" rel="noopener" className="text-brand-strong underline underline-offset-4" dir="ltr">
+                  {CREDITS.developer.url}
+                </a>
+              </dd>
+            </div>
+          </dl>
         </section>
 
         <Disclaimer />
@@ -93,7 +119,7 @@ export default function AboutPage() {
                         to={lawPath(l!.id)}
                         className={cn('rounded-full px-2.5 py-0.5 text-[11.5px]', l!.available ? 'bg-ok-soft text-ok' : 'bg-surface-2 text-muted')}
                       >
-                        {l!.shortTitle} {l!.available ? `· ${toFaDigits(l!.stats.articles)}` : '· در انتظار'}
+                        {l!.shortTitle} {l!.available ? `• ${toFaDigits(l!.stats.articles)}` : '• در انتظار'}
                       </Link>
                     ))}
                   </div>
@@ -104,6 +130,36 @@ export default function AboutPage() {
           <p className="mt-3 text-[12px] leading-6 text-muted">
             موارد «در انتظار» با ابزار برداشت (scripts/scraper) از سامانه ملی قوانین قابل دریافت‌اند و پس از کنترل کیفیت در نسخه بعدی داده منتشر می‌شوند. هیچ
             متنی بدون منبع معتبر وارد اپلیکیشن نمی‌شود.
+          </p>
+        </section>
+
+        <section className="rounded-card border border-line bg-surface p-4 text-[13.5px] leading-7 shadow-soft">
+          <h2 className="mb-2 flex items-center gap-2 font-extrabold">
+            <Library className="h-5 w-5 text-brand" /> فهرست همه مصوبات سامانه ملی قوانین
+          </h2>
+          <p>
+            عنوان، تاریخ و مرجع تصویب <b>{qindex ? toFaDigits(qindex.count.toLocaleString('fa-IR')) : '—'}</b> مصوبه ثبت‌شده در سامانه ملی قوانین و مقررات، از
+            {qindex ? ` ${toFaDigits(qindex.earliestYear)} ` : ' ۱۲۸۵ '}تا آخرین مصوبه فهرست ({qindex ? toFaDigits(qindex.latestDate) : '—'})، در اپ قابل جستجوست و برای
+            هر مورد پیوند متن رسمی در سامانه نمایش داده می‌شود. این فهرست شامل متن مصوبات نیست؛ متن کامل فقط برای قوانین جدول بالا در اپ موجود است.
+          </p>
+          {qindex && (
+            <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {Q_TYPES.filter((t) => qindex.byType[t.id]).map((t) => (
+                <li key={t.id}>
+                  <Link to={`/enactments?t=${t.id}`} className="block rounded-xl bg-surface-2 px-3 py-2">
+                    <span className="block text-[15px] font-black text-brand-strong">{toFaDigits(qindex.byType[t.id]!.toLocaleString('fa-IR'))}</span>
+                    <span className="block text-[11.5px] leading-5 text-muted">{t.short}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link to="/enactments" className="mt-3 flex items-center justify-between rounded-xl border border-line px-3 py-2 font-semibold text-brand-strong">
+            باز کردن فهرست مصوبات <ChevronLeft className="h-4 w-4" />
+          </Link>
+          <p className="mt-2 text-[12px] leading-6 text-muted">
+            منشأ: فهرست مصوبات سامانه ملی قوانین (qavanin.ir) که با خزنده متن‌باز abdal برداشت و در مخزن fatemeq/standard بایگانی شده است. مصوبات پس از تاریخ
+            آخرین مصوبه فهرست، با فرمان list ابزار برداشت از شبکه داخل ایران افزوده می‌شوند.
           </p>
         </section>
 
@@ -151,7 +207,10 @@ export default function AboutPage() {
 
         <section className="rounded-card border border-line bg-surface p-4 text-[12.5px] leading-6 text-muted shadow-soft">
           <h2 className="mb-1 font-bold text-fg">مجوزها</h2>
-          <p>قلم وزیرمتن (SIL OFL 1.1) — قلم Noto Naskh Arabic (SIL OFL 1.1) — React، Dexie، MiniSearch، Workbox، framer-motion، lucide (MIT/Apache/ISC).</p>
+          <p>
+            قلم وزیرمتن (SIL OFL 1.1) — قلم Noto Naskh Arabic (SIL OFL 1.1) — React، Dexie، MiniSearch، Workbox، framer-motion، lucide، pwa-install، Lit
+            (MIT/Apache/ISC/BSD).
+          </p>
         </section>
       </main>
     </div>

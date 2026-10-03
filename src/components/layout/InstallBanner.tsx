@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
 import { Download, Share, PlusSquare, X } from 'lucide-react'
 import { isIos, promptInstall, useInstallPrompt } from '../../hooks/useInstallPrompt'
+import { openInstallDialog } from '../../lib/pwa-install'
 import { getSettings, updateSettings } from '../../lib/settings'
-import { useDataState } from '../../lib/data/store'
+import { useDataSelector } from '../../lib/data/store'
 import { Button } from '../ui/Button'
 import { Sheet } from '../ui/Sheet'
 
@@ -12,19 +13,19 @@ const SNOOZE = 1000 * 60 * 60 * 24 * 10
 /** بنر نصب (Add to Home Screen) برای اندروید/دسکتاپ و راهنمای iOS */
 export function InstallBanner() {
   const { canPrompt, installed } = useInstallPrompt()
-  const data = useDataState()
+  const phase = useDataSelector((s) => s.state)
   const [visible, setVisible] = useState(false)
   const [iosHelp, setIosHelp] = useState(false)
   const ios = typeof navigator !== 'undefined' && isIos()
 
   useEffect(() => {
-    if (installed || data.state !== 'ready') return
+    if (installed || phase !== 'ready') return
     const dismissed = getSettings().installDismissedAt
     if (dismissed && Date.now() - dismissed < SNOOZE) return
     if (!canPrompt && !ios) return
     const t = setTimeout(() => setVisible(true), 6000)
     return () => clearTimeout(t)
-  }, [canPrompt, installed, ios, data.state])
+  }, [canPrompt, installed, ios, phase])
 
   const dismiss = () => {
     setVisible(false)
@@ -58,6 +59,11 @@ export function InstallBanner() {
               <Button
                 className="flex-1"
                 onClick={async () => {
+                  // پنجره نصب @khmyznikov/pwa-install (iOS، اندروید، دسکتاپ)؛ در صورت شکست، روش داخلی
+                  if (await openInstallDialog()) {
+                    setVisible(false)
+                    return
+                  }
                   if (canPrompt) {
                     const r = await promptInstall()
                     if (r !== 'unavailable') setVisible(false)

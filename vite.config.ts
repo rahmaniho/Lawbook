@@ -22,12 +22,30 @@ function preloadPersianFont(): Plugin {
   }
 }
 
+/** مسیرهای /.well-known/* ناموجود: 404 به‌جای صفحه SPA (مانند تنظیمات vercel.json/netlify.toml) */
+function wellKnown404(): Plugin {
+  const handler = (req: { url?: string }, res: { statusCode: number; end: (s?: string) => void }, next: () => void) => {
+    if (req.url?.startsWith('/.well-known/')) {
+      res.statusCode = 404
+      res.end('Not found')
+      return
+    }
+    next()
+  }
+  return {
+    name: 'well-known-404',
+    configureServer: (server) => void server.middlewares.use(handler),
+    configurePreviewServer: (server) => void server.middlewares.use(handler),
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [
+    wellKnown404(),
     preloadPersianFont(),
     react(),
     tailwindcss(),
@@ -38,12 +56,13 @@ export default defineConfig({
       registerType: 'prompt',
       injectRegister: false,
       manifestFilename: 'manifest.json',
-      includeAssets: ['icons/icon.svg', 'icons/apple-touch-icon.png', 'robots.txt'],
+      includeAssets: ['icons/icon.svg', 'icons/apple-touch-icon.png', 'robots.txt', 'llms.txt'],
       manifest: {
         id: '/',
         name: 'کتابچه قانون ایران',
         short_name: 'کتابچه قانون',
-        description: 'مرور و جستجوی آفلاین قوانین جمهوری اسلامی ایران؛ قانون اساسی، مدنی، مجازات، آیین دادرسی، تجارت، کار و …',
+        description:
+          'مرور و جستجوی آفلاین قوانین جمهوری اسلامی ایران؛ قانون اساسی، مدنی، مجازات، آیین دادرسی، تجارت، کار و … — جمع‌آوری و تدوین اطلاعات: وکیل پایه یک دادگستری لیلا آبکه؛ توسعه نرم‌افزار: کارن سافت (karen-soft.ir)',
         start_url: '/',
         scope: '/',
         display: 'standalone',
@@ -59,10 +78,18 @@ export default defineConfig({
           { src: '/icons/512.png', sizes: '512x512', type: 'image/png' },
           { src: '/icons/maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+        // تصاویر پنجره نصب غنی (Android/Chrome و گالری pwa-install) — در پیش‌کش SW نیستند
+        screenshots: [
+          { src: '/screenshots/home.webp', sizes: '780x1688', type: 'image/webp', form_factor: 'narrow', label: 'خانه کتابچه قانون' },
+          { src: '/screenshots/article.webp', sizes: '780x1688', type: 'image/webp', form_factor: 'narrow', label: 'متن اصل قانون اساسی' },
+          { src: '/screenshots/search.webp', sizes: '780x1688', type: 'image/webp', form_factor: 'narrow', label: 'جستجوی سریع در متن قوانین' },
+          { src: '/screenshots/enactments.webp', sizes: '780x1688', type: 'image/webp', form_factor: 'narrow', label: 'فهرست ۱۵۰ هزار مصوبه سامانه ملی قوانین' },
+        ],
         shortcuts: [
           { name: 'جستجوی قوانین', short_name: 'جستجو', url: '/search', icons: [{ src: '/icons/192.png', sizes: '192x192' }] },
           { name: 'نشان‌شده‌ها', short_name: 'نشان‌ها', url: '/bookmarks', icons: [{ src: '/icons/192.png', sizes: '192x192' }] },
           { name: 'قانون اساسی', short_name: 'قانون اساسی', url: '/law/constitution', icons: [{ src: '/icons/192.png', sizes: '192x192' }] },
+          { name: 'فهرست مصوبات', short_name: 'فهرست مصوبات', url: '/enactments', icons: [{ src: '/icons/192.png', sizes: '192x192' }] },
         ],
       },
       injectManifest: {

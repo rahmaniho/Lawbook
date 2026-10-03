@@ -11,13 +11,26 @@ export interface LawAliasInfo {
   aliases: string[]
   unit: string
   priority: number
+  /**
+   * قانونی که متنش با شماره‌گذاری دیگری در قانون دیگری درج شده است؛ مثلاً مواد ۱ تا ۵۶ «قانون جرایم رایانه‌ای»
+   * = مواد ۷۲۹ تا ۷۸۴ کتاب پنجم قانون مجازات اسلامی (طبق ماده ۷۸۳ همان متن).
+   */
+  redirect?: { lawId: string; offset: number; max: number }
 }
 
 export interface ParsedQuery {
   raw: string
   normalized: string
   kind: 'article' | 'phrase' | 'keyword' | 'empty'
-  article?: { unit?: string; number: number; suffix?: string; lawId?: string; lawHint?: string }
+  article?: {
+    unit?: string
+    number: number
+    suffix?: string
+    lawId?: string
+    lawHint?: string
+    /** شماره و قانون اصلی پیش از نگاشت (برای نمایش «ماده ۱ قانون جرایم رایانه‌ای = ماده ۷۲۹ …») */
+    redirectedFrom?: { lawId: string; number: number }
+  }
   phrase?: string
   terms: string[]
 }
@@ -52,10 +65,12 @@ function levenshtein(a: string, b: string, max = 2): number {
 export class LawResolver {
   private entries: { id: string; key: string; priority: number }[] = []
   private units = new Map<string, string>()
+  private redirects = new Map<string, NonNullable<LawAliasInfo['redirect']>>()
 
   constructor(laws: LawAliasInfo[]) {
     for (const l of laws) {
       this.units.set(l.id, l.unit)
+      if (l.redirect) this.redirects.set(l.id, l.redirect)
       const names = new Set<string>([l.title, l.shortTitle, ...l.aliases])
       for (const n of names) {
         const k = normalizeSearch(n).replace(/\s+/g, ' ').trim()
@@ -71,6 +86,10 @@ export class LawResolver {
 
   unitOf(id: string) {
     return this.units.get(id)
+  }
+
+  redirectOf(id: string) {
+    return this.redirects.get(id)
   }
 
   /** یافتن قانون از روی بخشی از عنوان/نام مستعار */
@@ -119,6 +138,12 @@ export function parseQuery(raw: string, resolver?: LawResolver): ParsedQuery {
       suffix = m ? `مکرر${m[1] ? ' ' + m[1] : ''}` : undefined
     }
     const u = unit ? (unit.startsWith('اصل') || unit === 'اصول' ? 'اصل' : 'ماده') : undefined
+    const redirect = lawId ? resolver?.redirectOf(lawId) : undefined
+    if (lawId && redirect) {
+      // شماره‌های قانون اصلی (۱ تا max) به شماره درج‌شده نگاشت می‌شوند؛ شماره‌های بزرگ‌تر همان شماره قانون مقصدند
+      const mapped = number <= redirect.max ? number + redirect.offset : number
+      return { unit: u, number: mapped, suffix, lawId: redirect.lawId, lawHint: hint || undefined, ...(mapped !== number ? { redirectedFrom: { lawId, number } } : {}) }
+    }
     return { unit: u, number, suffix, lawId: lawId ?? (u === 'اصل' && !hint ? 'constitution' : undefined), lawHint: hint || undefined }
   }
 

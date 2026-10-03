@@ -55,3 +55,28 @@ describe('parseQuery — عبارت و کلیدواژه', () => {
     expect(q.terms).toEqual(['مهریه'])
   })
 })
+
+describe('parseQuery — قانونی که در قانون دیگر درج شده (جرایم رایانه‌ای)', () => {
+  const r = new LawResolver([
+    { id: 'penal-code-tazirat', title: 'قانون مجازات اسلامی (کتاب پنجم - تعزیرات)', shortTitle: 'تعزیرات', aliases: ['تعزیرات'], unit: 'ماده', priority: 90 },
+    {
+      id: 'computer-crimes',
+      title: 'قانون جرایم رایانه‌ای',
+      shortTitle: 'جرایم رایانه‌ای',
+      aliases: ['جرایم رایانه ای', 'جرائم رایانه ای'],
+      unit: 'ماده',
+      priority: 58,
+      redirect: { lawId: 'penal-code-tazirat', offset: 728, max: 56 },
+    },
+  ])
+  it('ماده ۱ قانون جرایم رایانه‌ای = ماده ۷۲۹ تعزیرات (طبق ماده ۷۸۳)', () => {
+    const q = parseQuery('ماده ۱ قانون جرایم رایانه‌ای', r)
+    expect(q.kind).toBe('article')
+    expect(q.article).toMatchObject({ number: 729, lawId: 'penal-code-tazirat', redirectedFrom: { lawId: 'computer-crimes', number: 1 } })
+  })
+  it('شماره بزرگ‌تر از تعداد مواد قانون اصلی، همان شماره تعزیرات است', () => {
+    const q = parseQuery('ماده ۷۳۰ جرائم رایانه ای', r)
+    expect(q.article).toMatchObject({ number: 730, lawId: 'penal-code-tazirat' })
+    expect(q.article?.redirectedFrom).toBeUndefined()
+  })
+})

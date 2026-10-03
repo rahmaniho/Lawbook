@@ -33,14 +33,17 @@ function walk(dir) {
     return statSync(p).isDirectory() ? walk(p) : [p]
   })
 }
-let draw = 0, dgz = 0, dbr = 0
+const sizes = { law: [0, 0, 0], qindex: [0, 0, 0] }
 for (const p of walk(join(DIST, 'data')).filter((p) => p.endsWith('.json'))) {
   const b = readFileSync(p)
-  draw += b.length
-  dgz += gzipSync(b, { level: 9 }).length
-  dbr += br(b).length
+  const s = p.includes(`${join('data', 'qindex')}`) ? sizes.qindex : sizes.law
+  s[0] += b.length
+  s[1] += gzipSync(b, { level: 9 }).length
+  s[2] += br(b).length
 }
-console.log(`داده قوانین (JSON): خام ${kb(draw)} | gzip ${kb(dgz)} | brotli ${kb(dbr)}`)
+console.log(`داده قوانین (JSON، نصب آفلاین): خام ${kb(sizes.law[0])} | gzip ${kb(sizes.law[1])} | brotli ${kb(sizes.law[2])}`)
+if (sizes.qindex[0])
+  console.log(`فهرست مصوبات (JSON، دریافت در صورت نیاز): خام ${kb(sizes.qindex[0])} | gzip ${kb(sizes.qindex[1])} | brotli ${kb(sizes.qindex[2])}`)
 
 if (compress) {
   let n = 0

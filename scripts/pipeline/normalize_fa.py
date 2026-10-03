@@ -39,6 +39,7 @@ _DISPLAY_CHAR_MAP = str.maketrans(
         "\u0649": "\u06cc",  # ى → ی
         "\u0643": "\u06a9",  # ك → ک
         "\u06c1": "\u0647",  # ہ → ه
+        "\u06be": "\u0647",  # ھ (های دوچشم) → ه
         "\u0640": None,  # ـ کشیده
         "\ufeff": None,  # BOM
         "\u00ad": None,  # soft hyphen

@@ -16,6 +16,7 @@
 | فهرست‌های بلند | `@tanstack/react-virtual` (پنجره‌ای) | ارتفاع متغیر کارت‌ها (react-window برای ارتفاع ثابت مناسب‌تر است) |
 | Service Worker | vite-plugin-pwa (injectManifest) + Workbox 7 | precache پوسته، SWR محتوا، Background/Periodic Sync، Push |
 | قلم | `@fontsource-variable/vazirmatn` (خودمیزبان)، Noto Naskh (تنبل) | بدون وابستگی به CDN |
+| نصب (A2HS) | `@khmyznikov/pwa-install` (Web Component مبتنی بر Lit؛ بارگذاری تنبل) + بنر داخلی | راهنمای بومی iOS/iPadOS/macOS و مرورگرهای فاقد `beforeinstallprompt`، پنجره نصب غنی با تصاویر manifest |
 
 ## جریان داده
 
@@ -24,6 +25,20 @@
 3. **نصب در مرورگر** (`src/lib/data/sync.ts`): دریافت manifest ← کاتالوگ ← بسته‌ها یکی‌یکی (قابل ادامه پس از قطع اتصال) ← رکوردهای کامل `Article` در IndexedDB.
 4. **ایندکس جستجو** (`src/workers/search.worker.ts`): اگر ایندکس هم‌نسخه در جدول `searchIndex` باشد بارگذاری (~۱۵۰ms)، وگرنه ساخت (~۱٫۵s روی دسکتاپ) و ذخیره.
 5. **به‌روزرسانی**: مقایسه اثرانگشت؛ زنجیره patchها (JSON Patch) از نسخه فعلی تا آخرین؛ در نبود زنجیره، فقط قوانینی که بسته‌شان تغییر کرده دوباره دریافت می‌شوند. سپس مواد نشان‌شده تغییر‌یافته اعلان می‌شوند.
+
+6. **فهرست مصوبات** (`src/lib/qindex`، `src/workers/qindex.worker.ts`): عنوان، تاریخ و مرجع تصویب ۱۵۰٬۴۳۷ مصوبه سامانه ملی قوانین
+   از `data/raw/qavanin-index/qavanin-list.tsv.gz` در زمان build به ۵۷ بسته ستونی ≤۵۰۰KB (`public/data/qindex/`) تبدیل و بر اساس مرجع
+   تصویب در ۷ گروه سلسله‌مراتبی طبقه‌بندی می‌شود (`classifyEntry`). Worker فقط هنگام باز شدن صفحه «فهرست مصوبات» بسته‌ها را دریافت
+   می‌کند (Cache-First در Service Worker ← آفلاین)، کلید فشرده همه عنوان‌ها را در یک رشته نگه می‌دارد و با `indexOf` جستجو می‌کند
+   (۱۰ تا ۵۰ میلی‌ثانیه، بدون ایندکس سنگین)؛ دو دقیقه پس از خروج از صفحه، Worker و حافظه (~۵۰MB) آزاد می‌شود.
+
+## اعتبار، اسپلش و فوتر
+
+- متن اعتبار پروژه فقط در `src/lib/credits.ts` تعریف شده و در `AppFooter` (فوتر همه صفحات، در `RootLayout`) و صفحه «درباره ما» استفاده می‌شود.
+- صفحه اسپلش در خود `index.html` است تا از نخستین رنگ‌آمیزی (پیش از اجرای جاوااسکریپت) دیده شود؛ `src/lib/splash.ts` پس از آماده‌شدن
+  نخستین صفحه و حداقل ۱٫۳ ثانیه آن را محو می‌کند (ضربه = بستن زودتر). در هر نشست فقط یک بار (sessionStorage) نمایش داده می‌شود؛
+  `position: fixed` است و جابه‌جایی چیدمان (CLS) ایجاد نمی‌کند.
+- آزمون `src/lib/__tests__/credits.test.ts` یکسان‌بودن متن اسپلش، فوتر، درباره ما و manifest را بررسی می‌کند.
 
 ## مدل داده (Dexie)
 
@@ -54,6 +69,8 @@ db.version(1).stores({
 |---|---|
 | پوسته اپ (JS/CSS/HTML/قلم/آیکن) | Precache (Workbox) + مسیریابی SPA به `index.html` |
 | `/data/manifest.json` | Network-First (مهلت ۴ ثانیه) — تشخیص سریع نسخه جدید، پشتیبان آفلاین |
+| `/data/qindex/manifest.json` | Network-First (مهلت ۴ ثانیه) |
+| `/data/qindex/*` (بسته‌های فهرست مصوبات، نام هش‌دار) | **Cache-First** (پس از نخستین دریافت آفلاین) |
 | `/data/*` (کاتالوگ، بسته‌ها، patchها) | **Stale-While-Revalidate** + انقضا |
 | قلم/تصویر ثانویه | Cache-First |
 | `sync` (tag: `lawbook-update`) | به‌روزرسانی داده پس از برگشت اتصال |

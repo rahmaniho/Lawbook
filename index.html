@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>کتابچه قانون ایران</title>
     <meta name="description" content="مرور و جستجوی سریع و آفلاین قوانین جمهوری اسلامی ایران: قانون اساسی، مدنی، مجازات اسلامی، آیین دادرسی، تجارت، کار، خانواده و …" />
+    <meta name="author" content="جمع‌آوری و تدوین اطلاعات: وکیل پایه یک دادگستری لیلا آبکه — توسعه نرم‌افزار: کارن سافت (karen-soft.ir)" />
     <meta name="theme-color" content="#0f766e" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0b1513" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
@@ -25,8 +26,33 @@
           if (dark) document.documentElement.classList.add('dark')
           if (s.fontScale) document.documentElement.style.setProperty('--reader-size', s.fontScale + 'px')
         } catch (e) {}
+        // صفحه اسپلش فقط یک بار در هر نشست (هر بار اجرای اپ) نمایش داده می‌شود
+        try {
+          if (sessionStorage.getItem('kq:splash')) document.documentElement.classList.add('splash-off')
+          else sessionStorage.setItem('kq:splash', '1')
+        } catch (e) {}
       })()
     </script>
+    <style>
+      /* صفحه اسپلش — مستقل از CSS اصلی تا از نخستین رنگ‌آمیزی درست نمایش داده شود */
+      #splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:24px;padding:calc(env(safe-area-inset-top,0px) + 16vh) 20px calc(env(safe-area-inset-bottom,0px) + 24px);background:var(--bg,#f4f7f6);color:var(--text,#0e1d1a);font-family:'Vazirmatn Variable',Vazirmatn,Tahoma,system-ui,sans-serif;text-align:center;transition:opacity .35s ease,visibility .35s ease;-webkit-user-select:none;user-select:none}
+      .splash-off #splash{display:none}
+      #splash.splash-hide{opacity:0;visibility:hidden;pointer-events:none}
+      #splash .sp-logo{display:block;width:96px;height:96px;margin:0 auto;border-radius:26px;box-shadow:0 12px 32px -10px rgba(11,94,87,.45)}
+      #splash .sp-title{height:40px;margin:20px 0 0;font-size:25px;font-weight:800;line-height:40px;white-space:nowrap}
+      #splash .sp-sub{height:24px;margin:0;font-size:13.5px;line-height:24px;color:var(--muted,#5a6b67);white-space:nowrap}
+      #splash .sp-bar{width:120px;height:4px;margin:26px auto 0;border-radius:4px;background:var(--surface-3,#e3ebe9);overflow:hidden}
+      #splash .sp-bar i{display:block;width:40%;height:100%;border-radius:4px;background:var(--brand,#0f766e);animation:sp-load 1.1s ease-in-out infinite}
+      #splash .sp-credits{box-sizing:border-box;width:100%;max-width:380px;padding:12px 16px;border:1px solid var(--border,#dde6e4);border-radius:20px;background:var(--surface,#fff)}
+      #splash .sp-credits p{display:flex;flex-direction:column;margin:0}
+      #splash .sp-credits p+p{margin-top:8px;padding-top:8px;border-top:1px solid var(--border,#dde6e4)}
+      #splash .sp-role{height:22px;font-size:12px;line-height:22px;color:var(--muted,#5a6b67)}
+      #splash .sp-name{min-height:26px;font-size:14.5px;font-weight:700;line-height:26px}
+      #splash .sp-name a{color:var(--brand-strong,#0b5e57);text-decoration:none}
+      @keyframes sp-load{0%{transform:translateX(150%)}100%{transform:translateX(-250%)}}
+      @media (prefers-reduced-motion:reduce){#splash{transition:none}#splash .sp-bar i{width:100%;animation:none}}
+    </style>
+    <noscript><style>#splash{display:none}</style></noscript>
   </head>
   <body>
     <div id="root">
@@ -51,6 +77,26 @@
         <nav class="fixed inset-x-0 bottom-0 z-50 h-[calc(var(--nav-h)+var(--safe-bottom))] border-t border-line/70 bg-surface/90"></nav>
       </div>
     </div>
+    <!-- صفحه اسپلش (اعتبار و منبع پروژه) — پس از آماده‌شدن اپ با src/lib/splash.ts محو می‌شود -->
+    <div id="splash" role="status" aria-label="کتابچه قانون ایران — در حال بارگذاری">
+      <div>
+        <img class="sp-logo" src="/icons/icon.svg" alt="" width="96" height="96" />
+        <p class="sp-title">کتابچه قانون ایران</p>
+        <p class="sp-sub">قوانین جمهوری اسلامی ایران — سریع و آفلاین</p>
+        <div class="sp-bar" aria-hidden="true"><i></i></div>
+      </div>
+      <div class="sp-credits">
+        <p><span class="sp-role">جمع‌آوری و تدوین اطلاعات</span><span class="sp-name">وکیل پایه یک دادگستری لیلا آبکه</span></p>
+        <p><span class="sp-role">توسعه نرم‌افزار</span><span class="sp-name">کارن سافت — <a href="https://karen-soft.ir" target="_blank" rel="noopener">karen-soft.ir</a></span></p>
+      </div>
+    </div>
+    <script>
+      // اگر به هر دلیل اپ بارگذاری نشد، اسپلش برای همیشه صفحه را نپوشاند
+      setTimeout(function () {
+        var s = document.getElementById('splash')
+        if (s) s.className = 'splash-hide'
+      }, 7000)
+    </script>
     <noscript>برای استفاده از «کتابچه قانون» جاوااسکریپت را فعال کنید.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>

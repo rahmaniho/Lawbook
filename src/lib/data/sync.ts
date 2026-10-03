@@ -22,6 +22,8 @@ export const DATA_BASE = '/data/'
 export const META_KEY = 'dataset'
 export const GLOSSARY_KEY = 'glossary'
 export const CATALOG_KEY = 'catalog'
+/** نسخه قالب رکورد کاتالوگ در IndexedDB؛ با افزایش آن، کاتالوگ یک بار دوباره وارد می‌شود (۲: زیرموضوع‌ها و خلاصه فهرست مصوبات) */
+export const CATALOG_SCHEMA = 2
 export const CATALOG_LAWS_KEY = 'catalogLaws'
 
 export interface ImportProgress {
@@ -79,7 +81,7 @@ export function expandArticle(c: CompactArticle, law: Law, order: number, toc: M
     status: c.st,
     relatedArticles: c.r?.map((k) => `${law.id}:${k}`),
     keywords: c.kw ?? [],
-    sourceUrl: law.source?.url ?? undefined,
+    sourceUrl: law.source?.officialUrl ?? law.source?.url ?? undefined,
     approvalYear: law.approval?.year,
   }
 }
@@ -107,7 +109,10 @@ export async function importCatalog(manifest: DataManifest): Promise<CatalogFile
     if (stale.length) await db.laws.bulkDelete(stale)
     await db.meta.bulkPut([
       { key: GLOSSARY_KEY, value: glossary },
-      { key: CATALOG_KEY, value: { hierarchy: catalog.hierarchy, categories: catalog.categories, file: manifest.catalog } },
+      {
+        key: CATALOG_KEY,
+        value: { hierarchy: catalog.hierarchy, categories: catalog.categories, qindex: catalog.qindex, file: manifest.catalog, schema: CATALOG_SCHEMA },
+      },
       // فهرست سبک قوانین (بدون فهرست مطالب) برای صفحات فهرستی؛ نوشتن مواد باعث رندر مجدد آن‌ها نمی‌شود
       { key: CATALOG_LAWS_KEY, value: [...catalog.laws].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0)) },
     ])
@@ -261,7 +266,10 @@ export function findPatchChain(manifest: DataManifest, from: string): DataManife
 export async function checkForUpdate(): Promise<UpdateCheck> {
   const manifest = await fetchManifest()
   const meta = await getDatasetMeta()
-  const available = !meta || !meta.complete || meta.fingerprint !== manifest.fingerprint
+  const catalogMeta = await getMeta<{ schema?: number }>(CATALOG_KEY)
+  // قالب قدیمی رکورد کاتالوگ هم «به‌روزرسانی» حساب می‌شود (updateDataset فقط کاتالوگ را دوباره وارد می‌کند)
+  const staleCatalog = !!meta?.complete && (catalogMeta?.schema ?? 1) < CATALOG_SCHEMA
+  const available = !meta || !meta.complete || meta.fingerprint !== manifest.fingerprint || staleCatalog
   return {
     available,
     current: meta?.version,
@@ -350,6 +358,9 @@ export async function updateDataset(onProgress?: ProgressFn, manifestArg?: DataM
     await installDataset(onProgress)
     return { updated: true, to: manifest.version, changedArticleIds: [], method: 'install' }
   }
+  // داده‌ای که با نسخه قدیمی اپ به‌روز شده ممکن است کاتالوگ را با قالب قدیمی ذخیره کرده باشد
+  const catalogMeta = await getMeta<{ schema?: number; file?: string }>(CATALOG_KEY)
+  if ((catalogMeta?.schema ?? 1) < CATALOG_SCHEMA && meta.fingerprint === manifest.fingerprint) await importCatalog(manifest)
   if (meta.fingerprint === manifest.fingerprint) {
     return { updated: false, from: meta.version, to: manifest.version, changedArticleIds: [], method: 'none' }
   }

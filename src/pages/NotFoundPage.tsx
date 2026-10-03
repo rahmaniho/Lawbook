@@ -5,7 +5,7 @@ import { EmptyState } from '../components/ui/EmptyState'
 
 export default function NotFoundPage() {
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar back title="صفحه یافت نشد" />
       <EmptyState
         icon={<FileQuestion className="h-7 w-7" />}

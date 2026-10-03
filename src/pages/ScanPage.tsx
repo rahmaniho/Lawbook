@@ -58,7 +58,7 @@ export default function ScanPage() {
   }
 
   return (
-    <div className="pb-nav">
+    <div className="pb-2">
       <AppBar back="/tools" title="اسکن QR ماده" />
       <main className="mx-auto max-w-md px-4 pt-4">
         {state === 'unsupported' ? (

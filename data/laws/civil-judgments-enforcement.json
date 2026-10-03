@@ -35,6 +35,8 @@
   "rawFile": "data/raw/qavanin-text/civil-judgments-enforcement.txt",
   "rawSha256": "5f690a1378beea19903ff40c1eba978a95b18083c7b9f907fd99c4354a703beb",
   "segment": null,
+  "qavaninId": 83430,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/83430",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

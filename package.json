@@ -1,8 +1,17 @@
 {
   "name": "ketabche-ghanoon",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "کتابچه قانون ایران — PWA آفلاین برای مرور و جستجوی قوانین جمهوری اسلامی ایران",
+  "author": {
+    "name": "Karen Soft (کارن سافت)",
+    "url": "https://karen-soft.ir"
+  },
+  "contributors": [
+    {
+      "name": "لیلا آبکه — وکیل پایه یک دادگستری (جمع‌آوری و تدوین اطلاعات)"
+    }
+  ],
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -27,11 +36,13 @@
   "dependencies": {
     "@fontsource-variable/vazirmatn": "^5.3.0",
     "@fontsource/noto-naskh-arabic": "^5.3.0",
+    "@khmyznikov/pwa-install": "^0.7.0",
     "@tanstack/react-virtual": "^3.14.13",
     "clsx": "^2.1.1",
     "dexie": "^4.4.6",
     "dexie-react-hooks": "^4.4.0",
     "framer-motion": "^12.43.0",
+    "lit": "^3.3.3",
     "lucide-react": "^1.50.0",
     "minisearch": "^7.2.0",
     "react": "^19.3.0",

@@ -10,16 +10,102 @@
     { "id": "advisory", "rank": 7, "title": "نظریات مشورتی", "description": "نظریات اداره کل حقوقی قوه قضاییه؛ فاقد الزام قانونی ولی راهگشا در رویه." }
   ],
   "categories": [
-    { "id": "public", "title": "حقوق اساسی و عمومی", "icon": "landmark" },
-    { "id": "civil", "title": "حقوق مدنی", "icon": "scale" },
-    { "id": "criminal", "title": "حقوق کیفری", "icon": "gavel" },
-    { "id": "family", "title": "حقوق خانواده", "icon": "users" },
-    { "id": "commercial", "title": "حقوق تجارت", "icon": "briefcase" },
-    { "id": "labor", "title": "حقوق کار و تأمین اجتماعی", "icon": "hard-hat" },
-    { "id": "administrative", "title": "حقوق اداری و دیوان عدالت اداری", "icon": "building" },
-    { "id": "civil-procedure", "title": "آیین دادرسی مدنی", "icon": "file-text" },
-    { "id": "tax", "title": "حقوق مالی و مالیاتی", "icon": "receipt" },
-    { "id": "other", "title": "شهرداری، محیط زیست، مالکیت فکری، اوقاف و سایر", "icon": "layers" }
+    {
+      "id": "public",
+      "title": "حقوق عمومی و اساسی",
+      "icon": "landmark",
+      "subtopics": [
+        { "title": "قانون اساسی", "laws": ["constitution"] },
+        { "title": "انتخابات", "laws": ["elections-majlis", "elections-president"] },
+        { "title": "احزاب", "laws": ["political-parties"] },
+        { "title": "مطبوعات", "laws": ["press"] },
+        { "title": "شوراها", "laws": ["islamic-councils"] },
+        { "title": "سازمان‌های نظارتی", "laws": ["general-inspection", "audit-court"] }
+      ]
+    },
+    {
+      "id": "civil",
+      "title": "حقوق مدنی",
+      "icon": "scale",
+      "subtopics": [
+        { "title": "قانون مدنی", "laws": ["civil-code"] },
+        { "title": "روابط موجر و مستأجر", "laws": ["landlord-tenant-1376", "landlord-tenant-1356"] },
+        { "title": "ثبت اسناد و املاک", "laws": ["registration"] },
+        { "title": "مسئولیت مدنی", "laws": ["civil-liability"] }
+      ]
+    },
+    {
+      "id": "criminal",
+      "title": "حقوق کیفری",
+      "icon": "gavel",
+      "subtopics": [
+        { "title": "مجازات اسلامی ۱۳۹۲", "laws": ["penal-code", "penal-code-tazirat"] },
+        { "title": "آیین دادرسی کیفری", "laws": ["criminal-procedure"] },
+        { "title": "جرایم رایانه‌ای", "laws": ["computer-crimes"] },
+        { "title": "مواد مخدر", "laws": ["narcotics"] },
+        { "title": "ارتشاء و اختلاس", "laws": ["bribery-embezzlement"] }
+      ]
+    },
+    {
+      "id": "family",
+      "title": "حقوق خانواده",
+      "icon": "users",
+      "subtopics": [{ "title": "حمایت خانواده ۱۳۹۱ و آیین‌نامه", "laws": ["family-protection", "family-protection-regulation"] }, { "title": "حمایت از کودکان و نوجوانان", "laws": ["child-protection", "orphan-children-protection"] }]
+    },
+    {
+      "id": "commercial",
+      "title": "حقوق تجارت",
+      "icon": "briefcase",
+      "subtopics": [
+        { "title": "قانون تجارت و لایحه اصلاحی", "laws": ["commercial-code", "commercial-code-amendment-1347"] },
+        { "title": "تجارت الکترونیکی", "laws": ["electronic-commerce"] },
+        { "title": "اوراق بهادار", "laws": ["securities-market"] },
+        { "title": "بیمه", "laws": ["insurance", "central-insurance"] },
+        { "title": "چک", "laws": ["cheque"] }
+      ]
+    },
+    { "id": "labor", "title": "حقوق کار و تأمین اجتماعی", "icon": "hard-hat", "subtopics": [{ "title": "قانون کار ۱۳۶۹", "laws": ["labor"] }, { "title": "تأمین اجتماعی", "laws": ["social-security"] }] },
+    {
+      "id": "administrative",
+      "title": "حقوق اداری",
+      "icon": "building",
+      "subtopics": [
+        { "title": "دیوان عدالت اداری", "laws": ["administrative-court", "administrative-court-precedents"] },
+        { "title": "استخدام کشوری", "laws": ["civil-employment"] },
+        { "title": "تخلفات اداری", "laws": ["administrative-violations"] },
+        { "title": "مدیریت خدمات کشوری", "laws": ["civil-service-management"] }
+      ]
+    },
+    {
+      "id": "civil-procedure",
+      "title": "آیین دادرسی",
+      "icon": "file-text",
+      "subtopics": [
+        { "title": "آیین دادرسی مدنی", "laws": ["civil-procedure"] },
+        { "title": "اجرای احکام مدنی", "laws": ["civil-judgments-enforcement"] },
+        { "title": "شوراهای حل اختلاف", "laws": ["dispute-councils"] },
+        { "title": "اجرای محکومیت‌های مالی", "laws": ["financial-convictions"] }
+      ]
+    },
+    {
+      "id": "tax",
+      "title": "حقوق مالی و مالیاتی",
+      "icon": "receipt",
+      "subtopics": [{ "title": "مالیات‌های مستقیم", "laws": ["direct-taxes"] }, { "title": "ارزش افزوده", "laws": ["vat"] }, { "title": "بانکداری بدون ربا", "laws": ["interest-free-banking"] }]
+    },
+    {
+      "id": "other",
+      "title": "سایر",
+      "icon": "layers",
+      "subtopics": [
+        { "title": "شهرداری", "laws": ["municipality"] },
+        { "title": "محیط زیست", "laws": ["environment-protection"] },
+        { "title": "مالکیت فکری", "laws": ["copyright", "industrial-property"] },
+        { "title": "معادن", "laws": ["mines"] },
+        { "title": "اوقاف", "laws": ["endowments"] },
+        { "title": "بیمه اجباری", "laws": ["third-party-insurance"] }
+      ]
+    }
   ],
   "upstreams": {
     "legal_chatbot": {
@@ -48,7 +134,7 @@
       "featured": true,
       "approvalNote": "تصویب: همه‌پرسی ۱۱ و ۱۲ آذر ۱۳۵۸ — بازنگری: همه‌پرسی ۶ مرداد ۱۳۶۸",
       "description": "میثاق ملی؛ اصول کلی، حقوق ملت، اقتصاد، قوای سه‌گانه، رهبری و بازنگری.",
-      "source": { "kind": "qavanin-text", "file": "constitution.txt", "upstream": "legal_chatbot", "originalFile": "q0.txt" }
+      "source": { "kind": "qavanin-text", "file": "constitution.txt", "upstream": "legal_chatbot", "originalFile": "q0.txt", "qavaninId": 38162 }
     },
     {
       "id": "civil-code",
@@ -62,7 +148,7 @@
       "priority": 95,
       "featured": true,
       "description": "اموال و مالکیت، عقود و معاملات، الزامات خارج از قرارداد، ارث، وصیت، نکاح و طلاق، اشخاص و ادله اثبات دعوا.",
-      "source": { "kind": "qavanin-text", "file": "civil-code.txt", "upstream": "legal_chatbot", "originalFile": "q3.txt" }
+      "source": { "kind": "qavanin-text", "file": "civil-code.txt", "upstream": "legal_chatbot", "originalFile": "q3.txt", "qavaninId": 178971 }
     },
     {
       "id": "penal-code",
@@ -77,13 +163,13 @@
       "featured": true,
       "description": "کتاب اول تا چهارم: کلیات، حدود، قصاص و دیات (مصوب ۱۳۹۲ با اصلاحات بعدی).",
       "crossLinks": ["penal-code-tazirat", "criminal-procedure"],
-      "source": { "kind": "qavanin-text", "file": "penal-code.txt", "upstream": "legal_chatbot", "originalFile": "q2.txt" }
+      "source": { "kind": "qavanin-text", "file": "penal-code.txt", "upstream": "legal_chatbot", "originalFile": "q2.txt", "qavaninId": 198907 }
     },
     {
       "id": "penal-code-tazirat",
       "title": "قانون مجازات اسلامی (کتاب پنجم - تعزیرات و مجازات‌های بازدارنده)",
       "shortTitle": "تعزیرات",
-      "aliases": ["تعزیرات", "کتاب پنجم", "قانون تعزیرات", "کتاب تعزیرات", "بخش تعزیرات", "جرائم رایانه ای", "جرایم رایانه ای"],
+      "aliases": ["تعزیرات", "کتاب پنجم", "قانون تعزیرات", "کتاب تعزیرات", "بخش تعزیرات"],
       "hierarchy": "statute",
       "category": "criminal",
       "docType": "قانون",
@@ -94,13 +180,7 @@
       "approvalNote": "شامل فصل «جرائم رایانه‌ای» (الحاقی ۱۳۸۸) به‌عنوان مواد ۷۲۹ به بعد.",
       "description": "جرایم علیه امنیت، جعل، ارتشا و کلاهبرداری، جرایم علیه اشخاص و اموال، توهین و افترا، جرایم رایانه‌ای.",
       "crossLinks": ["penal-code"],
-      "source": {
-        "kind": "qavanin-text",
-        "file": "penal-code.txt",
-        "segment": { "start": "کتاب پنجم - تعزیرات", "end": null },
-        "upstream": "legal_chatbot",
-        "originalFile": "q2.txt"
-      }
+      "source": { "kind": "qavanin-text", "file": "penal-code.txt", "segment": { "start": "کتاب پنجم - تعزیرات", "end": null }, "upstream": "legal_chatbot", "originalFile": "q2.txt", "qavaninId": 83566 }
     },
     {
       "id": "criminal-procedure",
@@ -115,7 +195,7 @@
       "featured": true,
       "approvalNote": "به همراه بخش‌های هشتم تا دوازدهم الحاقی (دادرسی نیروهای مسلح، دادرسی الکترونیکی، جرایم رایانه‌ای و اشخاص حقوقی).",
       "description": "کشف جرم، تحقیقات مقدماتی، دادسرا، دادگاه‌ها، تجدیدنظر، اعاده دادرسی و اجرای احکام کیفری.",
-      "source": { "kind": "qavanin-text", "file": "criminal-procedure.txt", "upstream": "legal_chatbot", "originalFile": "q1.txt" }
+      "source": { "kind": "qavanin-text", "file": "criminal-procedure.txt", "upstream": "legal_chatbot", "originalFile": "q1.txt", "qavaninId": 226595 }
     },
     {
       "id": "civil-procedure",
@@ -129,7 +209,7 @@
       "priority": 87,
       "featured": true,
       "description": "صلاحیت، دادخواست، جلسه دادرسی، ادله اثبات، رأی، واخواهی، تجدیدنظر، فرجام، اعاده دادرسی و داوری.",
-      "source": { "kind": "qavanin-text", "file": "civil-procedure.txt", "upstream": "legal_chatbot", "originalFile": "q5.txt" }
+      "source": { "kind": "qavanin-text", "file": "civil-procedure.txt", "upstream": "legal_chatbot", "originalFile": "q5.txt", "qavaninId": 85500 }
     },
     {
       "id": "family-protection",
@@ -144,7 +224,7 @@
       "featured": true,
       "description": "دادگاه خانواده، مشاوره، ثبت نکاح و طلاق، مهریه، نفقه، حضانت و ملاقات فرزند.",
       "crossLinks": ["family-protection-regulation"],
-      "source": { "kind": "qavanin-text", "file": "family-protection.txt", "upstream": "legal_chatbot", "originalFile": "q8.txt" }
+      "source": { "kind": "qavanin-text", "file": "family-protection.txt", "upstream": "legal_chatbot", "originalFile": "q8.txt", "qavaninId": 187568 }
     },
     {
       "id": "commercial-code",
@@ -161,13 +241,7 @@
       "description": "تجار و معاملات تجارتی، دفاتر، شرکت‌ها، برات، سفته و چک، ورشکستگی، حق‌العمل‌کاری و ضمانت.",
       "crossLinks": ["commercial-code-amendment-1347", "cheque", "electronic-commerce"],
       "expectedGaps": [{ "from": 21, "to": 94, "reason": "مواد ۲۱ تا ۹۴ (شرکت‌های سهامی) با لایحه قانونی اصلاح قسمتی از قانون تجارت مصوب ۱۳۴۷ جایگزین شده است." }],
-      "source": {
-        "kind": "qavanin-text",
-        "file": "commercial-code.txt",
-        "excludeSegments": ["commercial-code-amendment-1347"],
-        "upstream": "legal_chatbot",
-        "originalFile": "q15.txt"
-      }
+      "source": { "kind": "qavanin-text", "file": "commercial-code.txt", "excludeSegments": ["commercial-code-amendment-1347"], "upstream": "legal_chatbot", "originalFile": "q15.txt", "qavaninId": 83457 }
     },
     {
       "id": "commercial-code-amendment-1347",
@@ -187,7 +261,8 @@
         "file": "commercial-code.txt",
         "segment": { "start": "لایحه قانونی اصلاح قسمتی از قانون تجارت", "end": "مبحث دوم - شرکت با مسئولیت محدود" },
         "upstream": "legal_chatbot",
-        "originalFile": "q15.txt"
+        "originalFile": "q15.txt",
+        "qavaninId": 83829
       }
     },
     {
@@ -201,7 +276,7 @@
       "unit": "ماده",
       "priority": 78,
       "description": "انواع چک، چک صیادی، صدور چک بلامحل، مسئولیت صادرکننده و ضمانت اجراها.",
-      "source": { "kind": "qavanin-text", "file": "cheque.txt", "upstream": "legal_chatbot", "originalFile": "q14.txt" }
+      "source": { "kind": "qavanin-text", "file": "cheque.txt", "upstream": "legal_chatbot", "originalFile": "q14.txt", "qavaninId": 83598 }
     },
     {
       "id": "labor",
@@ -215,7 +290,7 @@
       "priority": 84,
       "featured": true,
       "description": "قرارداد کار، شرایط کار، حداقل مزد، ساعات کار، مرخصی، حفاظت فنی، تشکل‌ها و مراجع حل اختلاف.",
-      "source": { "kind": "qavanin-text", "file": "labor.txt", "upstream": "legal_chatbot", "originalFile": "q16.txt" }
+      "source": { "kind": "qavanin-text", "file": "labor.txt", "upstream": "legal_chatbot", "originalFile": "q16.txt", "qavaninId": 83381 }
     },
     {
       "id": "administrative-court",
@@ -230,7 +305,7 @@
       "featured": true,
       "approvalNote": "در منابع حقوقی معمولاً به‌عنوان «قانون دیوان عدالت اداری مصوب ۱۳۹۲» (سال لازم‌الاجرا شدن) یاد می‌شود.",
       "description": "تشکیلات دیوان، صلاحیت، شعب، هیئت عمومی، آیین دادرسی و اجرای آرا.",
-      "source": { "kind": "qavanin-text", "file": "administrative-court.txt", "upstream": "legal_chatbot", "originalFile": "q13.txt" }
+      "source": { "kind": "qavanin-text", "file": "administrative-court.txt", "upstream": "legal_chatbot", "originalFile": "q13.txt", "qavaninId": 205259 }
     },
     {
       "id": "direct-taxes",
@@ -245,7 +320,7 @@
       "featured": true,
       "description": "مالیات بر دارایی و درآمد، املاک، حقوق، مشاغل، اشخاص حقوقی، ارث، تشخیص و وصول مالیات و مراجع رسیدگی.",
       "crossLinks": ["vat"],
-      "source": { "kind": "qavanin-text", "file": "direct-taxes.txt", "upstream": "legal_chatbot", "originalFile": "q10.txt" }
+      "source": { "kind": "qavanin-text", "file": "direct-taxes.txt", "upstream": "legal_chatbot", "originalFile": "q10.txt", "qavaninId": 83372 }
     },
     {
       "id": "civil-liability",
@@ -258,7 +333,7 @@
       "unit": "ماده",
       "priority": 76,
       "description": "جبران خسارت مادی و معنوی، مسئولیت کارفرما و دولت.",
-      "source": { "kind": "qavanin-text", "file": "civil-liability.txt", "upstream": "legal_chatbot", "originalFile": "q4.txt" }
+      "source": { "kind": "qavanin-text", "file": "civil-liability.txt", "upstream": "legal_chatbot", "originalFile": "q4.txt", "qavaninId": 84139 }
     },
     {
       "id": "registration",
@@ -271,7 +346,7 @@
       "unit": "ماده",
       "priority": 75,
       "description": "تشکیلات ثبت، ثبت عمومی و اجباری املاک، اعتراض، اسناد رسمی، دفاتر اسناد رسمی و جرایم ثبتی.",
-      "source": { "kind": "qavanin-text", "file": "registration.txt", "upstream": "legal_chatbot", "originalFile": "q11.txt" }
+      "source": { "kind": "qavanin-text", "file": "registration.txt", "upstream": "legal_chatbot", "originalFile": "q11.txt", "qavaninId": 83605 }
     },
     {
       "id": "civil-judgments-enforcement",
@@ -284,7 +359,7 @@
       "unit": "ماده",
       "priority": 74,
       "description": "مقدمات اجرا، توقیف اموال، مستثنیات دین، فروش اموال، اعتراض ثالث و هزینه‌های اجرایی.",
-      "source": { "kind": "qavanin-text", "file": "civil-judgments-enforcement.txt", "upstream": "legal_chatbot", "originalFile": "q6.txt" }
+      "source": { "kind": "qavanin-text", "file": "civil-judgments-enforcement.txt", "upstream": "legal_chatbot", "originalFile": "q6.txt", "qavaninId": 83430 }
     },
     {
       "id": "financial-convictions",
@@ -297,7 +372,7 @@
       "unit": "ماده",
       "priority": 73,
       "description": "اجرای احکام مالی، اعسار، حبس محکوم مالی، فهرست اموال و ممنوع‌الخروجی.",
-      "source": { "kind": "qavanin-text", "file": "financial-convictions.txt", "upstream": "legal_chatbot", "originalFile": "q7.txt" }
+      "source": { "kind": "qavanin-text", "file": "financial-convictions.txt", "upstream": "legal_chatbot", "originalFile": "q7.txt", "qavaninId": 249938 }
     },
     {
       "id": "dispute-councils",
@@ -318,12 +393,12 @@
       "shortTitle": "بیمه شخص ثالث",
       "aliases": ["قانون بیمه شخص ثالث", "بیمه شخص ثالث", "بیمه ثالث", "شخص ثالث", "بیمه اجباری"],
       "hierarchy": "statute",
-      "category": "civil",
+      "category": "other",
       "docType": "قانون",
       "unit": "ماده",
       "priority": 71,
       "description": "بیمه اجباری وسایل نقلیه، تعهدات بیمه‌گر، صندوق تأمین خسارت‌های بدنی و پرداخت خسارت.",
-      "source": { "kind": "qavanin-text", "file": "third-party-insurance.txt", "upstream": "legal_chatbot", "originalFile": "q18.txt" }
+      "source": { "kind": "qavanin-text", "file": "third-party-insurance.txt", "upstream": "legal_chatbot", "originalFile": "q18.txt", "qavaninId": 254237 }
     },
     {
       "id": "municipality",
@@ -336,9 +411,8 @@
       "unit": "ماده",
       "priority": 70,
       "description": "تأسیس شهرداری، انجمن شهر، وظایف شهردار، درآمدها، کمیسیون‌های ماده ۷۷ و ۱۰۰.",
-      "source": { "kind": "qavanin-text", "file": "municipality.txt", "upstream": "legal_chatbot", "originalFile": "q9.txt" }
+      "source": { "kind": "qavanin-text", "file": "municipality.txt", "upstream": "legal_chatbot", "originalFile": "q9.txt", "qavaninId": 83412 }
     },
-
     {
       "id": "sharia-standards",
       "title": "موازین شرع",
@@ -361,21 +435,526 @@
         { "lawId": "constitution", "key": "170" }
       ]
     },
-
-    { "id": "electronic-commerce", "title": "قانون تجارت الکترونیکی", "shortTitle": "تجارت الکترونیکی", "aliases": ["تجارت الکترونیکی", "قانون تجارت الکترونیک"], "hierarchy": "statute", "category": "commercial", "docType": "قانون", "unit": "ماده", "priority": 60, "approval": { "date": "1382/10/17", "authority": "مجلس شورای اسلامی" }, "expectedArticles": 81, "description": "داده‌پیام، امضای الکترونیکی، حمایت از مصرف‌کننده، حقوق مالکیت فکری در بستر مبادلات الکترونیکی.", "source": { "kind": "pending" } },
-    { "id": "family-protection-regulation", "title": "آیین‌نامه اجرایی قانون حمایت خانواده", "shortTitle": "آیین‌نامه حمایت خانواده", "aliases": ["آیین نامه حمایت خانواده", "آیین نامه اجرایی قانون حمایت خانواده"], "hierarchy": "regulation", "category": "family", "docType": "آیین‌نامه", "unit": "ماده", "priority": 59, "approval": { "authority": "رئیس قوه قضاییه" }, "description": "آیین‌نامه اجرایی قانون حمایت خانواده مصوب ۱۳۹۱.", "source": { "kind": "pending" } },
-    { "id": "vat", "title": "قانون مالیات بر ارزش افزوده", "shortTitle": "مالیات بر ارزش افزوده", "aliases": ["مالیات بر ارزش افزوده", "ارزش افزوده"], "hierarchy": "statute", "category": "tax", "docType": "قانون", "unit": "ماده", "priority": 58, "approval": { "year": 1400, "authority": "مجلس شورای اسلامی" }, "description": "قانون جدید مالیات بر ارزش افزوده (جایگزین قانون آزمایشی ۱۳۸۷).", "source": { "kind": "pending" } },
-    { "id": "social-security", "title": "قانون تأمین اجتماعی", "shortTitle": "تأمین اجتماعی", "aliases": ["قانون تامین اجتماعی", "تامین اجتماعی", "بیمه تامین اجتماعی"], "hierarchy": "statute", "category": "labor", "docType": "قانون", "unit": "ماده", "priority": 57, "approval": { "date": "1354/04/03", "authority": "مجلس شورای ملی" }, "description": "بیمه‌های اجتماعی، مستمری بازنشستگی، از کارافتادگی و بازماندگان.", "source": { "kind": "pending" } },
-    { "id": "civil-service-management", "title": "قانون مدیریت خدمات کشوری", "shortTitle": "مدیریت خدمات کشوری", "aliases": ["مدیریت خدمات کشوری", "قانون مدیریت خدمات کشوری"], "hierarchy": "statute", "category": "administrative", "docType": "قانون", "unit": "ماده", "priority": 56, "approval": { "year": 1386 }, "description": "استخدام، حقوق و مزایا، تکالیف کارمندان و ساختار دستگاه‌های اجرایی.", "source": { "kind": "pending" } },
-    { "id": "development-plans", "title": "قوانین برنامه‌های توسعه (اول تا هفتم)", "shortTitle": "برنامه‌های توسعه", "aliases": ["برنامه توسعه", "برنامه هفتم", "برنامه ششم", "قانون برنامه"], "hierarchy": "statute", "category": "public", "docType": "قانون", "unit": "ماده", "priority": 55, "description": "قوانین برنامه‌های پنج‌ساله توسعه و برنامه هفت‌ساله هفتم پیشرفت.", "source": { "kind": "pending" } },
-    { "id": "environment-protection", "title": "قانون حفاظت و بهسازی محیط زیست", "shortTitle": "محیط زیست", "aliases": ["محیط زیست", "قانون حفاظت و بهسازی محیط زیست"], "hierarchy": "statute", "category": "other", "docType": "قانون", "unit": "ماده", "priority": 54, "approval": { "date": "1353/03/28", "authority": "مجلس شورای ملی" }, "description": "سازمان حفاظت محیط زیست، مناطق حفاظت‌شده و پیشگیری از آلودگی.", "source": { "kind": "pending" } },
-    { "id": "copyright", "title": "قانون حمایت حقوق مؤلفان و مصنفان و هنرمندان", "shortTitle": "حقوق مؤلفان", "aliases": ["کپی رایت", "حق مولف", "حقوق مولفان", "مالکیت ادبی و هنری"], "hierarchy": "statute", "category": "other", "docType": "قانون", "unit": "ماده", "priority": 53, "approval": { "date": "1348/10/11", "authority": "مجلس شورای ملی" }, "description": "مالکیت ادبی و هنری، حقوق مادی و معنوی پدیدآورنده.", "source": { "kind": "pending" } },
-    { "id": "industrial-property", "title": "قانون ثبت اختراعات، طرح‌های صنعتی و علائم تجاری", "shortTitle": "اختراعات و علائم تجاری", "aliases": ["ثبت اختراع", "علائم تجاری", "علامت تجاری", "مالکیت صنعتی"], "hierarchy": "statute", "category": "other", "docType": "قانون", "unit": "ماده", "priority": 52, "approval": { "year": 1386 }, "description": "ثبت اختراع، طرح صنعتی، علامت و نام تجارتی و نشانه‌های جغرافیایی.", "source": { "kind": "pending" } },
-    { "id": "endowments", "title": "قانون تشکیلات و اختیارات سازمان حج و اوقاف و امور خیریه", "shortTitle": "اوقاف", "aliases": ["اوقاف", "وقف", "موقوفات"], "hierarchy": "statute", "category": "other", "docType": "قانون", "unit": "ماده", "priority": 51, "description": "اداره موقوفات و امور خیریه.", "source": { "kind": "pending" } },
-    { "id": "government-regulations", "title": "تصویب‌نامه‌ها و آیین‌نامه‌های هیئت وزیران", "shortTitle": "مصوبات هیئت وزیران", "aliases": ["تصویب نامه", "مصوبه هیئت وزیران", "آیین نامه"], "hierarchy": "regulation", "category": "administrative", "docType": "تصویب‌نامه", "unit": "ماده", "priority": 40, "kind": "collection", "description": "مجموعه مقررات دولتی موضوع اصل ۱۳۸ قانون اساسی.", "source": { "kind": "pending" } },
-    { "id": "local-council-resolutions", "title": "مصوبات شوراهای اسلامی شهر و روستا", "shortTitle": "مصوبات شوراها", "aliases": ["مصوبه شورای شهر", "شورای شهر"], "hierarchy": "local", "category": "other", "docType": "مصوبه شورا", "unit": "ماده", "priority": 39, "kind": "collection", "description": "مصوبات شوراهای محلی در حدود اختیارات قانونی.", "source": { "kind": "pending" } },
-    { "id": "supreme-court-precedents", "title": "آرای وحدت رویه هیئت عمومی دیوان عالی کشور", "shortTitle": "وحدت رویه دیوان عالی", "aliases": ["رای وحدت رویه", "وحدت رویه", "آرای وحدت رویه"], "hierarchy": "precedent", "category": "public", "docType": "رأی وحدت رویه", "unit": "رأی", "priority": 50, "kind": "collection", "description": "آرای لازم‌الاتباع هیئت عمومی دیوان عالی کشور (ماده ۴۷۱ قانون آیین دادرسی کیفری).", "related": [{ "lawId": "criminal-procedure", "key": "471" }], "source": { "kind": "pending" } },
-    { "id": "administrative-court-precedents", "title": "آرای وحدت رویه و ابطالی هیئت عمومی دیوان عدالت اداری", "shortTitle": "آرای هیئت عمومی دیوان عدالت", "aliases": ["رای هیئت عمومی دیوان عدالت اداری"], "hierarchy": "precedent", "category": "administrative", "docType": "رأی وحدت رویه", "unit": "رأی", "priority": 49, "kind": "collection", "description": "آرای وحدت رویه و ابطال مقررات دولتی.", "source": { "kind": "pending" } },
-    { "id": "advisory-opinions", "title": "نظریات مشورتی اداره کل حقوقی قوه قضاییه", "shortTitle": "نظریات مشورتی", "aliases": ["نظریه مشورتی", "نظریات مشورتی", "اداره حقوقی"], "hierarchy": "advisory", "category": "public", "docType": "نظریه مشورتی", "unit": "نظریه", "priority": 48, "kind": "collection", "description": "پاسخ‌های اداره کل حقوقی به استعلام‌های قضات و مراجع.", "source": { "kind": "pending" } }
+    {
+      "id": "electronic-commerce",
+      "title": "قانون تجارت الکترونیکی",
+      "shortTitle": "تجارت الکترونیکی",
+      "aliases": ["تجارت الکترونیکی", "قانون تجارت الکترونیک"],
+      "hierarchy": "statute",
+      "category": "commercial",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 60,
+      "approval": { "date": "1382/10/17", "authority": "مجلس شورای اسلامی" },
+      "expectedArticles": 81,
+      "description": "داده‌پیام، امضای الکترونیکی، حمایت از مصرف‌کننده، حقوق مالکیت فکری در بستر مبادلات الکترونیکی.",
+      "source": { "kind": "pending", "qavaninId": 86054 }
+    },
+    {
+      "id": "family-protection-regulation",
+      "title": "آیین‌نامه اجرایی قانون حمایت خانواده",
+      "shortTitle": "آیین‌نامه حمایت خانواده",
+      "aliases": ["آیین نامه حمایت خانواده", "آیین نامه اجرایی قانون حمایت خانواده"],
+      "hierarchy": "regulation",
+      "category": "family",
+      "docType": "آیین‌نامه",
+      "unit": "ماده",
+      "priority": 59,
+      "approval": { "date": "1393/11/27", "authority": "رئیس قوه قضائیه" },
+      "description": "آیین‌نامه اجرایی قانون حمایت خانواده مصوب ۱۳۹۱.",
+      "source": { "kind": "pending", "qavaninId": 246563 }
+    },
+    {
+      "id": "vat",
+      "title": "قانون مالیات بر ارزش افزوده",
+      "shortTitle": "مالیات بر ارزش افزوده",
+      "aliases": ["مالیات بر ارزش افزوده", "ارزش افزوده"],
+      "hierarchy": "statute",
+      "category": "tax",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 58,
+      "approval": { "date": "1400/03/02", "authority": "مجلس شورای اسلامی" },
+      "description": "قانون جدید مالیات بر ارزش افزوده (جایگزین قانون آزمایشی ۱۳۸۷).",
+      "source": { "kind": "pending", "qavaninId": 293665 }
+    },
+    {
+      "id": "social-security",
+      "title": "قانون تأمین اجتماعی",
+      "shortTitle": "تأمین اجتماعی",
+      "aliases": ["قانون تامین اجتماعی", "تامین اجتماعی", "بیمه تامین اجتماعی"],
+      "hierarchy": "statute",
+      "category": "labor",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 57,
+      "approval": { "date": "1354/04/03", "authority": "مجلس شورای ملی" },
+      "description": "بیمه‌های اجتماعی، مستمری بازنشستگی، از کارافتادگی و بازماندگان.",
+      "source": { "kind": "pending", "qavaninId": 83380 }
+    },
+    {
+      "id": "civil-service-management",
+      "title": "قانون مدیریت خدمات کشوری",
+      "shortTitle": "مدیریت خدمات کشوری",
+      "aliases": ["مدیریت خدمات کشوری", "قانون مدیریت خدمات کشوری"],
+      "hierarchy": "statute",
+      "category": "administrative",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 56,
+      "approval": { "date": "1386/07/08", "authority": "کمیسیون مجلس" },
+      "description": "استخدام، حقوق و مزایا، تکالیف کارمندان و ساختار دستگاه‌های اجرایی.",
+      "source": { "kind": "pending", "qavaninId": 119146 }
+    },
+    {
+      "id": "development-plans",
+      "title": "قوانین برنامه‌های توسعه (اول تا هفتم)",
+      "shortTitle": "برنامه‌های توسعه",
+      "aliases": ["برنامه توسعه", "برنامه هفتم", "برنامه ششم", "قانون برنامه"],
+      "hierarchy": "statute",
+      "category": "public",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 55,
+      "description": "قوانین برنامه‌های پنج‌ساله توسعه و برنامه هفت‌ساله هفتم پیشرفت.",
+      "source": { "kind": "pending" },
+      "members": [
+        { "title": "قانون برنامه اول توسعه اقتصادی ، اجتماعی، فرهنگی جمهوری اسلامی ایران", "qavaninId": 83473, "date": "1368/11/11", "authority": "مجلس شورای اسلامی" },
+        { "title": "قانون برنامه پنجساله دوم توسعه اقتصادی اجتماعی و فرهنگی جمهوری اسلامی ایران", "qavaninId": 83307, "date": "1373/09/20", "authority": "مجلس شورای اسلامی" },
+        { "title": "قانون برنامه سوم توسعه اقتصادی، اجتماعی و فرهنگی جمهوری اسلامی ایران", "qavaninId": 38175, "date": "1379/01/17", "authority": "مجلس شورای اسلامی" },
+        { "title": "قانون برنامه چهارم توسعه اقتصادی، اجتماعی و فرهنگی جمهوری اسلامی ایران", "qavaninId": 38177, "date": "1383/06/11", "authority": "مجلس شورای اسلامی" },
+        { "title": "قانون برنامه پنجساله پنجم توسعه جمهوری اسلامی ایران (1394 - 1390)", "qavaninId": 176762, "date": "1389/10/15", "authority": "مجلس شورای اسلامی" },
+        { "title": "قانون برنامه پنجساله ششم توسعه اقتصادی، اجتماعی و فرهنگی جمهوری اسلامی ایران (1400 - 1396)", "qavaninId": 257240, "date": "1395/12/14", "authority": "مجلس شورای اسلامی" },
+        { "title": "قانون برنامه پنج‌ساله هفتم پیشرفت جمهوری اسلامی ایران", "note": "پس از تاریخ آخرین مصوبه فهرست (۱۴۰۱/۰۱/۳۰) تصویب شده است؛ شناسه سامانه هنوز ثبت نشده است." }
+      ]
+    },
+    {
+      "id": "environment-protection",
+      "title": "قانون حفاظت و بهسازی محیط زیست",
+      "shortTitle": "محیط زیست",
+      "aliases": ["محیط زیست", "قانون حفاظت و بهسازی محیط زیست"],
+      "hierarchy": "statute",
+      "category": "other",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 54,
+      "approval": { "date": "1353/03/28", "authority": "مجلس شورای ملی" },
+      "description": "سازمان حفاظت محیط زیست، مناطق حفاظت‌شده و پیشگیری از آلودگی.",
+      "source": { "kind": "pending", "qavaninId": 83638 }
+    },
+    {
+      "id": "copyright",
+      "title": "قانون حمایت حقوق مؤلفان و مصنفان و هنرمندان",
+      "shortTitle": "حقوق مؤلفان",
+      "aliases": ["کپی رایت", "حق مولف", "حقوق مولفان", "مالکیت ادبی و هنری"],
+      "hierarchy": "statute",
+      "category": "other",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 53,
+      "approval": { "date": "1348/10/11", "authority": "مجلس شورای ملی" },
+      "description": "مالکیت ادبی و هنری، حقوق مادی و معنوی پدیدآورنده.",
+      "source": { "kind": "pending", "qavaninId": 83447 }
+    },
+    {
+      "id": "industrial-property",
+      "title": "قانون ثبت اختراعات، طرح‌های صنعتی و علائم تجاری",
+      "shortTitle": "اختراعات و علائم تجاری",
+      "aliases": ["ثبت اختراع", "علائم تجاری", "علامت تجاری", "مالکیت صنعتی"],
+      "hierarchy": "statute",
+      "category": "other",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 52,
+      "approval": { "date": "1386/08/07", "authority": "کمیسیون امور قضایی و حقوقی مجلس" },
+      "description": "ثبت اختراع، طرح صنعتی، علامت و نام تجارتی و نشانه‌های جغرافیایی.",
+      "source": { "kind": "pending", "qavaninId": 119638 }
+    },
+    {
+      "id": "endowments",
+      "title": "قانون تشکیلات و اختیارات سازمان حج و اوقاف و امور خیریه",
+      "shortTitle": "اوقاف",
+      "aliases": ["اوقاف", "وقف", "موقوفات"],
+      "hierarchy": "statute",
+      "category": "other",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 51,
+      "description": "اداره موقوفات و امور خیریه.",
+      "source": { "kind": "pending", "qavaninId": 83636 },
+      "approval": { "date": "1363/10/02", "authority": "مجلس شورای اسلامی" }
+    },
+    {
+      "id": "government-regulations",
+      "title": "تصویب‌نامه‌ها و آیین‌نامه‌های هیئت وزیران",
+      "shortTitle": "مصوبات هیئت وزیران",
+      "aliases": ["تصویب نامه", "مصوبه هیئت وزیران", "آیین نامه"],
+      "hierarchy": "regulation",
+      "category": "administrative",
+      "docType": "تصویب‌نامه",
+      "unit": "ماده",
+      "priority": 40,
+      "kind": "collection",
+      "description": "مجموعه مقررات دولتی موضوع اصل ۱۳۸ قانون اساسی.",
+      "source": { "kind": "pending" },
+      "qindex": { "type": "regulation" }
+    },
+    {
+      "id": "local-council-resolutions",
+      "title": "مصوبات شوراهای اسلامی شهر و روستا",
+      "shortTitle": "مصوبات شوراها",
+      "aliases": ["مصوبه شورای شهر", "شورای شهر"],
+      "hierarchy": "local",
+      "category": "other",
+      "docType": "مصوبه شورا",
+      "unit": "ماده",
+      "priority": 39,
+      "kind": "collection",
+      "description": "مصوبات شوراهای محلی در حدود اختیارات قانونی.",
+      "source": { "kind": "pending" },
+      "qindex": { "type": "local" }
+    },
+    {
+      "id": "supreme-court-precedents",
+      "title": "آرای وحدت رویه هیئت عمومی دیوان عالی کشور",
+      "shortTitle": "وحدت رویه دیوان عالی",
+      "aliases": ["رای وحدت رویه", "وحدت رویه", "آرای وحدت رویه"],
+      "hierarchy": "precedent",
+      "category": "public",
+      "docType": "رأی وحدت رویه",
+      "unit": "رأی",
+      "priority": 50,
+      "kind": "collection",
+      "description": "آرای لازم‌الاتباع هیئت عمومی دیوان عالی کشور (ماده ۴۷۱ قانون آیین دادرسی کیفری).",
+      "related": [{ "lawId": "criminal-procedure", "key": "471" }],
+      "source": { "kind": "pending" },
+      "qindex": { "type": "precedent", "authority": "دیوان عالی کشور" }
+    },
+    {
+      "id": "administrative-court-precedents",
+      "title": "آرای وحدت رویه و ابطالی هیئت عمومی دیوان عدالت اداری",
+      "shortTitle": "آرای هیئت عمومی دیوان عدالت",
+      "aliases": ["رای هیئت عمومی دیوان عدالت اداری"],
+      "hierarchy": "precedent",
+      "category": "administrative",
+      "docType": "رأی وحدت رویه",
+      "unit": "رأی",
+      "priority": 49,
+      "kind": "collection",
+      "description": "آرای وحدت رویه و ابطال مقررات دولتی.",
+      "source": { "kind": "pending" },
+      "qindex": { "type": "precedent", "authority": "دیوان عدالت اداری" }
+    },
+    {
+      "id": "advisory-opinions",
+      "title": "نظریات مشورتی اداره کل حقوقی قوه قضاییه",
+      "shortTitle": "نظریات مشورتی",
+      "aliases": ["نظریه مشورتی", "نظریات مشورتی", "اداره حقوقی"],
+      "hierarchy": "advisory",
+      "category": "public",
+      "docType": "نظریه مشورتی",
+      "unit": "نظریه",
+      "priority": 48,
+      "kind": "collection",
+      "description": "پاسخ‌های اداره کل حقوقی به استعلام‌های قضات و مراجع.",
+      "source": { "kind": "pending" },
+      "qindex": { "type": "advisory" }
+    },
+    {
+      "id": "landlord-tenant-1376",
+      "title": "قانون روابط موجر و مستأجر",
+      "shortTitle": "موجر و مستأجر ۱۳۷۶",
+      "aliases": ["موجر و مستاجر", "قانون روابط موجر و مستاجر", "اجاره", "تخلیه"],
+      "hierarchy": "statute",
+      "category": "civil",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 57,
+      "approval": { "date": "1376/05/26", "authority": "مجلس شورای اسلامی" },
+      "description": "روابط موجر و مستأجر در اجاره اماکن مسکونی، تجاری و اداری (مصوب ۱۳۷۶).",
+      "source": { "kind": "pending", "qavaninId": 83875 }
+    },
+    {
+      "id": "landlord-tenant-1356",
+      "title": "قانون روابط موجر و مستأجر",
+      "shortTitle": "موجر و مستأجر ۱۳۵۶",
+      "aliases": ["موجر و مستاجر ۱۳۵۶", "حق کسب و پیشه", "سرقفلی"],
+      "hierarchy": "statute",
+      "category": "civil",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 52,
+      "approval": { "date": "1356/05/02", "authority": "مجلس شورای ملی" },
+      "description": "قانون روابط موجر و مستأجر مصوب ۱۳۵۶ (حق کسب یا پیشه یا تجارت).",
+      "source": { "kind": "pending", "qavaninId": 83420 }
+    },
+    {
+      "id": "narcotics",
+      "title": "قانون مبارزه با مواد مخدر",
+      "shortTitle": "مبارزه با مواد مخدر",
+      "aliases": ["مواد مخدر", "قانون مواد مخدر", "اعتیاد"],
+      "hierarchy": "statute",
+      "category": "criminal",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 56,
+      "approval": { "date": "1367/08/03", "authority": "مجمع تشخیص مصلحت نظام" },
+      "description": "جرایم و مجازات‌های مربوط به مواد مخدر و روان‌گردان (با اصلاحات بعدی).",
+      "source": { "kind": "pending", "qavaninId": 83765 }
+    },
+    {
+      "id": "bribery-embezzlement",
+      "title": "قانون تشدید مجازات مرتکبین ارتشاء و اختلاس و کلاهبرداری",
+      "shortTitle": "تشدید مجازات ارتشاء و اختلاس",
+      "aliases": ["ارتشا", "رشوه", "اختلاس", "کلاهبرداری", "تشدید مجازات مرتکبین"],
+      "hierarchy": "statute",
+      "category": "criminal",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 56,
+      "approval": { "date": "1367/09/15", "authority": "مجمع تشخیص مصلحت نظام" },
+      "description": "مجازات ارتشاء، اختلاس و کلاهبرداری.",
+      "source": { "kind": "pending", "qavaninId": 83572 }
+    },
+    {
+      "id": "child-protection",
+      "title": "قانون حمایت از اطفال و نوجوانان",
+      "shortTitle": "حمایت از اطفال و نوجوانان",
+      "aliases": ["حمایت از کودکان", "اطفال و نوجوانان", "کودک آزاری"],
+      "hierarchy": "statute",
+      "category": "family",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 55,
+      "approval": { "date": "1399/02/23", "authority": "مجلس شورای اسلامی" },
+      "description": "حمایت از اطفال و نوجوانان در برابر آسیب و جرایم (مصوب ۱۳۹۹).",
+      "source": { "kind": "pending", "qavaninId": 286645 }
+    },
+    {
+      "id": "orphan-children-protection",
+      "title": "قانون حمایت از کودکان و نوجوانان بی‌سرپرست و بدسرپرست",
+      "shortTitle": "حمایت از کودکان بی‌سرپرست",
+      "aliases": ["کودکان بی سرپرست", "بدسرپرست", "سرپرستی"],
+      "hierarchy": "statute",
+      "category": "family",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 48,
+      "approval": { "date": "1392/06/31", "authority": "مجلس شورای اسلامی" },
+      "description": "سرپرستی و حمایت از کودکان و نوجوانان بی‌سرپرست و بدسرپرست.",
+      "source": { "kind": "pending", "qavaninId": 211417 }
+    },
+    {
+      "id": "elections-majlis",
+      "title": "قانون انتخابات مجلس شورای اسلامی",
+      "shortTitle": "انتخابات مجلس",
+      "aliases": ["انتخابات مجلس", "قانون انتخابات مجلس"],
+      "hierarchy": "statute",
+      "category": "public",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 50,
+      "approval": { "date": "1378/09/07", "authority": "مجلس شورای اسلامی" },
+      "description": "قانون انتخابات مجلس شورای اسلامی (با اصلاحات بعدی).",
+      "source": { "kind": "pending", "qavaninId": 85315 }
+    },
+    {
+      "id": "elections-president",
+      "title": "قانون انتخابات ریاست جمهوری اسلامی ایران",
+      "shortTitle": "انتخابات ریاست جمهوری",
+      "aliases": ["انتخابات ریاست جمهوری", "قانون انتخابات ریاست جمهوری"],
+      "hierarchy": "statute",
+      "category": "public",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 49,
+      "approval": { "date": "1364/04/05", "authority": "مجلس شورای اسلامی" },
+      "description": "قانون انتخابات ریاست جمهوری اسلامی ایران (با اصلاحات بعدی).",
+      "source": { "kind": "pending", "qavaninId": 83722 }
+    },
+    {
+      "id": "political-parties",
+      "title": "قانون نحوه فعالیت احزاب و گروههای سیاسی",
+      "shortTitle": "فعالیت احزاب",
+      "aliases": ["احزاب", "گروه های سیاسی"],
+      "hierarchy": "statute",
+      "category": "public",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 47,
+      "approval": { "date": "1394/11/04", "authority": "مجلس شورای اسلامی" },
+      "description": "نحوه فعالیت احزاب و گروه‌های سیاسی.",
+      "source": { "kind": "pending", "qavaninId": 255891 }
+    },
+    {
+      "id": "press",
+      "title": "قانون مطبوعات",
+      "shortTitle": "قانون مطبوعات",
+      "aliases": ["مطبوعات", "نشریات", "هیئت منصفه"],
+      "hierarchy": "statute",
+      "category": "public",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 48,
+      "approval": { "date": "1364/12/22", "authority": "مجلس شورای اسلامی" },
+      "description": "قانون مطبوعات (با اصلاحات بعدی).",
+      "source": { "kind": "pending", "qavaninId": 83554 }
+    },
+    {
+      "id": "islamic-councils",
+      "title": "قانون تشکیلات، وظایف و انتخابات شوراهای اسلامی کشور و انتخاب شهرداران",
+      "shortTitle": "شوراهای اسلامی کشور",
+      "aliases": ["شوراهای اسلامی", "شوراهای اسلامی کشور", "انتخاب شهرداران", "انتخابات شوراها"],
+      "hierarchy": "statute",
+      "category": "public",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 49,
+      "approval": { "date": "1375/03/01", "authority": "مجلس شورای اسلامی" },
+      "description": "تشکیلات، وظایف و انتخابات شوراهای اسلامی کشور و انتخاب شهرداران.",
+      "source": { "kind": "pending", "qavaninId": 83413 }
+    },
+    {
+      "id": "general-inspection",
+      "title": "قانون تشکیل سازمان بازرسی کل کشور",
+      "shortTitle": "سازمان بازرسی کل کشور",
+      "aliases": ["سازمان بازرسی", "بازرسی کل کشور"],
+      "hierarchy": "statute",
+      "category": "public",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 46,
+      "approval": { "date": "1360/07/19", "authority": "مجلس شورای اسلامی" },
+      "description": "قانون تشکیل سازمان بازرسی کل کشور (اصل ۱۷۴ قانون اساسی).",
+      "source": { "kind": "pending", "qavaninId": 252219 }
+    },
+    {
+      "id": "audit-court",
+      "title": "قانون دیوان محاسبات کشور",
+      "shortTitle": "دیوان محاسبات کشور",
+      "aliases": ["دیوان محاسبات"],
+      "hierarchy": "statute",
+      "category": "public",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 45,
+      "approval": { "date": "1361/11/11", "authority": "مجلس شورای اسلامی" },
+      "description": "قانون دیوان محاسبات کشور (اصول ۵۴ و ۵۵ قانون اساسی).",
+      "source": { "kind": "pending", "qavaninId": 83432 }
+    },
+    {
+      "id": "securities-market",
+      "title": "قانون بازار اوراق بهادار جمهوری اسلامی ایران",
+      "shortTitle": "بازار اوراق بهادار",
+      "aliases": ["بورس", "اوراق بهادار", "سازمان بورس"],
+      "hierarchy": "statute",
+      "category": "commercial",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 50,
+      "approval": { "date": "1384/09/01", "authority": "مجلس شورای اسلامی" },
+      "description": "قانون بازار اوراق بهادار جمهوری اسلامی ایران.",
+      "source": { "kind": "pending", "qavaninId": 87729 }
+    },
+    {
+      "id": "insurance",
+      "title": "قانون بیمه",
+      "shortTitle": "قانون بیمه",
+      "aliases": ["بیمه", "بیمه نامه", "بیمه گر"],
+      "hierarchy": "statute",
+      "category": "commercial",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 49,
+      "approval": { "date": "1316/02/07", "authority": "مجلس شورای ملی" },
+      "description": "قانون بیمه (عقد بیمه، تعهدات بیمه‌گر و بیمه‌گذار).",
+      "source": { "kind": "pending", "qavaninId": 84285 }
+    },
+    {
+      "id": "central-insurance",
+      "title": "قانون تأسیس بیمه مرکزی ایران و بیمه گری",
+      "shortTitle": "بیمه مرکزی و بیمه‌گری",
+      "aliases": ["بیمه مرکزی", "بیمه گری"],
+      "hierarchy": "statute",
+      "category": "commercial",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 44,
+      "approval": { "date": "1350/03/30", "authority": "مجلس شورای ملی" },
+      "description": "قانون تأسیس بیمه مرکزی ایران و بیمه‌گری.",
+      "source": { "kind": "pending", "qavaninId": 83353 }
+    },
+    {
+      "id": "civil-employment",
+      "title": "قانون استخدام کشوری",
+      "shortTitle": "استخدام کشوری",
+      "aliases": ["استخدام کشوری", "مستخدمین دولت"],
+      "hierarchy": "statute",
+      "category": "administrative",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 47,
+      "approval": { "date": "1345/03/31", "authority": "کمیسیون مشترک مجلسین" },
+      "description": "قانون استخدام کشوری.",
+      "source": { "kind": "pending", "qavaninId": 83378 }
+    },
+    {
+      "id": "administrative-violations",
+      "title": "قانون رسیدگی به تخلفات اداری",
+      "shortTitle": "رسیدگی به تخلفات اداری",
+      "aliases": ["تخلفات اداری", "هیات رسیدگی به تخلفات اداری"],
+      "hierarchy": "statute",
+      "category": "administrative",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 50,
+      "approval": { "date": "1372/09/07", "authority": "مجلس شورای اسلامی" },
+      "description": "رسیدگی به تخلفات اداری کارمندان دستگاه‌های اجرایی.",
+      "source": { "kind": "pending", "qavaninId": 83454 }
+    },
+    {
+      "id": "interest-free-banking",
+      "title": "قانون عملیات بانکی بدون ربا (بهره)",
+      "shortTitle": "عملیات بانکی بدون ربا",
+      "aliases": ["بانکداری بدون ربا", "عملیات بانکی", "ربا"],
+      "hierarchy": "statute",
+      "category": "tax",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 50,
+      "approval": { "date": "1362/06/08", "authority": "مجلس شورای اسلامی" },
+      "description": "قانون عملیات بانکی بدون ربا (بهره).",
+      "source": { "kind": "pending", "qavaninId": 83319 }
+    },
+    {
+      "id": "mines",
+      "title": "قانون معادن",
+      "shortTitle": "قانون معادن",
+      "aliases": ["معادن", "معدن", "پروانه بهره برداری"],
+      "hierarchy": "statute",
+      "category": "other",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 45,
+      "approval": { "date": "1377/03/23", "authority": "مجمع تشخیص مصلحت نظام" },
+      "description": "قانون معادن (با اصلاحات بعدی).",
+      "source": { "kind": "pending", "qavaninId": 84208 }
+    },
+    {
+      "id": "computer-crimes",
+      "title": "قانون جرایم رایانه‌ای",
+      "shortTitle": "جرایم رایانه‌ای",
+      "aliases": ["جرایم رایانه ای", "جرائم رایانه ای", "جرم رایانه ای", "قانون جرائم رایانه ای", "سایبری"],
+      "hierarchy": "statute",
+      "category": "criminal",
+      "docType": "قانون",
+      "unit": "ماده",
+      "priority": 58,
+      "approval": { "date": "1388/03/05", "authority": "مجلس شورای اسلامی" },
+      "description": "متن این قانون به‌عنوان «فصل جرایم رایانه‌ای» کتاب پنجم قانون مجازات اسلامی (مواد ۷۲۹ تا ۷۸۴) درج شده و در اپ موجود است؛ طبق ماده ۷۸۳ همان متن، مواد ۱ تا ۵۴ این قانون مواد ۷۲۹ تا ۷۸۲ قانون مجازات اسلامی‌اند. جستجوی «ماده ۱ قانون جرایم رایانه‌ای» به ماده ۷۲۹ می‌رود.",
+      "source": { "kind": "included", "qavaninId": 123407 },
+      "kind": "info",
+      "seeAlso": { "lawId": "penal-code-tazirat", "key": "729", "label": "مشاهده مواد ۷۲۹ تا ۷۸۴ قانون مجازات اسلامی (تعزیرات)", "offset": 728, "max": 56 }
+    }
   ]
 }

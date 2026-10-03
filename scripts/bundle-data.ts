@@ -7,15 +7,18 @@
  *         public/data/glossary.<hash>.json     واژه‌نامه جستجوی مفهومی
  *         public/data/chunks/<n>.<hash>.json   مواد قانونی در بسته‌های حداکثر ~۵۰۰KB
  *         public/data/patches/*.json           به‌روزرسانی‌های افزایشی (JSON Patch / RFC 6902)
+ *         public/data/qindex/*                 «فهرست مصوبات» سامانه ملی قوانین (۱۵۰ هزار عنوان؛ دریافت در صورت نیاز)
  *
  * اجرا:
  *   npm run data                 بسته‌بندی نسخه فعلی (در dev و build به‌طور خودکار اجرا می‌شود)
  *   npm run data -- --release    مقایسه با آخرین انتشار، افزایش خودکار نسخه (semver) و ساخت patch
+ *   npm run data -- --release --level=minor   تعیین دستی سطح نسخه (major | minor | patch)
  */
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, copyFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { buildQIndex } from './lib/qindex-build.ts'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const DATA = join(ROOT, 'data')
@@ -66,7 +69,16 @@ function catalogOnlyLaw(entry: Json): Json {
     related: entry.related ?? [],
     kind: entry.kind ?? 'law',
     expectedArticles: entry.expectedArticles ?? null,
-    source: { kind: entry.source?.kind ?? 'pending', verification: entry.kind === 'info' ? 'info' : 'pending' },
+    ...(entry.members ? { members: entry.members } : {}),
+    ...(entry.qindex ? { qindex: entry.qindex } : {}),
+    ...(entry.seeAlso ? { seeAlso: entry.seeAlso } : {}),
+    source: {
+      kind: entry.source?.kind ?? 'pending',
+      verification: entry.kind === 'info' ? 'info' : 'pending',
+      ...(entry.source?.qavaninId
+        ? { qavaninId: entry.source.qavaninId, officialUrl: `https://qavanin.ir/Law/TreeText/${entry.source.qavaninId}` }
+        : {}),
+    },
     lastUpdated: null,
     stats: { articles: 0 },
     available: false,
@@ -128,7 +140,25 @@ function main() {
     lawHashes[law.id] = short(JSON.stringify({ ...lawMeta(full, true), toc: full.toc, preamble: full.preamble }))
     for (const c of compactByLaw.get(law.id)!) articleHashes[c.i] = articleHash(c)
   }
-  const fingerprint = short(JSON.stringify({ lawHashes, articleHashes, catalog: laws.map((l) => [l.id, l.available]) }))
+  // --- فهرست مصوبات سامانه ملی قوانین (مستقل از نسخه داده‌ها؛ خلاصه آن در کاتالوگ می‌آید)
+  rmSync(OUT, { recursive: true, force: true })
+  mkdirSync(join(OUT, 'chunks'), { recursive: true })
+  mkdirSync(join(OUT, 'patches'), { recursive: true })
+  const inApp: Record<string, string> = {}
+  for (const law of laws) if (law.available && law.source?.qavaninId) inApp[String(law.source.qavaninId)] = law.id
+  const qindex = buildQIndex(ROOT, OUT, inApp)
+
+  const catalogOut = {
+    schemaVersion: SCHEMA_VERSION,
+    hierarchy: catalog.hierarchy,
+    categories: catalog.categories,
+    laws,
+    ...(qindex ? { qindex: qindex.summary } : {}),
+  }
+  const catalogStr = JSON.stringify(catalogOut)
+  const catalogHash = short(catalogStr)
+  // اثرانگشت شامل کاتالوگ است تا تغییر فراداده‌ها (دسته‌ها، موارد جدید، پیوندهای رسمی) هم به کاربران برسد
+  const fingerprint = short(JSON.stringify({ lawHashes, articleHashes, catalog: catalogHash }))
 
   const releasesDir = join(DATA, 'releases')
   const patchesDir = join(DATA, 'patches')
@@ -141,10 +171,12 @@ function main() {
   const latest = releaseFiles.at(-1)
 
   let version: string = versionInfo.version
+  const levelArg = process.argv.find((a) => a.startsWith('--level='))?.slice('--level='.length) as 'major' | 'minor' | 'patch' | undefined
+  const catalogIds = laws.map((l) => l.id)
   if (release) {
     if (!latest) {
       // نخستین انتشار
-      writeFileSync(join(releasesDir, `${version}.json`), JSON.stringify({ version, fingerprint, lawHashes, articleHashes }) + '\n')
+      writeFileSync(join(releasesDir, `${version}.json`), JSON.stringify({ version, fingerprint, catalogHash, catalogIds, lawHashes, articleHashes }) + '\n')
       console.log(`● نخستین انتشار ${version} ثبت شد.`)
     } else {
       const prev = readJson(join(releasesDir, `${latest}.json`))
@@ -159,7 +191,9 @@ function main() {
         const lawsAdded = Object.keys(lawHashes).filter((id) => !(id in prev.lawHashes))
         const lawsRemoved = Object.keys(prev.lawHashes).filter((id) => !(id in lawHashes))
         const lawsChanged = Object.keys(lawHashes).filter((id) => id in prev.lawHashes && prev.lawHashes[id] !== lawHashes[id])
-        const level: 'major' | 'minor' | 'patch' = lawsRemoved.length ? 'major' : added.length || lawsAdded.length ? 'minor' : 'patch'
+        const catalogAdded = prev.catalogIds ? catalogIds.filter((id) => !prev.catalogIds.includes(id)) : []
+        const auto: 'major' | 'minor' | 'patch' = lawsRemoved.length ? 'major' : added.length || lawsAdded.length || catalogAdded.length ? 'minor' : 'patch'
+        const level = levelArg ?? auto
         version = bump(latest, level)
         const compactIndex = new Map<string, Json>()
         for (const list of compactByLaw.values()) for (const c of list) compactIndex.set(c.i, c)
@@ -173,7 +207,7 @@ function main() {
         for (const id of removed) ops.push({ op: 'remove', path: `/articles/${id}` })
         const patch = { from: latest, to: version, generatedAt: new Date().toISOString(), level, ops }
         writeFileSync(join(patchesDir, `${latest}_${version}.json`), JSON.stringify(patch) + '\n')
-        writeFileSync(join(releasesDir, `${version}.json`), JSON.stringify({ version, fingerprint, lawHashes, articleHashes }) + '\n')
+        writeFileSync(join(releasesDir, `${version}.json`), JSON.stringify({ version, fingerprint, catalogHash, catalogIds, lawHashes, articleHashes }) + '\n')
         writeFileSync(versionFile, JSON.stringify({ ...versionInfo, version, releasedAt: new Date().toISOString().slice(0, 10) }, null, 2) + '\n')
         console.log(
           `● انتشار ${version} (${level}): +${added.length} ماده، ~${changed.length} تغییر، -${removed.length} حذف؛ قوانین +${lawsAdded.length} ~${lawsChanged.length} -${lawsRemoved.length}`,
@@ -188,13 +222,7 @@ function main() {
   }
 
   // --- خروجی
-  rmSync(OUT, { recursive: true, force: true })
-  mkdirSync(join(OUT, 'chunks'), { recursive: true })
-  mkdirSync(join(OUT, 'patches'), { recursive: true })
-
-  const catalogOut = { schemaVersion: SCHEMA_VERSION, hierarchy: catalog.hierarchy, categories: catalog.categories, laws }
-  const catalogStr = JSON.stringify(catalogOut)
-  const catalogFile = `catalog.${short(catalogStr)}.json`
+  const catalogFile = `catalog.${catalogHash}.json`
   writeFileSync(join(OUT, catalogFile), catalogStr)
 
   const glossaryStr = JSON.stringify(glossary.concepts)
@@ -266,6 +294,12 @@ function main() {
   console.log(
     `✓ داده نسخه ${version}: ${totals.laws}/${totals.catalog} قانون، ${totals.articles} ماده در ${chunks.length} بسته (${(totals.bytes / 1024).toFixed(0)}KB) → public/data/`,
   )
+  if (qindex) {
+    const q = qindex.manifest
+    console.log(
+      `✓ فهرست مصوبات: ${q.count.toLocaleString('en')} عنوان (تا ${q.latestDate}) در ${q.types.reduce((s, t) => s + t.chunks.length, 0)} بسته (${(q.bytes / 1024 / 1024).toFixed(1)}MB) → public/data/qindex/`,
+    )
+  }
 }
 
 main()

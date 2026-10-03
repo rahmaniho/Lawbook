@@ -37,6 +37,8 @@
   "rawFile": "data/raw/qavanin-text/cheque.txt",
   "rawSha256": "78714642b9e99c9171962ac5e6df3100919673f336ddefc3a4da987daf3e4c67",
   "segment": null,
+  "qavaninId": 83598,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/83598",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

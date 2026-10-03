@@ -34,6 +34,8 @@
   "rawFile": "data/raw/qavanin-text/municipality.txt",
   "rawSha256": "0fa7f7733e6ee8270057825a15a4aa306ecea87deb6428cb8b1e7b0a878546c6",
   "segment": null,
+  "qavaninId": 83412,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/83412",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

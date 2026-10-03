@@ -37,6 +37,8 @@
   "rawFile": "data/raw/qavanin-text/family-protection.txt",
   "rawSha256": "bdb01db7e12ae12923be2495a94c93f1606846098b58f5120fdcbe502c6cc6bc",
   "segment": null,
+  "qavaninId": 187568,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/187568",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

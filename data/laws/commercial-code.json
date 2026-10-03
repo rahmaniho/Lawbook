@@ -45,6 +45,8 @@
   "rawFile": "data/raw/qavanin-text/commercial-code.txt",
   "rawSha256": "f4bad8a8d8d1308f7df6509b0ece4c422d2e5c6b8ec2c38c0669b267093aeb0d",
   "segment": null,
+  "qavaninId": 83457,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/83457",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

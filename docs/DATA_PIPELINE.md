@@ -41,14 +41,18 @@ npm run test:py                          # تست‌های نرمال‌ساز �
 
 ## افزودن قانون جدید
 
-1. **یافتن شناسه** در سامانه ملی قوانین:
+1. **یافتن شناسه** در سامانه ملی قوانین — ساده‌ترین راه: جستجوی عنوان در صفحه «فهرست مصوبات» اپ (شناسه در «مشخصات مصوبه»)
+   یا در `data/raw/qavanin-index/qavanin-list.tsv.gz`؛ یا با ابزار برداشت:
    ```bash
    pip install -r scripts/scraper/requirements.txt && playwright install chromium
    python scripts/scraper/qavanin_playwright.py search "قانون تجارت الکترونیکی"
    ```
+   برای ۲۹ مورد «در انتظار» کاتالوگ، شناسه از پیش در `source.qavaninId` ثبت و با فهرست عناوین تطبیق داده شده است.
 2. **دریافت متن** (رعایت robots.txt و حداقل ۸ ثانیه فاصله بین درخواست‌ها):
    ```bash
-   python scripts/scraper/qavanin_playwright.py fetch <IDS> --slug electronic-commerce
+   python scripts/scraper/qavanin_playwright.py fetch 86054 --slug electronic-commerce
+   python scripts/scraper/qavanin_playwright.py catalog                  # همه موارد در انتظار دارای qavaninId
+   python scripts/scraper/qavanin_playwright.py catalog --only vat,labor  # فقط موارد مشخص
    ```
    خروجی: `data/raw/qavanin-text/electronic-commerce.txt` + `.meta.json` (آدرس، زمان، SHA-256) و HTML خام برای ممیزی در `scripts/scraper/output/html/`.
 3. **کاتالوگ**: در `data/catalog.json` منبع را از `{"kind": "pending"}` به
@@ -63,11 +67,23 @@ npm run test:py                          # تست‌های نرمال‌ساز �
 - User-Agent شفاف با آدرس پروژه.
 - متن‌ها بدون تغییر محتوایی ذخیره و منشأ هر فایل ثبت می‌شود.
 
+## فهرست عناوین مصوبات (qavanin-index)
+
+| مرحله | ابزار | خروجی |
+|---|---|---|
+| ورود از خزنده متن‌باز یا ابزار برداشت | `scripts/pipeline/import_qavanin_list.py --xlsx …` / `--tsv … --merge` | `data/raw/qavanin-index/qavanin-list.tsv.gz` (عیناً مطابق منبع؛ فقط TAB/خط‌جدید ← فاصله) |
+| تطبیق شناسه‌های کاتالوگ | `build_laws.py` (`check_qavanin_ids`) | هشدار در `data/qa-report.md` اگر عنوان یا تاریخ تصویب شناسه با کاتالوگ نخواند |
+| بسته‌بندی | `scripts/lib/qindex-build.ts` (در `npm run data`) | `public/data/qindex/manifest.json` + ۵۷ بسته ستونی؛ خلاصه در کاتالوگ |
+| طبقه‌بندی | `classifyEntry` در `src/lib/qindex/model.ts` | قانون اساسی، قوانین، مقررات، شوراها، آرا، نظریات مشورتی، سایر — بر اساس مرجع تصویب |
+
+جزئیات منشأ و محدودیت‌ها: [`data/raw/qavanin-index/SOURCE.md`](../data/raw/qavanin-index/SOURCE.md).
+
 ## فایل‌های مهم
 
 | مسیر | توضیح |
 |---|---|
-| `data/catalog.json` | فهرست قوانین: عنوان، نام‌های مستعار (برای جستجوی شماره ماده)، سلسله‌مراتب، دسته، نوع سند، منبع |
+| `data/catalog.json` | فهرست قوانین: عنوان، نام‌های مستعار (برای جستجوی شماره ماده)، سلسله‌مراتب، دسته و زیرموضوع، نوع سند، منبع و `qavaninId` |
+| `data/raw/qavanin-index/qavanin-list.tsv.gz` | فهرست عناوین ۱۵۰٬۴۳۷ مصوبه سامانه ملی قوانین |
 | `data/glossary.json` | مفاهیم حقوقی: `match` (برچسب‌گذاری دقیق) و `expand` (هم‌معناهای عامیانه برای جستجوی مفهومی) |
 | `data/version.json` | نسخه فعلی داده (semver) |
 | `data/releases/<v>.json` | اثرانگشت هش مواد هر انتشار (برای ساخت patch) |

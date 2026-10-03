@@ -75,8 +75,21 @@ async function loadEngine(): Promise<LawSearchEngine | null> {
       // فضای ذخیره‌سازی کافی نیست؛ ایندکس در حافظه می‌ماند
     }
   }
-  const laws = (await db.laws.toArray()).filter((l) => l.available)
-  eng.setLaws(laws.map((l) => ({ id: l.id, title: l.title, shortTitle: l.shortTitle, aliases: l.aliases, unit: l.unit, priority: l.priority })))
+  const all = await db.laws.toArray()
+  const availableIds = new Set(all.filter((l) => l.available).map((l) => l.id))
+  // قوانین موجود + قوانینی که متنشان با شماره‌گذاری دیگر در قانون موجود درج شده است (مانند جرایم رایانه‌ای)
+  const laws = all.filter((l) => l.available || (l.seeAlso?.offset != null && availableIds.has(l.seeAlso.lawId)))
+  eng.setLaws(
+    laws.map((l) => ({
+      id: l.id,
+      title: l.title,
+      shortTitle: l.shortTitle,
+      aliases: l.aliases,
+      unit: l.unit,
+      priority: l.priority,
+      redirect: !l.available && l.seeAlso?.offset != null ? { lawId: l.seeAlso.lawId, offset: l.seeAlso.offset, max: l.seeAlso.max ?? 0 } : undefined,
+    })),
+  )
   eng.setGlossary((await getMeta<GlossaryConcept[]>(GLOSSARY_KEY)) ?? [])
   eng.setArticleKeys((await db.articles.toCollection().primaryKeys()) as string[])
   readyInfo = { count: eng.mini.documentCount, source, ms: Math.round(performance.now() - t0) }
@@ -178,6 +191,7 @@ async function runSearch(msg: Extract<InMsg, { type: 'search' }>): Promise<Searc
           suffix: res.parsed.article.suffix,
           lawId: res.parsed.article.lawId,
           unit: res.parsed.article.unit,
+          redirectedFrom: res.parsed.article.redirectedFrom,
         }
       : undefined,
     expandedWith: res.expandedWith,

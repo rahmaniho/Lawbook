@@ -35,6 +35,8 @@
   "rawFile": "data/raw/qavanin-text/labor.txt",
   "rawSha256": "cf2bb2d73c5c6e542c5aa4e236f38dae3deda884eedaa5f1b01677b5d6f4dc26",
   "segment": null,
+  "qavaninId": 83381,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/83381",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

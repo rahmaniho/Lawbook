@@ -35,6 +35,8 @@
   "rawFile": "data/raw/qavanin-text/registration.txt",
   "rawSha256": "5a623d428e8a8bad8556fd9601854496d96a74c0edfb917549ee5f97ec11dc89",
   "segment": null,
+  "qavaninId": 83605,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/83605",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

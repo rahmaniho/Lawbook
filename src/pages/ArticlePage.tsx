@@ -95,7 +95,7 @@ export default function ArticlePage() {
 
   if (article === undefined || law === undefined)
     return (
-      <div className="pb-nav">
+      <div className="pb-2">
         <AppBar back title={<Skeleton className="h-5 w-28" />} />
         <div className="mx-auto max-w-3xl p-4">
           <ArticleSkeleton count={1} />
@@ -105,7 +105,7 @@ export default function ArticlePage() {
 
   if (!article || !law)
     return (
-      <div className="pb-nav">
+      <div className="pb-2">
         <AppBar back title="ماده یافت نشد" />
         <EmptyState
           icon={<X className="h-7 w-7" />}
@@ -137,7 +137,7 @@ export default function ArticlePage() {
   }
 
   return (
-    <div className={cn('min-h-dvh', immersive ? 'pb-10' : 'pb-nav', settings.readerTheme === 'sepia' && 'reader-sepia bg-[var(--bg)]')}>
+    <div className={cn('min-h-dvh', 'pb-2', settings.readerTheme === 'sepia' && 'reader-sepia bg-[var(--bg)]')}>
       <AnimatePresence initial={false}>
         {!immersive && (
           <m.div initial={{ y: -70 }} animate={{ y: 0 }} exit={{ y: -70 }} className="sticky top-0 z-40">

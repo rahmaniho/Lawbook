@@ -11,7 +11,7 @@
   "بیمه اجباری"
  ],
  "hierarchy": "statute",
- "category": "civil",
+ "category": "other",
  "docType": "قانون",
  "unit": "ماده",
  "status": "لازم‌الاجرا",
@@ -35,6 +35,8 @@
   "rawFile": "data/raw/qavanin-text/third-party-insurance.txt",
   "rawSha256": "2a890e46e2c979b837119832d892644bd72401531503f5d2bde5627249d20ce4",
   "segment": null,
+  "qavaninId": 254237,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/254237",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

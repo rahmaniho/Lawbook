@@ -32,12 +32,26 @@ server {
   location /assets/      { add_header Cache-Control "public, max-age=31536000, immutable"; }
   location /data/chunks/ { add_header Cache-Control "public, max-age=31536000, immutable"; }
   location /data/patches/{ add_header Cache-Control "public, max-age=31536000, immutable"; }
+  location /data/qindex/ { add_header Cache-Control "public, max-age=31536000, immutable"; }
+  location = /data/qindex/manifest.json { add_header Cache-Control "no-cache"; }
   location = /data/manifest.json { add_header Cache-Control "no-cache"; }
+  location /.well-known/ { try_files $uri =404; }   # صفحه SPA با وضعیت 200 برای این مسیرها برنگردد
   location = /sw.js      { add_header Cache-Control "no-cache"; }
   location = /manifest.json { add_header Cache-Control "no-cache"; types { application/manifest+json json; } }
   location / { try_files $uri /index.html; }
 }
 ```
+
+## حجم‌ها
+
+| بخش | خام | gzip | brotli | زمان دریافت |
+|---|---:|---:|---:|---|
+| بار اول (JS+CSS) | ~۶۲۸KB | ~۲۰۱KB | ~۱۷۶KB | بار اول |
+| داده قوانین (۹ بسته) | ~۴٫۲MB | ~۸۵۰KB | ~۶۶۰KB | نصب آفلاین خودکار پس از بار اول |
+| فهرست مصوبات (۵۷ بسته) | ~۲۵MB | ~۴٫۶MB | ~۳٫۳MB | فقط هنگام باز کردن «فهرست مصوبات» یا از تنظیمات |
+| `pwa-install` + Lit | ~۱۶۲KB | ~۴۶KB | — | فقط هنگام زدن «نصب» |
+
+Vercel و Netlify فایل‌های JSON را خودکار فشرده می‌کنند؛ روی nginx از `npm run build:compress` و `brotli_static` استفاده کنید.
 
 ## نکات استقرار در ایران
 
@@ -54,6 +68,7 @@ server {
 
 ## Lighthouse
 
-پس از استقرار روی HTTPS: Chrome DevTools ← Lighthouse ← Mobile. موارد کلیدی پیاده‌سازی‌شده: manifest کامل با آیکن maskable، Service Worker با پاسخ آفلاین، `theme-color`، متا viewport، کنتراست رنگ‌ها، برچسب‌های ARIA، فونت خودمیزبان و بار اول ~۲۰۰KB gzip.
+پس از استقرار روی HTTPS: Chrome DevTools ← Lighthouse ← Mobile. برای دسته آزمایشی «Agentic Browsing»، فایل `public/llms.txt` ارائه شده و
+مسیرهای `/.well-known/*` در vercel.json/netlify.toml/پیش‌نمایش Vite به‌جای صفحه SPA پاسخ 404 می‌دهند. موارد کلیدی پیاده‌سازی‌شده: manifest کامل با آیکن maskable، Service Worker با پاسخ آفلاین، `theme-color`، متا viewport، کنتراست رنگ‌ها، برچسب‌های ARIA، فونت خودمیزبان و بار اول ~۲۰۰KB gzip.
 
 </div>

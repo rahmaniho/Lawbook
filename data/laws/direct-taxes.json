@@ -39,6 +39,8 @@
   "rawFile": "data/raw/qavanin-text/direct-taxes.txt",
   "rawSha256": "94c3a1098c2efbecab44a3a7567070420f991764ce7f77c38349d0ecb3a48c60",
   "segment": null,
+  "qavaninId": 83372,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/83372",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"

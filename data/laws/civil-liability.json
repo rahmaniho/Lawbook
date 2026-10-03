@@ -33,6 +33,8 @@
   "rawFile": "data/raw/qavanin-text/civil-liability.txt",
   "rawSha256": "2bf003f29d790ca3c0c3900a61097763fdab1d013256a7dc1bf15aae324c412a",
   "segment": null,
+  "qavaninId": 84139,
+  "officialUrl": "https://qavanin.ir/Law/TreeText/84139",
   "snapshotDate": "2024-05-04",
   "snapshotDateJalali": "1403/02/15",
   "verification": "source-copy"
