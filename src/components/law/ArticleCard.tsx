@@ -82,7 +82,8 @@ export const ArticleCard = memo(function ArticleCard({
         </m.span>
       </m.div>
 
-      <m.article
+      {/* div با role=link (عنصر article نقش link را نمی‌پذیرد — قاعده aria-allowed-role) */}
+      <m.div
         drag="x"
         dragDirectionLock
         dragConstraints={{ left: 0, right: 0 }}
@@ -118,7 +119,7 @@ export const ArticleCard = memo(function ArticleCard({
           {terms?.length ? <Highlight text={preview} terms={terms} persian={persian} /> : d(preview)}
         </p>
         {!!article.notes?.length && !snippet && <p className="mt-2 text-[12px] text-muted">{d(String(article.notes.length))} تبصره</p>}
-      </m.article>
+      </m.div>
     </div>
   )
 })

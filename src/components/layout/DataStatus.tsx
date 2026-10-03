@@ -1,5 +1,4 @@
 import { CheckCircle2, CloudDownload, RefreshCw, WifiOff, AlertTriangle } from 'lucide-react'
-import { m } from 'framer-motion'
 import { useDataState, retryInstall } from '../../lib/data/store'
 import { useSearchStatus } from '../../lib/search/client'
 import { formatBytes } from '../../lib/format'
@@ -21,7 +20,7 @@ export function DataStatus() {
             <CloudDownload className="h-5 w-5 animate-pulse" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="font-bold">{data.state === 'updating' ? 'در حال به‌روزرسانی قوانین…' : 'در حال آماده‌سازی قوانین برای استفاده آفلاین…'}</p>
+            <p className="font-bold">{data.state === 'updating' ? 'در حال به‌روزرسانی قوانین…' : 'در حال آماده‌سازی نسخه آفلاین…'}</p>
             <p className="text-[12.5px] text-muted">
               {p?.phase === 'chunks' && p.total
                 ? `بسته ${toFaDigits(p.loaded)} از ${toFaDigits(p.total)} — ${formatBytes(p.bytes)} از ${formatBytes(p.totalBytes)}`
@@ -31,7 +30,8 @@ export function DataStatus() {
           <span className="text-sm font-bold text-brand-strong">{toFaDigits(pct)}٪</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-surface-2">
-          <m.div className="h-full rounded-full bg-brand" initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ type: 'spring', stiffness: 120, damping: 24 }} />
+          {/* انیمیشن CSS (بدون framer-motion) تا در بار اول کار اضافه روی رشته اصلی نباشد */}
+          <div className="h-full rounded-full bg-brand transition-[width] duration-500 ease-out" style={{ width: `${pct}%` }} />
         </div>
       </div>
     )

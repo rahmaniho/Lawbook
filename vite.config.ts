@@ -22,6 +22,62 @@ function preloadPersianFont(): Plugin {
   }
 }
 
+/**
+ * نخستین رنگ‌آمیزی سریع (فقط build) — اسپلش/پوسته اپ بدون انتظار برای جاوااسکریپت دیده می‌شود:
+ *  ۱) CSS اصلی (Tailwind، حدود ۱۰KB فشرده) درون index.html درج می‌شود → حذف درخواست مسدودکننده رندر؛
+ *  ۲) اسکریپت ماژول اصلی و modulepreloadها پس از نخستین فریمِ رنگ‌آمیزی‌شده درج می‌شوند تا ارزیابی
+ *     حدود ۶۰۰KB جاوااسکریپت، نمایش اسپلش را عقب نیندازد (اگر صفحه در پس‌زمینه باز شود بی‌درنگ بارگذاری می‌شود).
+ */
+function fastFirstPaint(): Plugin {
+  return {
+    name: 'fast-first-paint',
+    apply: 'build',
+    transformIndexHtml: {
+      order: 'post',
+      handler(html, ctx) {
+        const bundle = ctx.bundle
+        if (!bundle) return html
+        // ۱) درج CSS اصلی
+        html = html.replace(/<link rel="stylesheet"[^>]*?href="\/(assets\/[^"]+\.css)"[^>]*>/g, (tag, file: string) => {
+          const asset = bundle[file]
+          if (!asset || asset.type !== 'asset') return tag
+          const css = typeof asset.source === 'string' ? asset.source : new TextDecoder().decode(asset.source)
+          const base = file.split('/').pop()!
+          const referenced = Object.values(bundle).some((c) => c.type === 'chunk' && c.code.includes(base))
+          if (!referenced) delete bundle[file] // فایل جداگانه دیگر لازم نیست (و در پیش‌کش SW هم نمی‌آید)
+          return `<style>${css.replace(/<\/style/gi, '<\\/style')}</style>`
+        })
+        // ۲) بارگذاری اسکریپت‌ها پس از نخستین فریم
+        let entry = ''
+        const preloads: string[] = []
+        html = html.replace(/\s*<script type="module" crossorigin src="([^"]+)"><\/script>/, (_, src: string) => {
+          entry = src
+          return ''
+        })
+        if (!entry) return html
+        html = html.replace(/\s*<link rel="modulepreload" crossorigin href="([^"]+)">/g, (_, href: string) => {
+          preloads.push(href)
+          return ''
+        })
+        // ترتیب: نخستین رنگ‌آمیزی محتوایی (FCP، از PerformanceObserver) ← درج اسکریپت‌ها.
+        // جایگزین‌ها: مرورگر بدون Paint Timing ← دو فریم (rAF)؛ صفحه پنهان ← بی‌درنگ؛ و در هر حال حداکثر ۱٫۵ ثانیه.
+        const loader =
+          `<script>` +
+          `(function(){var d=document,w=window,done=0;function go(){if(done)return;done=1;var h=d.head;` +
+          `${JSON.stringify(preloads)}.forEach(function(u){var l=d.createElement('link');l.rel='modulepreload';l.crossOrigin='';l.href=u;h.appendChild(l)});` +
+          `var s=d.createElement('script');s.type='module';s.crossOrigin='';s.src=${JSON.stringify(entry)};h.appendChild(s)}` +
+          `function later(){setTimeout(go,0)}` +
+          `if(d.visibilityState!=='visible'){go();return}setTimeout(go,1500);` +
+          `try{if(PerformanceObserver.supportedEntryTypes.indexOf('paint')>=0){` +
+          `new PerformanceObserver(function(l,o){if(l.getEntriesByName('first-contentful-paint').length){o.disconnect();later()}}).observe({type:'paint',buffered:true});return}}catch(e){}` +
+          `requestAnimationFrame(function(){requestAnimationFrame(later)})})()` +
+          `</script>`
+        return html.replace('</body>', `  <!-- بارگذاری اپ پس از نخستین رنگ‌آمیزی (افزونه fast-first-paint در vite.config.ts) -->\n    ${loader}\n  </body>`)
+      },
+    },
+  }
+}
+
 /** مسیرهای /.well-known/* ناموجود: 404 به‌جای صفحه SPA (مانند تنظیمات vercel.json/netlify.toml) */
 function wellKnown404(): Plugin {
   const handler = (req: { url?: string }, res: { statusCode: number; end: (s?: string) => void }, next: () => void) => {
@@ -47,6 +103,7 @@ export default defineConfig({
   plugins: [
     wellKnown404(),
     preloadPersianFont(),
+    fastFirstPaint(),
     react(),
     tailwindcss(),
     VitePWA({

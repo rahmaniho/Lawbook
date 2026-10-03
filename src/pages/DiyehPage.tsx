@@ -55,7 +55,6 @@ export default function DiyehPage() {
           <div>
             <p className="mb-2 text-sm font-bold">مجنی‌علیه</p>
             <Segmented
-              layoutId="victim"
               value={victim}
               onChange={setVictim}
               options={[
@@ -179,7 +178,7 @@ export default function DiyehPage() {
       </main>
 
       <Sheet open={pickerOpen} onClose={() => setPickerOpen(false)} title="انتخاب صدمه">
-        <Segmented layoutId="diyeh-group" value={group} onChange={setGroup} options={GROUPS.map((g) => ({ value: g, label: g }))} />
+        <Segmented value={group} onChange={setGroup} options={GROUPS.map((g) => ({ value: g, label: g }))} />
         <ul className="mt-3 divide-y divide-line">
           {DIYEH_ITEMS.filter((i) => i.group === group).map((i) => (
             <li key={i.id}>

@@ -163,7 +163,6 @@ export default function SettingsPage() {
               <Moon className="h-4 w-4" /> حالت نمایش
             </p>
             <Segmented
-              layoutId="theme"
               value={s.theme}
               onChange={(v) => updateSettings({ theme: v, readerTheme: s.readerTheme === 'sepia' && v === 'dark' ? 'auto' : s.readerTheme })}
               options={[

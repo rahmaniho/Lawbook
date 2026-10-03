@@ -218,7 +218,12 @@ export default function EnactmentsPage() {
             }
           />
         ) : loading && !res ? (
-          <LoadingCard status={status} />
+          // min-h-lvh: جای فهرست پیش از دریافت رزرو می‌شود تا بخش توضیح پایین صفحه جابه‌جا نشود (CLS)
+          <div className="min-h-lvh">
+            <LoadingCard status={status} />
+          </div>
+        ) : !res ? (
+          <div className="min-h-lvh" aria-hidden="true" />
         ) : (
           <>
             <p className="mb-2 mt-3 flex items-center justify-between gap-2 text-[12.5px] text-muted" aria-live="polite">
@@ -445,7 +450,6 @@ function Filters({
       <div>
         <p className="mb-2 text-[13px] font-bold">مرتب‌سازی</p>
         <Segmented
-          layoutId="qindex-sort"
           value={s}
           onChange={setS}
           options={[...(hasQuery ? [{ value: 'relevance' as Sort, label: 'مرتبط‌ترین' }] : []), { value: 'newest', label: 'جدیدترین' }, { value: 'oldest', label: 'قدیمی‌ترین' }]}

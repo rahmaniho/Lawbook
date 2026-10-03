@@ -13,15 +13,18 @@ const br = (b) => brotliCompressSync(b, { params: { [constants.BROTLI_PARAM_QUAL
 const kb = (n) => `${(n / 1024).toFixed(1)}KB`
 
 const html = readFileSync(join(DIST, 'index.html'), 'utf8')
-const first = [...new Set([...html.matchAll(/(?:src|href)="(\/assets\/[^"]+\.(?:js|css))"/g)].map((m) => m[1]))]
+// افزونه fastFirstPaint (vite.config.ts) CSS اصلی را درون index.html می‌گذارد و فایل‌های JS بار اول را
+// از درون اسکریپت بارگذار درج می‌کند؛ پس هم برچسب‌ها و هم رشته‌های "/assets/…" شمرده می‌شوند.
+const first = [...new Set([...html.matchAll(/["'](\/assets\/[^"']+\.(?:js|css))["']/g)].map((m) => m[1]))]
 let raw = 0, gz = 0, bro = 0
-for (const f of first) {
-  const b = readFileSync(join(DIST, f))
+const add = (b) => {
   raw += b.length
   gz += gzipSync(b, { level: 9 }).length
   bro += br(b).length
 }
-console.log(`بار اول (JS+CSS، ${first.length} فایل): خام ${kb(raw)} | gzip ${kb(gz)} | brotli ${kb(bro)}`)
+add(Buffer.from(html, 'utf8'))
+for (const f of first) add(readFileSync(join(DIST, f)))
+console.log(`بار اول (index.html با CSS درون‌خطی + ${first.length} فایل JS/CSS): خام ${kb(raw)} | gzip ${kb(gz)} | brotli ${kb(bro)}`)
 if (gz > 300 * 1024) {
   console.error('✗ حجم بار اول (gzip) از ۳۰۰KB بیشتر است')
   process.exitCode = 1

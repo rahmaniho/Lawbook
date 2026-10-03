@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import Dexie from 'dexie'
@@ -101,6 +101,18 @@ function LawSkeleton() {
   )
 }
 
+/** پیشرفت نصب داده‌ها هنگام باز شدن مستقیم صفحه قانون پیش از تکمیل نسخه آفلاین */
+function InstallProgress() {
+  const p = useDataSelector((s) => s.progress)
+  const pct = p && p.totalBytes ? Math.round((p.bytes / p.totalBytes) * 100) : p && p.total ? Math.round((p.loaded / p.total) * 100) : 0
+  return (
+    <p role="status" aria-live="polite" className="mb-3 flex items-center gap-2 rounded-2xl bg-surface-2 px-3.5 py-2.5 text-[13px] text-muted">
+      <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />
+      در حال آماده‌سازی نسخه آفلاین… {toFaDigits(pct)}٪
+    </p>
+  )
+}
+
 function AvailableLaw({ law }: { law: Law }) {
   const navigate = useNavigate()
   const settings = useSettings()
@@ -117,14 +129,24 @@ function AvailableLaw({ law }: { law: Law }) {
   const listRef = useRef<HTMLDivElement>(null)
   const persian = settings.persianDigits
 
-  const articles = useLiveQuery(
-    () =>
-      db.articles
-        .where('[lawId+order]')
-        .between([law.id, Dexie.minKey], [law.id, Dexie.maxKey])
-        .toArray(),
-    [law.id],
+  // در حین نصب/به‌روزرسانی داده‌ها، فهرست کامل فقط وقتی خوانده می‌شود که همه مواد این قانون وارد شده باشند
+  // (شمارش ارزان است؛ خواندن و رندر دوباره ۱۳۰۰ ماده با هر بسته ورودی، رشته اصلی را قفل می‌کرد).
+  const phase = useDataSelector((s) => s.state)
+  const busy = phase === 'installing' || phase === 'checking' || phase === 'updating'
+  const imported = useLiveQuery(async () => (busy ? db.articles.where('lawId').equals(law.id).count() : undefined), [law.id, busy])
+  const complete = !busy || (imported !== undefined && imported >= law.stats.articles)
+  const liveArticles = useLiveQuery(
+    async () =>
+      complete
+        ? db.articles
+            .where('[lawId+order]')
+            .between([law.id, Dexie.minKey], [law.id, Dexie.maxKey])
+            .toArray()
+        : undefined,
+    [law.id, complete],
   )
+  // رندر فهرست در پس‌زمینه (transition قابل‌تقسیم) تا نخستین نمایش صدها کارت، وظیفه بلند نسازد
+  const articles = useDeferredValue(liveArticles)
 
   useEffect(() => {
     const q = debounced.trim()
@@ -312,7 +334,9 @@ function AvailableLaw({ law }: { law: Law }) {
           </p>
         )}
 
-        <div ref={listRef} className="relative mt-3" style={{ height: articles ? virtualizer.getTotalSize() : undefined }}>
+        {/* تا رسیدن مواد، دست‌کم یک صفحه کامل جا رزرو می‌شود تا عناصر پایین فهرست جابه‌جا نشوند (CLS) */}
+        <div ref={listRef} className={cn('relative mt-3', !articles && 'min-h-lvh')} style={{ height: articles ? virtualizer.getTotalSize() : undefined }}>
+          {!articles && busy && <InstallProgress />}
           {!articles && <ArticleSkeleton count={5} />}
           {articles &&
             virtualizer.getVirtualItems().map((vi) => {

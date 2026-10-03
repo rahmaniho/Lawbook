@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useDeferredValue, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { AnimatePresence, m } from 'framer-motion'
 import { ChevronDown, ChevronLeft, Layers3, Library } from 'lucide-react'
@@ -23,8 +23,9 @@ export default function LawsPage() {
   const [params, setParams] = useSearchParams()
   const view = (params.get('view') as View) || 'hierarchy'
   const openParam = params.get('open')
-  const laws = useLaws()
-  const catalog = useCatalogMeta()
+  // رندر فهرست کامل پس از رسیدن داده‌ها در transition (قابل‌تقسیم) انجام می‌شود تا وظیفه بلند نسازد
+  const laws = useDeferredValue(useLaws())
+  const catalog = useDeferredValue(useCatalogMeta())
   const [onlyAvailable, setOnlyAvailable] = useState(false)
 
   const groups = useMemo(() => {
@@ -67,7 +68,6 @@ export default function LawsPage() {
       <PullToRefresh onRefresh={() => refreshData()}>
         <main className="mx-auto max-w-3xl px-4 pt-4">
           <Segmented
-            layoutId="laws-view"
             value={view}
             onChange={(v) => setParams({ view: v }, { replace: true })}
             options={[

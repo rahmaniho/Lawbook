@@ -66,7 +66,6 @@ export default function InheritancePage() {
         <section className="rounded-card border border-line bg-surface p-4 shadow-soft">
           <p className="mb-2 text-sm font-bold">متوفی</p>
           <Segmented
-            layoutId="deceased"
             value={input.deceased}
             onChange={(v) => set({ deceased: v, spouses: Math.min(input.spouses, v === 'female' ? 1 : 4) })}
             options={[

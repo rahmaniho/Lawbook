@@ -11,7 +11,8 @@ export function LawCard({ law, compact, className }: { law: Law; compact?: boole
     <Link
       to={lawPath(law.id)}
       className={cn(
-        'group flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5 shadow-soft transition-transform active:scale-[0.985]',
+        // content-visibility: کارت‌های بیرون از دید تا نزدیک‌شدن به صفحه رندر (style/layout/paint) نمی‌شوند
+        'group flex items-center gap-3 rounded-2xl border border-line bg-surface p-3.5 shadow-soft transition-transform [contain-intrinsic-size:auto_84px] [content-visibility:auto] active:scale-[0.985]',
         className,
       )}
     >

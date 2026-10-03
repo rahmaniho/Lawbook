@@ -46,8 +46,8 @@ server {
 
 | بخش | خام | gzip | brotli | زمان دریافت |
 |---|---:|---:|---:|---|
-| بار اول (JS+CSS) | ~۶۲۸KB | ~۲۰۱KB | ~۱۷۶KB | بار اول |
-| داده قوانین (۹ بسته) | ~۴٫۲MB | ~۸۵۰KB | ~۶۶۰KB | نصب آفلاین خودکار پس از بار اول |
+| بار اول (index.html با CSS درون‌خطی + JS) | ~۶۳۸KB | ~۲۰۵KB | ~۱۷۹KB | بار اول |
+| داده قوانین (۹ بسته) | ~۴٫۴MB | ~۸۸۰KB | ~۶۸۰KB | نصب آفلاین خودکار پس از بار اول |
 | فهرست مصوبات (۵۷ بسته) | ~۲۵MB | ~۴٫۶MB | ~۳٫۳MB | فقط هنگام باز کردن «فهرست مصوبات» یا از تنظیمات |
 | `pwa-install` + Lit | ~۱۶۲KB | ~۴۶KB | — | فقط هنگام زدن «نصب» |
 
@@ -69,6 +69,17 @@ Vercel و Netlify فایل‌های JSON را خودکار فشرده می‌ک�
 ## Lighthouse
 
 پس از استقرار روی HTTPS: Chrome DevTools ← Lighthouse ← Mobile. برای دسته آزمایشی «Agentic Browsing»، فایل `public/llms.txt` ارائه شده و
-مسیرهای `/.well-known/*` در vercel.json/netlify.toml/پیش‌نمایش Vite به‌جای صفحه SPA پاسخ 404 می‌دهند. موارد کلیدی پیاده‌سازی‌شده: manifest کامل با آیکن maskable، Service Worker با پاسخ آفلاین، `theme-color`، متا viewport، کنتراست رنگ‌ها، برچسب‌های ARIA، فونت خودمیزبان و بار اول ~۲۰۰KB gzip.
+مسیرهای `/.well-known/*` در vercel.json/netlify.toml/پیش‌نمایش Vite به‌جای صفحه SPA پاسخ 404 می‌دهند. موارد کلیدی پیاده‌سازی‌شده: manifest کامل با آیکن maskable، Service Worker با پاسخ آفلاین، `theme-color`، متا viewport، کنتراست رنگ‌ها، برچسب‌های ARIA، فونت خودمیزبان، بار اول ~۲۰۵KB gzip و نمایش اسپلش/اسکلت پیش از اجرای JS (افزونه `fastFirstPaint`).
+
+نتیجه اندازه‌گیری روی خروجی build (Lighthouse 13، موبایل، بار اول بدون کش): صفحه اصلی **۱۰۰** در Performance، Accessibility، Best Practices و SEO؛
+جدول کامل صفحه‌ها در بخش «کارایی» [ARCHITECTURE.md](ARCHITECTURE.md). برای تکرار:
+
+```bash
+npm run build && npm run preview          # http://localhost:4173
+npx lighthouse http://localhost:4173/ --form-factor=mobile --only-categories=performance,accessibility,best-practices,seo --view
+```
+
+هنگام اجرای Lighthouse در محیط بدون GPU، پرچم‌های SwiftShader (`--use-angle=swiftshader`) نخستین فریم را ۳۰۰ تا ۵۰۰ میلی‌ثانیه دیرتر نمایش می‌دهند و
+عدد Performance را به‌طور غیرواقعی پایین می‌آورند؛ از پرچم‌های پیش‌فرض Chrome یا `--disable-gpu` استفاده کنید.
 
 </div>

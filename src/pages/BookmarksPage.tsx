@@ -46,7 +46,6 @@ export default function BookmarksPage() {
     <div className="pb-2">
       <AppBar title="نشان‌ها و یادداشت‌ها" subtitle="همه‌چیز فقط روی همین دستگاه ذخیره می‌شود">
         <Segmented
-          layoutId="bm-tab"
           value={tab}
           onChange={(v) => setParams({ tab: v }, { replace: true })}
           options={[

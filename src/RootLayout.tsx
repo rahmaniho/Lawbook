@@ -32,12 +32,14 @@ export function RootLayout() {
   return (
     <LazyMotion features={loadFeatures} strict>
       <div className="flex min-h-dvh flex-col">
-        <div className="flex-1">
+        {/* min-h-lvh: فوتر همیشه زیر لبه صفحه شروع می‌شود تا رشد محتوای ناهمگام (فهرست مواد) آن را جابه‌جا نکند (CLS) */}
+        <div className="min-h-lvh flex-1">
           <Outlet />
         </div>
         <AppFooter immersive={immersive} />
       </div>
-      <AnimatePresence>
+      {/* initial={false}: نوار پایین در بار اول بدون انیمیشن ورود نمایش داده می‌شود (کار کمتر پیش از تعامل) */}
+      <AnimatePresence initial={false}>
         {!immersive && (
           <m.div key="nav" initial={{ y: 90 }} animate={{ y: 0 }} exit={{ y: 90 }} transition={{ type: 'spring', stiffness: 420, damping: 38 }}>
             <BottomNav />

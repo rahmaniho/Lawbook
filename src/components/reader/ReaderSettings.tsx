@@ -24,7 +24,6 @@ export function ReaderSettings({ preview = true }: { preview?: boolean }) {
       <div>
         <p className="mb-2 text-sm font-semibold">قلم متن</p>
         <Segmented
-          layoutId="reader-font"
           value={s.readerFont}
           onChange={(v) => updateSettings({ readerFont: v })}
           options={[
@@ -66,7 +65,6 @@ export function ReaderSettings({ preview = true }: { preview?: boolean }) {
       <div>
         <p className="mb-2 text-sm font-semibold">تم صفحه</p>
         <Segmented
-          layoutId="reader-theme"
           value={s.readerTheme === 'sepia' ? 'sepia' : s.theme}
           onChange={(v) => (v === 'sepia' ? updateSettings({ readerTheme: 'sepia', theme: 'light' }) : updateSettings({ readerTheme: 'auto', theme: v }))}
           options={[
