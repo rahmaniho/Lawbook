@@ -1,0 +1,285 @@
+{
+ "schemaVersion": 1,
+ "laws": [
+  {
+   "id": "constitution",
+   "title": "قانون اساسی جمهوری اسلامی ایران",
+   "file": "laws/constitution.json",
+   "contentHash": "2eae568307be9516f1ae95240baa9e7fc957c50506eacc7fc25789915e95461d",
+   "stats": {
+    "articles": 177,
+    "notes": 0,
+    "repealed": 0,
+    "amended": 0,
+    "headings": 18,
+    "characters": 62084
+   }
+  },
+  {
+   "id": "civil-code",
+   "title": "قانون مدنی",
+   "file": "laws/civil-code.json",
+   "contentHash": "cf15dfabfde6d3eaa3c1f9d90e57fc405f7164e9856c5e6f27f3b7a80b105533",
+   "stats": {
+    "articles": 1339,
+    "notes": 20,
+    "repealed": 13,
+    "amended": 19,
+    "headings": 183,
+    "characters": 200509
+   }
+  },
+  {
+   "id": "penal-code",
+   "title": "قانون مجازات اسلامی",
+   "file": "laws/penal-code.json",
+   "contentHash": "39dbd1444021076ec0ec56d3ee2d951bdd5dce35d2fc94ff9882fcf199d7dcb7",
+   "stats": {
+    "articles": 728,
+    "notes": 222,
+    "repealed": 0,
+    "amended": 17,
+    "headings": 110,
+    "characters": 200221
+   }
+  },
+  {
+   "id": "penal-code-tazirat",
+   "title": "قانون مجازات اسلامی (کتاب پنجم - تعزیرات و مجازات‌های بازدارنده)",
+   "file": "laws/penal-code-tazirat.json",
+   "contentHash": "af2c474de25ac5b7867d64cebba0edf9befeb0e02d2c977cb68d258ccd33a456",
+   "stats": {
+    "articles": 290,
+    "notes": 92,
+    "repealed": 40,
+    "amended": 47,
+    "headings": 54,
+    "characters": 111849
+   }
+  },
+  {
+   "id": "criminal-procedure",
+   "title": "قانون آیین دادرسی کیفری",
+   "file": "laws/criminal-procedure.json",
+   "contentHash": "a7c0842fb243ba962e27f58531f7cbb72cf60b0e0090ff9cb4e848d7d0161eaa",
+   "stats": {
+    "articles": 699,
+    "notes": 294,
+    "repealed": 0,
+    "amended": 35,
+    "headings": 67,
+    "characters": 253418
+   }
+  },
+  {
+   "id": "civil-procedure",
+   "title": "قانون آیین دادرسی دادگاه‌های عمومی و انقلاب در امور مدنی",
+   "file": "laws/civil-procedure.json",
+   "contentHash": "b79c110a3631cb05342c9071878473995ffe62507857d7e2e3cca3214a523886",
+   "stats": {
+    "articles": 529,
+    "notes": 72,
+    "repealed": 4,
+    "amended": 1,
+    "headings": 85,
+    "characters": 143746
+   }
+  },
+  {
+   "id": "family-protection",
+   "title": "قانون حمایت خانواده",
+   "file": "laws/family-protection.json",
+   "contentHash": "415d17caa2390d6589d2a3ff2032839658ca717963e14f1f75d34185a9533bd6",
+   "stats": {
+    "articles": 58,
+    "notes": 22,
+    "repealed": 0,
+    "amended": 1,
+    "headings": 7,
+    "characters": 22392
+   }
+  },
+  {
+   "id": "commercial-code",
+   "title": "قانون تجارت",
+   "file": "laws/commercial-code.json",
+   "contentHash": "b50fc8bb79edb008eea1e85de8f60f9e08f37cc2059fe807aa7539aeef8cd3d7",
+   "stats": {
+    "articles": 527,
+    "notes": 11,
+    "repealed": 0,
+    "amended": 2,
+    "headings": 77,
+    "characters": 109029
+   }
+  },
+  {
+   "id": "commercial-code-amendment-1347",
+   "title": "لایحه قانونی اصلاح قسمتی از قانون تجارت",
+   "file": "laws/commercial-code-amendment-1347.json",
+   "contentHash": "d53167d73819e6765c5080344488afe6520309a57db1fb6747684fc09d881426",
+   "stats": {
+    "articles": 300,
+    "notes": 33,
+    "repealed": 0,
+    "amended": 40,
+    "headings": 13,
+    "characters": 105862
+   }
+  },
+  {
+   "id": "cheque",
+   "title": "قانون صدور چک",
+   "file": "laws/cheque.json",
+   "contentHash": "b4691634950f5722ec47ecbdbc02f9c4841839f5b2f102bf9ef26bf2ec0766c3",
+   "stats": {
+    "articles": 28,
+    "notes": 20,
+    "repealed": 0,
+    "amended": 18,
+    "headings": 0,
+    "characters": 22632
+   }
+  },
+  {
+   "id": "labor",
+   "title": "قانون کار جمهوری اسلامی ایران",
+   "file": "laws/labor.json",
+   "contentHash": "6195fe17d9a472b821d98f0227b06194de3dabdb42d21a49be7b760932b25334",
+   "stats": {
+    "articles": 203,
+    "notes": 124,
+    "repealed": 0,
+    "amended": 4,
+    "headings": 28,
+    "characters": 80195
+   }
+  },
+  {
+   "id": "administrative-court",
+   "title": "قانون تشکیلات و آیین دادرسی دیوان عدالت اداری",
+   "file": "laws/administrative-court.json",
+   "contentHash": "391f6a6d2259fadae428b1087db73ff5f4de834652e0c6e42f74378e2dde4507",
+   "stats": {
+    "articles": 124,
+    "notes": 71,
+    "repealed": 0,
+    "amended": 59,
+    "headings": 13,
+    "characters": 60521
+   }
+  },
+  {
+   "id": "direct-taxes",
+   "title": "قانون مالیات‌های مستقیم",
+   "file": "laws/direct-taxes.json",
+   "contentHash": "954f2a5b257a079f3a3e434c743b32b1d6c73148deee8b56d942d203dc6a377d",
+   "stats": {
+    "articles": 288,
+    "notes": 225,
+    "repealed": 52,
+    "amended": 54,
+    "headings": 32,
+    "characters": 199833
+   }
+  },
+  {
+   "id": "civil-liability",
+   "title": "قانون مسئولیت مدنی",
+   "file": "laws/civil-liability.json",
+   "contentHash": "94b9aabe6e908403e8687d3acad188ef0e03b7ac9b6c834e6c07b2d5360748ba",
+   "stats": {
+    "articles": 16,
+    "notes": 0,
+    "repealed": 0,
+    "amended": 0,
+    "headings": 0,
+    "characters": 5078
+   }
+  },
+  {
+   "id": "registration",
+   "title": "قانون ثبت اسناد و املاک",
+   "file": "laws/registration.json",
+   "contentHash": "cee2d19ab6e9ed37051cf9b532e1c618b2d1c2cb29b3371432ddbc5a2b17685b",
+   "stats": {
+    "articles": 163,
+    "notes": 44,
+    "repealed": 9,
+    "amended": 4,
+    "headings": 14,
+    "characters": 66204
+   }
+  },
+  {
+   "id": "civil-judgments-enforcement",
+   "title": "قانون اجرای احکام مدنی",
+   "file": "laws/civil-judgments-enforcement.json",
+   "contentHash": "a19296c97a16eea04f69e06f3799f6a22e901b35dd5c3af7e0d9d05eda77c522",
+   "stats": {
+    "articles": 180,
+    "notes": 8,
+    "repealed": 0,
+    "amended": 1,
+    "headings": 23,
+    "characters": 42596
+   }
+  },
+  {
+   "id": "financial-convictions",
+   "title": "قانون نحوه اجرای محکومیت‌های مالی",
+   "file": "laws/financial-convictions.json",
+   "contentHash": "36e43d0bcbef3aad1abdadb6379a1e704f63592ec3a6b943e438c3ede8c8b6fd",
+   "stats": {
+    "articles": 29,
+    "notes": 13,
+    "repealed": 0,
+    "amended": 0,
+    "headings": 0,
+    "characters": 13054
+   }
+  },
+  {
+   "id": "dispute-councils",
+   "title": "قانون شوراهای حل اختلاف",
+   "file": "laws/dispute-councils.json",
+   "contentHash": "d0f6999e1148c7bf4f0298fb00e061dd261862afca6a319b909d73d083dced07",
+   "stats": {
+    "articles": 41,
+    "notes": 37,
+    "repealed": 0,
+    "amended": 0,
+    "headings": 5,
+    "characters": 23309
+   }
+  },
+  {
+   "id": "third-party-insurance",
+   "title": "قانون بیمه اجباری خسارات واردشده به شخص ثالث در اثر حوادث ناشی از وسایل نقلیه",
+   "file": "laws/third-party-insurance.json",
+   "contentHash": "6ae21f3acba4c9383f58be5bdc652f38aff23eb096ea5dfbe95c861ae13a89eb",
+   "stats": {
+    "articles": 66,
+    "notes": 55,
+    "repealed": 0,
+    "amended": 0,
+    "headings": 7,
+    "characters": 43453
+   }
+  },
+  {
+   "id": "municipality",
+   "title": "قانون شهرداری",
+   "file": "laws/municipality.json",
+   "contentHash": "eda21f321bf26831883a47d1f447dc671bd5e07b9faca3e968852c760afb61de",
+   "stats": {
+    "articles": 119,
+    "notes": 97,
+    "repealed": 14,
+    "amended": 57,
+    "headings": 19,
+    "characters": 79700
+   }
+  }
+ ]
+}

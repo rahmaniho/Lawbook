@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci
+      - name: Data pipeline (verify canonical data is up to date)
+        run: |
+          python3 scripts/pipeline/build_laws.py
+          git diff --exit-code -- data/laws || (echo "data/laws is stale — run npm run data:laws and commit" && exit 1)
+      - run: npm run test:py
+      - run: npm test
+      - run: npm run build
+      - run: npm run size

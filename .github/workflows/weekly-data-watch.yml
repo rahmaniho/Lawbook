@@ -1,0 +1,26 @@
+name: Weekly legal data watch
+
+on:
+  schedule:
+    - cron: '0 4 * * 6' # هر شنبه ساعت ۷:۳۰ تهران
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install beautifulsoup4 lxml
+      - name: Watch rrk.ir (official gazette)
+        run: python3 scripts/admin/rrk_watch.py --out report.md || echo "watch failed (site unreachable from runner?)" > report.md
+      - name: Open issue with the report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh issue create --title "گزارش هفتگی پایش روزنامه رسمی $(date +%F)" --body-file report.md --label data-update || true

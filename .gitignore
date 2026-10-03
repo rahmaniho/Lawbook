@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# build output
+dist/
+dev-dist/
+data/build/
+coverage/
+
+# generated at build time from data/laws (see scripts/bundle-data.ts)
+public/data/
+
+# scraper caches & logs
+scripts/scraper/.cache/
+scripts/scraper/output/
+*.log
+
+# env
+.env
+.env.local
+.env.*.local
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.shots/
+
+# admin tool state/output
+scripts/admin/.state/
+scripts/admin/output/

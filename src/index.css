@@ -1,0 +1,275 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/vazirmatn/wght.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- توکن‌های طراحی ---------- */
+:root {
+  --bg: #f4f7f6;
+  --surface: #ffffff;
+  --surface-2: #eef3f2;
+  --surface-3: #e3ebe9;
+  --text: #0e1d1a;
+  --muted: #5a6b67;
+  --border: #dde6e4;
+  --brand: #0f766e;
+  --brand-strong: #0b5e57;
+  --brand-soft: #d9f1ee;
+  --brand-contrast: #ffffff;
+  --accent: #b45309;
+  --accent-soft: #fdf0dc;
+  --danger: #b91c1c;
+  --danger-soft: #fde8e8;
+  --ok: #15803d;
+  --ok-soft: #e3f6e9;
+  --shadow-color: 180deg 15% 30%;
+
+  --reader-size: 17px;
+  --reader-leading: 2;
+  --reader-font: var(--font-sans);
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h: 64px;
+  --appbar-h: 60px;
+}
+
+.dark {
+  --bg: #0a1412;
+  --surface: #101c1a;
+  --surface-2: #162522;
+  --surface-3: #1d2f2b;
+  --text: #e4eeec;
+  --muted: #92a5a1;
+  --border: #22342f;
+  --brand: #2cc4b2;
+  --brand-strong: #5eead4;
+  --brand-soft: #123532;
+  --brand-contrast: #032925;
+  --accent: #f6ad55;
+  --accent-soft: #3a2a12;
+  --danger: #f87171;
+  --danger-soft: #3b1515;
+  --ok: #4ade80;
+  --ok-soft: #10301c;
+  --shadow-color: 180deg 40% 2%;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: 'Vazirmatn Variable', Vazirmatn, Tahoma, system-ui, sans-serif;
+  --font-naskh: 'Noto Naskh Arabic', 'Vazirmatn Variable', serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-fg: var(--text);
+  --color-muted: var(--muted);
+  --color-line: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-contrast: var(--brand-contrast);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+
+  --radius-card: 1.25rem;
+  --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- پایه ---------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    background: var(--bg);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-feature-settings: 'ss01' on;
+    overscroll-behavior-y: none;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100dvh;
+    max-width: 100vw;
+    overflow-x: clip;
+  }
+
+  button,
+  a,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 0.5rem;
+  }
+
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--brand) 25%, transparent);
+  }
+
+  img,
+  svg {
+    max-width: 100%;
+  }
+}
+
+/* ---------- ابزارها ---------- */
+@utility shadow-soft {
+  box-shadow:
+    0 1px 1px hsl(var(--shadow-color) / 0.06),
+    0 2px 4px hsl(var(--shadow-color) / 0.06),
+    0 6px 16px -4px hsl(var(--shadow-color) / 0.1);
+}
+
+@utility shadow-float {
+  box-shadow:
+    0 2px 4px hsl(var(--shadow-color) / 0.08),
+    0 10px 30px -6px hsl(var(--shadow-color) / 0.22);
+}
+
+@utility pb-nav {
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 1.25rem);
+}
+
+@utility pt-safe {
+  padding-top: var(--safe-top);
+}
+
+@utility pb-safe {
+  padding-bottom: var(--safe-bottom);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+/* متن قانون (حالت مطالعه با تنظیمات کاربر) */
+.law-text {
+  font-family: var(--reader-font);
+  font-size: var(--reader-size);
+  line-height: var(--reader-leading);
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: none;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.law-text p + p {
+  margin-top: 0.6em;
+}
+
+.law-text.align-start {
+  text-align: start;
+}
+
+.law-marker {
+  font-size: 0.82em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0.4rem;
+  padding: 0.05em 0.35em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.law-editorial {
+  display: block;
+  font-size: 0.85em;
+  color: var(--muted);
+  border-inline-start: 3px solid var(--border);
+  padding-inline-start: 0.6em;
+  margin-top: 0.4em;
+}
+
+.law-ref {
+  color: var(--brand);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 4px;
+}
+
+mark.hl {
+  background: color-mix(in oklab, var(--accent) 28%, transparent);
+  color: inherit;
+  border-radius: 0.25rem;
+  padding: 0 0.1em;
+}
+
+/* حالت سپیا برای مطالعه */
+.reader-sepia {
+  --bg: #f5ecd9;
+  --surface: #fbf4e6;
+  --surface-2: #efe3c9;
+  --text: #3a2e1d;
+  --muted: #7a6a52;
+  --border: #e4d5b7;
+}
+
+/* اسکلتون */
+@keyframes shimmer {
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-radius: 0.6rem;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(100%);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--surface) 70%, transparent), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
