@@ -32,7 +32,7 @@ export default function HomePage() {
         <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground"><span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-primary" /> منبع‌محور و قابل بررسی</span><span className="flex items-center gap-1.5"><Sparkles size={14} className="text-primary" /> به‌روزرسانی {formatIsoToJalali(catalog.releasedAt)}</span></div>
       </section>
 
-      <div className="mt-5 grid grid-cols-4 gap-2"><Metric value={catalog.stats.lawCount} label="سند" /><Metric value={catalog.stats.articleCount} label="ماده" /><Metric value={catalog.stats.categoryCount} label="دسته" /><Metric value={catalog.stats.entityCount} label="نهاد" /></div>
+      <div className="mt-5 grid grid-cols-4 gap-2"><Metric value={catalog.stats.lawCount} label="سند" /><Metric value={catalog.stats.articleCount} label="ماده" /><Metric value={catalog.stats.categoryCount} label="دسته" /><Metric value={catalog.stats.entityCount ?? 0} label="نهاد" /></div>
 
       <SectionHeading title="شروع سریع" subtitle="برای نیاز امروزتان یک مسیر انتخاب کنید" />
       <div className="grid grid-cols-2 gap-2.5">
