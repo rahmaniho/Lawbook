@@ -3,23 +3,40 @@
  * Service Worker «کتابچه قانون»
  *  - پیش‌بارگذاری پوسته برنامه برای اجرای آفلاین
  *  - کش Stale-While-Revalidate برای پوسته، فونت‌ها و دارایی‌های ایستا
- *  - کش نسخه‌ای (immutable) برای داده‌های قوانین: /data/v<version>/...
+ *  - کش نسخه‌ای (immutable) برای داده‌های قوانین: /data/v/<version>/...
  *  - Background Sync + Periodic Sync برای بررسی به‌روزرسانی قوانین
+ *
+ * نکتهٔ مهم: برنامه روی GitHub Pages زیر یک زیرمسیر (basePath) سرو می‌شود،
+ * بنابراین هیچ مسیری اینجا به‌صورت مطلق از ریشهٔ دامنه نوشته نمی‌شود.
+ * basePath در زمان اجرا از خودِ آدرس سرویس‌ورکر استخراج می‌شود تا هم برای
+ * استقرار در ریشه و هم زیر /Lawbook درست کار کند.
  */
 const VERSION = 'v1';
 const SHELL_CACHE = `ghanoun-shell-${VERSION}`;
 const ASSET_CACHE = `ghanoun-assets-${VERSION}`;
 const DATA_CACHE = `ghanoun-data-${VERSION}`;
-const OFFLINE_URL = '/offline';
 
-const SHELL_ROUTES = ['/', '/laws', '/entities', '/search', '/bookmarks', '/settings', '/about', '/offline', '/coverage'];
+/** basePath سرویس‌ورکر: '/Lawbook/sw.js' → '/Lawbook' ؛ '/sw.js' → '' */
+const BASE = (() => {
+  const p = new URL('./', self.location).pathname.replace(/\/+$/, '');
+  return p === '/' ? '' : p;
+})();
+
+/** ساختن مسیرِ سازگار با basePath */
+const u = (urlPath) => `${BASE}${urlPath}`;
+
+const OFFLINE_URL = u('/offline/');
+
+const SHELL_ROUTES = [
+  '/', '/laws/', '/entities/', '/search/', '/bookmarks/', '/settings/', '/about/', '/offline/', '/coverage/',
+].map(u);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(SHELL_CACHE);
       await Promise.allSettled(SHELL_ROUTES.map((route) => cache.add(new Request(route, { cache: 'reload' }))));
-      await cache.add(new Request('/manifest.webmanifest', { cache: 'reload' })).catch(() => undefined);
+      await cache.add(new Request(u('/manifest.webmanifest'), { cache: 'reload' })).catch(() => undefined);
       await self.skipWaiting();
     })(),
   );
@@ -43,7 +60,7 @@ self.addEventListener('activate', (event) => {
 });
 
 function isVersionedData(url) {
-  return url.pathname.startsWith('/data/v/');
+  return url.pathname.startsWith(u('/data/v/'));
 }
 
 async function staleWhileRevalidate(request, cacheName) {
@@ -93,6 +110,9 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // خودِ سرویس‌ورکر همیشه از شبکه بررسی شود تا نسخهٔ کهنه قفل نشود
+  if (url.pathname === u('/sw.js')) return;
+
   // داده‌های نسخه‌بندی‌شده قوانین: کش دائمی (تغییرناپذیر)
   if (isVersionedData(url)) {
     event.respondWith(cacheFirst(request, DATA_CACHE));
@@ -100,7 +120,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // اشاره‌گر نسخه: همیشه از شبکه، با پشتیبان کش
-  if (url.pathname === '/data/version.json') {
+  if (url.pathname === u('/data/version.json')) {
     event.respondWith(
       (async () => {
         try {
@@ -118,7 +138,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (url.pathname.startsWith('/_next/static/') || url.pathname.startsWith('/icons/') || url.pathname.startsWith('/fonts/')) {
+  if (
+    url.pathname.startsWith(u('/_next/static/')) ||
+    url.pathname.startsWith(u('/icons/')) ||
+    url.pathname.startsWith(u('/fonts/'))
+  ) {
     event.respondWith(cacheFirst(request, ASSET_CACHE));
     return;
   }
@@ -128,7 +152,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (url.pathname.startsWith('/_next/') || url.pathname === '/manifest.webmanifest') {
+  if (url.pathname.startsWith(u('/_next/')) || url.pathname === u('/manifest.webmanifest')) {
     event.respondWith(staleWhileRevalidate(request, ASSET_CACHE));
   }
 });
@@ -136,11 +160,11 @@ self.addEventListener('fetch', (event) => {
 /** بررسی به‌روزرسانی نسخه داده در پس‌زمینه و اطلاع به برنامه */
 async function checkForDataUpdates() {
   try {
-    const res = await fetch('/data/version.json', { cache: 'no-store' });
+    const res = await fetch(u('/data/version.json'), { cache: 'no-store' });
     if (!res.ok) return;
     const pointer = await res.json();
     const cache = await caches.open(DATA_CACHE);
-    await cache.put('/data/version.json', new Response(JSON.stringify(pointer), { headers: { 'Content-Type': 'application/json' } }));
+    await cache.put(u('/data/version.json'), new Response(JSON.stringify(pointer), { headers: { 'Content-Type': 'application/json' } }));
     const clients = await self.clients.matchAll({ includeUncontrolled: true });
     clients.forEach((client) => client.postMessage({ type: 'data-updated', version: pointer.version }));
   } catch {
@@ -172,5 +196,5 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  event.waitUntil(self.clients.openWindow('/settings'));
+  event.waitUntil(self.clients.openWindow(u('/settings/')));
 });

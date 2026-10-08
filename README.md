@@ -45,6 +45,28 @@ npm run dev          # ساخت داده‌ها + اجرای محیط توسعه
 > برای اجرا در ریشهٔ دامنه (مثلاً لوکال یا Vercel):
 > `NEXT_PUBLIC_BASE_PATH= VERCEL=1 npm run dev`
 
+### مسیرها و نصب‌شدن PWA
+
+تنها مرجعِ basePath فایل `config/base-path.mjs` است و هر سه مصرف‌کننده از همان
+می‌خوانند:
+
+| مصرف‌کننده | چطور basePath را می‌گیرد |
+| --- | --- |
+| `next.config.mjs` | `resolveBasePath()` و انتقال آن به کلاینت با `env.NEXT_PUBLIC_BASE_PATH` |
+| `public/manifest.webmanifest` | در زمان بیلد توسط `scripts/build-manifest.mjs` با همان basePath بازنویسی می‌شود |
+| `src/lib/base-path.ts` (کلاینت) | `withBase()` برای ثبت Service Worker و لینک manifest/آیکون‌ها |
+| `public/sw.js` | در زمان اجرا از آدرس خودش: `new URL('./', self.location)` |
+
+Next.js فیلدهای `metadata.manifest` و `metadata.icons` را با basePath ترکیب
+**نمی‌کند**؛ بدون این لایه، روی GitHub Pages همهٔ این مسیرها به ریشهٔ دامنه
+اشاره می‌کردند و ۴۰۴ می‌گرفتند — یعنی `start_url` بیرون از scope سرویس‌ورکر
+می‌افتاد و کروم هرگز دکمهٔ «نصب» را فعال نمی‌کرد. آزمون‌های این مسیر در
+`tests/pwa.test.mjs` هستند (سرویس‌ورکر واقعاً در یک context مجزا اجرا می‌شود).
+
+> `npm run data:build` مجموعهٔ «آراء قضایی» را در صورت نبودِ منبعِ اختیاری
+> (`data/sources/legalchatbot/case.csv`) حذف نمی‌کند؛ نسخهٔ ثبت‌شده در مخزن
+> حفظ می‌شود. برای بازسازی آن: `npm run sources:fetch`.
+
 | فرمان | کار |
 | --- | --- |
 | `npm run dev` | ساخت داده‌ها و اجرای dev server |

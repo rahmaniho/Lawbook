@@ -100,7 +100,7 @@ function SplashScreen({
     progress.bytesTotal > 0 ? Math.min(100, Math.round((progress.bytesDone / progress.bytesTotal) * 100)) : 8;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between px-6 py-12">
+    <main className="flex min-h-app flex-col items-center justify-between px-6 py-12">
       <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
         <div className="splash-logo flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-3xl">
           ⚖️

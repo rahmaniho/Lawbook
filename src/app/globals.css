@@ -28,6 +28,9 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-top: env(safe-area-inset-top, 0px);
     --nav-height: 60px;
+    /* ارتفاع واقعی نوار بالا؛ در زمان اجرا توسط AppShell اندازه‌گیری و بازنویسی
+       می‌شود. همهٔ نوارهای چسبنده از همین متغیر استفاده می‌کنند. */
+    --topbar-h: 56px;
   }
 
   .dark {
@@ -60,20 +63,27 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* جلوگیری از اسکرول افقی روی موبایل.
+       نکته: این قاعده از ریشه به viewport منتقل می‌شود و خودِ html مقدار
+       `visible` می‌گیرد، پس `position: sticky` فرزندان سالم می‌ماند. */
+    overflow-x: hidden;
+    /* پرشِ محتوای زیر نوار چسبنده هنگام پرش به لنگر/هش */
+    scroll-padding-top: calc(var(--topbar-h) + 0.75rem);
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: 'ss01';
-    overscroll-behavior-y: none;
     padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
   }
 
-  /* جلوگیری از اسکرول افقی روی موبایل */
-  html,
+  /* جلوگیری از اسکرول افقی روی موبایل، بدون شکستن `position: sticky`.
+     برخلاف `overflow-x: hidden` روی body، مقدار `clip` «scroll container»
+     نمی‌سازد؛ با `hidden` مقدار `overflow-y` به `auto` تبدیل می‌شد و body به
+     کانتینر اسکرولِ بی‌اثر تبدیل می‌شد — در نتیجه نوار بالا و نوارهای
+     فیلتر هرگز نمی‌چسبیدند و با صفحه جابه‌جا می‌شدند. */
   body {
-    max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   ::selection {
@@ -129,6 +139,27 @@
 
   .safe-top {
     padding-top: calc(var(--safe-top) + 0.5rem);
+  }
+
+  /* ارتفاع قابل‌اتکا در موبایل: 100vh با احتساب نوار آدرس مرورگر از پنجرهٔ
+     واقعی بزرگ‌تر است و انتهای صفحه زیر نوار ناوبری می‌رفت. */
+  .min-h-app {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* پنل شناور (Bottom Sheet): اسکرول داخلی بدون بیرون‌زدن از پنجره */
+  .panel-scroll {
+    max-height: 88vh;
+    max-height: 88dvh;
+  }
+
+  /* رندر تدریجی ماده‌ها بدون ساختن کانتینر اسکرول تودرتو:
+     مرورگر محتوای بیرونِ دید را رندر نمی‌کند، ولی ارتفاعش را نگه می‌دارد
+     و به‌محض نزدیک‌شدن، اندازهٔ واقعی را جایگزین می‌کند. */
+  .article-chunk {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 220px;
   }
 
   .safe-bottom {

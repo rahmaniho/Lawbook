@@ -1,12 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { FixedSizeList, type ListChildComponentProps } from 'react-window';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Bookmark, Copy, Share2, Star, Type, AlignRight, AlignJustify, Check, ChevronLeft, SlidersHorizontal, NotebookPen,
 } from 'lucide-react';
-import { Badge, Button, Card, EmptyState, Segmented, Sheet, Slider, Switch, Textarea } from '@/components/ui/primitives';
+import { Badge, Button, Card, EmptyState, Segmented, Sheet, Skeleton, Slider, Switch, Textarea } from '@/components/ui/primitives';
 import { ArticleCard } from '@/components/article-card';
 import { cn } from '@/lib/utils';
 import { toFaDigits } from '@/lib/fa';
@@ -91,32 +90,62 @@ export function LawRowCard({ law, href }: { law: LawMeta; href?: string }) {
 }
 
 /* -------------------------- کارت ماده با متن برجسته -------------------------- */
-export function ArticleItem({ article, height }: { article: ArticleRow; height: number }) {
+export function ArticleItem({ article }: { article: ArticleRow }) {
   return (
-    <div style={{ height }} className="px-1 py-1.5">
+    <div className="article-chunk px-1 py-1.5">
       <ArticleCard article={article} />
     </div>
   );
 }
 
-/** فهرست مجازی ماده‌ها (عملکرد روان برای قوانین با بیش از هزار ماده) */
-export function VirtualArticleList({
+/** تعداد ماده‌هایی که در هر مرحله رندر می‌شود */
+const ARTICLE_CHUNK = 40;
+
+/**
+ * فهرست ماده‌ها (عملکرد روان برای قوانین با بیش از هزار ماده).
+ *
+ * پیش‌تر اینجا `FixedSizeList` با ارتفاع `window.innerHeight - 210` استفاده
+ * می‌شد؛ یعنی یک کانتینر اسکرول تودرتو در میان صفحه. روی موبایل نتیجه‌اش این
+ * بود که اسکرول لمسی بین صفحه و فهرست گیر می‌کرد، با جمع‌شدن نوار آدرس
+ * مرورگر ارتفاع فهرست می‌پرید، و هر ماده در قالب ثابت ۱۸۶px بریده می‌شد.
+ *
+ * حالا ماده‌ها در جریان طبیعیِ خودِ صفحه رندر می‌شوند (یک اسکرول‌کننده، همان
+ * document) و فقط «تعداد» گره‌ها با نزدیک‌شدن کاربر به انتهای فهرست زیاد
+ * می‌شود؛ `content-visibility` هم هزینهٔ رندر موارد بیرون از دید را حذف می‌کند.
+ */
+export function ArticleList({
   articles,
-  itemHeight = 186,
   emptyMessage = 'ماده‌ای یافت نشد.',
 }: {
   articles: ArticleRow[];
-  itemHeight?: number;
   emptyMessage?: string;
 }) {
-  const [height, setHeight] = useState(600);
+  const [limit, setLimit] = useState(ARTICLE_CHUNK);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  /* با تغییر فیلتر/جست‌وجو (هویت آرایه عوض می‌شود) فهرست از اول رندر شود */
+  useEffect(() => {
+    setLimit(ARTICLE_CHUNK);
+  }, [articles]);
 
   useEffect(() => {
-    const compute = () => setHeight(Math.max(320, window.innerHeight - 210));
-    compute();
-    window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
-  }, []);
+    const el = sentinelRef.current;
+    if (!el || limit >= articles.length) return;
+    if (typeof IntersectionObserver === 'undefined') {
+      setLimit(articles.length);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setLimit((current) => Math.min(current + ARTICLE_CHUNK, articles.length));
+        }
+      },
+      { rootMargin: '1200px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [limit, articles.length]);
 
   if (!articles.length) {
     return (
@@ -128,22 +157,19 @@ export function VirtualArticleList({
     );
   }
 
+  const hasMore = limit < articles.length;
+
   return (
-    <FixedSizeList
-      height={height}
-      width="100%"
-      itemCount={articles.length}
-      itemSize={itemHeight}
-      itemData={articles}
-      overscanCount={4}
-      className="no-scrollbar"
-    >
-      {({ index, style, data }: ListChildComponentProps<ArticleRow[]>) => (
-        <div style={style}>
-          <ArticleItem article={data[index]} height={itemHeight} />
+    <div>
+      {articles.slice(0, limit).map((article) => (
+        <ArticleItem key={article.id} article={article} />
+      ))}
+      {hasMore ? (
+        <div ref={sentinelRef} className="flex justify-center py-4">
+          <Skeleton className="h-3 w-24" />
         </div>
-      )}
-    </FixedSizeList>
+      ) : null}
+    </div>
   );
 }
 

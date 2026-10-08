@@ -9,7 +9,7 @@ import { loadLawArticles } from '@/lib/sync';
 import { useApp } from '@/lib/store';
 import type { ArticleRow } from '@/lib/db';
 import { Badge, Button, Card, Input, Skeleton } from '@/components/ui/primitives';
-import { ReaderSettingsSheet, VirtualArticleList } from '@/components/bits';
+import { ArticleList, ReaderSettingsSheet } from '@/components/bits';
 import { isReferenceLaw } from '@/lib/entities';
 import { formatNumberFa } from '@/lib/format';
 import { normalizeForSearch, toFaDigits } from '@/lib/fa';
@@ -210,7 +210,7 @@ export default function LawDetailPage() {
       </header>
 
       {/* جست‌وجو و فصل‌ها */}
-      <div className="sticky top-[52px] z-20 -mx-4 mt-3 space-y-2 bg-background/95 px-4 py-2 backdrop-blur">
+      <div className="sticky top-[var(--topbar-h)] z-20 -mx-4 mt-3 space-y-2 bg-background/95 px-4 py-2 backdrop-blur">
         <div className="flex items-center gap-2 rounded-2xl border bg-background px-3 py-2">
           <Search size={16} className="text-muted-foreground" />
           <Input
@@ -244,7 +244,7 @@ export default function LawDetailPage() {
         </div>
       ) : (
         <div className="mt-2">
-          <VirtualArticleList articles={filtered} emptyMessage="در این قانون، ماده‌ای با این عبارت یافت نشد." />
+          <ArticleList articles={filtered} emptyMessage="در این قانون، ماده‌ای با این عبارت یافت نشد." />
         </div>
       )}
 

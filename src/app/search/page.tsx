@@ -71,7 +71,7 @@ function SearchInner() {
 
   return (
     <div className="app-container pb-8">
-      <div className="sticky top-[52px] z-20 -mx-4 bg-background/95 px-4 pb-2 pt-3 backdrop-blur">
+      <div className="sticky top-[var(--topbar-h)] z-20 -mx-4 bg-background/95 px-4 pb-2 pt-3 backdrop-blur">
         <div className="flex items-center gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-2xl border bg-background px-3 py-2">
             <SearchIcon size={16} className="text-muted-foreground" />
