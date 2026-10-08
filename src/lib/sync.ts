@@ -122,9 +122,13 @@ export async function syncData(options: SyncOptions = {}): Promise<SyncResult> {
 
   let updatedLaws = 0;
   let articles = 0;
+  let completed = true;
 
   for (const law of pointer.laws) {
-    if (signal?.aborted) break;
+    if (signal?.aborted) {
+      completed = false;
+      break;
+    }
     const stored = await db.laws.get(law.id);
     if (!force && stored?.hash === law.hash) {
       articles += stored.articleCount;
@@ -152,7 +156,10 @@ export async function syncData(options: SyncOptions = {}): Promise<SyncResult> {
         throw err;
       }
     }
-    if (signal?.aborted) break;
+    if (signal?.aborted) {
+      completed = false;
+      break;
+    }
 
     await db.transaction('rw', db.articles, db.laws, async () => {
       await db.articles.where('lawId').equals(law.id).delete();
@@ -178,6 +185,17 @@ export async function syncData(options: SyncOptions = {}): Promise<SyncResult> {
     });
     // اجازه تنفس به رابط کاربری
     await new Promise((r) => setTimeout(r, 0));
+  }
+
+  if (!completed) {
+    reporter.set({ phase: 'error', message: 'به‌روزرسانی لغو شد.' });
+    return {
+      version: cachedVersion ?? pointer.version,
+      updatedLaws,
+      totalArticles: articles,
+      ready: storedCount + updatedLaws === pointer.laws.length,
+      offline: false,
+    };
   }
 
   await setMeta(META_KEYS.dataVersion, pointer.version);
