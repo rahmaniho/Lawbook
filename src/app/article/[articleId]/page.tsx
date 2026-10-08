@@ -1,10 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import ArticlePage from './article-page-client';
-
-interface CatalogFile {
-  laws: Array<{ id: string }>;
-}
+import { currentDataVersion } from '@/lib/server/data-version';
 
 async function readJson<T>(filePath: string): Promise<T | null> {
   try {
@@ -14,13 +11,8 @@ async function readJson<T>(filePath: string): Promise<T | null> {
   }
 }
 
-async function readDataVersion() {
-  const files = await fs.readdir(path.join(process.cwd(), 'public/data/v'));
-  return files.sort().at(-1) ?? null;
-}
-
 export async function generateStaticParams(): Promise<Array<{ articleId: string }>> {
-  const version = await readDataVersion();
+  const version = await currentDataVersion();
   if (!version) return [];
 
   const lawsDir = path.join(process.cwd(), 'public/data/v', version, 'laws');

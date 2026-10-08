@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import {
-  AlertTriangle, Database, Download, Info, Moon, RefreshCw, Smartphone, Sun, Trash2,
+  AlertTriangle, Database, Download, Gavel, Info, Landmark, Loader2, Moon, RefreshCw, Smartphone, Sun, Trash2,
 } from 'lucide-react';
 import { clearLocalData, db, getMeta, META_KEYS, storageEstimate } from '@/lib/db';
 import { syncData } from '@/lib/sync';
@@ -14,6 +14,13 @@ import { SectionHeading } from '@/components/bits';
 import { formatBytes, formatIsoToJalali, formatNumberFa } from '@/lib/format';
 import { toFaDigits } from '@/lib/fa';
 import { haptic, useInstallPrompt } from '@/lib/hooks';
+import { casesStatus, disableCases, downloadCases, resetCasesCache, type CasesStatus } from '@/lib/cases';
+import type { Catalog } from '@/lib/types';
+
+/** تعداد اسنادی که متن دارند (اسناد ارجاعی داده‌ای برای دریافت ندارند) */
+function downloadableLawCount(catalog: Catalog) {
+  return catalog.laws.filter((l) => l.articleCount > 0).length;
+}
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -28,8 +35,33 @@ export default function SettingsPage() {
   const { canInstall, promptInstall, installed } = useInstallPrompt();
 
   const [stats, setStats] = useState({ laws: 0, articles: 0, version: '', lastSync: 0, usage: 0 });
+  const [cases, setCases] = useState<CasesStatus | null>(null);
+  const [casesBusy, setCasesBusy] = useState(false);
+  const [casesMessage, setCasesMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  const refreshCases = useCallback(async () => {
+    setCases(await casesStatus());
+  }, []);
+
+  useEffect(() => {
+    refreshCases();
+  }, [refreshCases, catalog?.version]);
+
+  const toggleCases = async () => {
+    setCasesBusy(true);
+    setCasesMessage(null);
+    resetCasesCache();
+    if (cases?.downloaded) {
+      await disableCases();
+    } else {
+      const ok = await downloadCases();
+      if (!ok) setCasesMessage('دریافت آراء انجام نشد؛ اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.');
+    }
+    setCasesBusy(false);
+    await refreshCases();
+  };
 
   const refreshStats = async () => {
     const [laws, articles, version, lastSync, est] = await Promise.all([
@@ -162,10 +194,10 @@ export default function SettingsPage() {
 
         {message ? <p className="text-[11px] text-primary">{message}</p> : null}
 
-        {catalog && stats.laws < catalog.laws.length ? (
+        {catalog && stats.laws < downloadableLawCount(catalog) ? (
           <p className="flex items-start gap-2 rounded-xl bg-amber-500/10 p-2.5 text-[11px] leading-5 text-amber-800 dark:text-amber-300">
             <AlertTriangle size={14} className="mt-0.5 shrink-0" />
-            {formatNumberFa(catalog.laws.length - stats.laws)} سند هنوز روی این دستگاه ذخیره نشده است؛ برای استفاده کامل آفلاین،
+            {formatNumberFa(downloadableLawCount(catalog) - stats.laws)} سند هنوز روی این دستگاه ذخیره نشده است؛ برای استفاده کامل آفلاین،
             «بررسی و دریافت به‌روزرسانی» را بزنید.
           </p>
         ) : null}
@@ -181,6 +213,45 @@ export default function SettingsPage() {
           <Trash2 size={15} /> پاک کردن یادداشت‌ها، نشان‌ها و تاریخچه
         </Button>
       </Card>
+
+      {cases?.available ? (
+        <>
+          <SectionHeading title="مجموعهٔ آراء قضایی" subtitle="دریافتِ اختیاری — جدا از متن قوانین" />
+          <Card className="space-y-3 p-3.5">
+            <div className="flex items-start gap-3">
+              <span className="rounded-xl bg-primary/10 p-2 text-primary">
+                <Gavel size={18} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] font-medium">
+                  {cases.downloaded
+                    ? `${formatNumberFa(cases.count)} رأی روی این دستگاه`
+                    : `${formatNumberFa(cases.count)} رأی آمادهٔ دریافت`}
+                </p>
+                <p className="mt-0.5 text-[11px] leading-5 text-muted-foreground">
+                  حجم {formatBytes(cases.bytes)} — برای مطالعهٔ رویهٔ قضایی؛ در همگام‌سازی عادی برنامه دانلود نمی‌شود.
+                </p>
+              </div>
+            </div>
+            <Button
+              className="w-full gap-2"
+              variant={cases.downloaded ? 'outline' : 'default'}
+              onClick={toggleCases}
+              disabled={casesBusy}
+            >
+              {casesBusy ? (
+                <Loader2 size={15} className="animate-spin" />
+              ) : cases.downloaded ? (
+                <Trash2 size={15} />
+              ) : (
+                <Download size={15} />
+              )}
+              {casesBusy ? 'در حال انجام…' : cases.downloaded ? 'حذف از دستگاه' : 'دریافت مجموعهٔ آراء'}
+            </Button>
+            {casesMessage ? <p className="text-[11px] text-destructive">{casesMessage}</p> : null}
+          </Card>
+        </>
+      ) : null}
 
       <SectionHeading title="نصب روی گوشی" />
       <Card className="flex items-center gap-3 p-3.5">
@@ -206,6 +277,8 @@ export default function SettingsPage() {
       <Card className="divide-y">
         <Row href="/about" icon={<Info size={16} />} title="درباره ما، اعتبار حقوقی و منابع رسمی" />
         <Row href="/coverage" icon={<Database size={16} />} title="گزارش پوشش قوانین و مواد ناموجود" />
+        <Row href="/entities" icon={<Landmark size={16} />} title="نهادها، سازمان‌ها، بانک‌ها و دانشگاه‌ها" />
+        <Row href="/cases" icon={<Gavel size={16} />} title="آراء قضایی (رویهٔ قضایی)" />
       </Card>
 
       <p className="mt-6 text-center text-[10.5px] leading-5 text-muted-foreground">

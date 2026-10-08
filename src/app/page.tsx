@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, BookMarked, Calculator, ChevronLeft, FileCheck2, Landmark, Search, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookMarked, Calculator, ChevronLeft, FileCheck2, Gavel, Landmark, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { CategoryGrid, LawRowCard, SectionHeading, StatsStrip } from '@/components/bits';
 import { Card, Skeleton } from '@/components/ui/primitives';
@@ -32,10 +32,24 @@ export default function HomePage() {
         <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-muted-foreground"><span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-primary" /> منبع‌محور و قابل بررسی</span><span className="flex items-center gap-1.5"><Sparkles size={14} className="text-primary" /> به‌روزرسانی {formatIsoToJalali(catalog.releasedAt)}</span></div>
       </section>
 
-      <div className="mt-5 grid grid-cols-3 gap-2"><Metric value={catalog.stats.lawCount} label="قانون" /><Metric value={catalog.stats.articleCount} label="ماده" /><Metric value={catalog.stats.categoryCount} label="دسته" /></div>
+      <div className="mt-5 grid grid-cols-4 gap-2">
+        <Metric value={catalog.stats.fullTextCount ?? catalog.stats.lawCount} label="سند با متن" />
+        <Metric value={catalog.stats.articleCount} label="ماده" />
+        <Metric value={catalog.stats.categoryCount} label="دسته" />
+        <Metric value={catalog.stats.entityCount ?? 0} label="نهاد" />
+      </div>
 
       <SectionHeading title="شروع سریع" subtitle="برای نیاز امروزتان یک مسیر انتخاب کنید" />
-      <div className="grid grid-cols-2 gap-2.5"><QuickLink href="/laws" icon={<BookMarked size={18} />} title="مرور قوانین" /><QuickLink href="/search" icon={<Search size={18} />} title="جست‌وجوی پیشرفته" /><QuickLink href="/calculator/inheritance" icon={<Calculator size={18} />} title="محاسبه‌گر ارث" /><QuickLink href="/coverage" icon={<FileCheck2 size={18} />} title="پوشش داده‌ها" /></div>
+      <div className="grid grid-cols-2 gap-2.5">
+        <QuickLink href="/laws" icon={<BookMarked size={18} />} title="مرور قوانین" />
+        <QuickLink href="/search" icon={<Search size={18} />} title="جست‌وجوی پیشرفته" />
+        <QuickLink href="/entities" icon={<Landmark size={18} />} title="نهادها و سازمان‌ها" />
+        <QuickLink href="/cases" icon={<Gavel size={18} />} title="آراء قضایی" />
+        <QuickLink href="/calculator/inheritance" icon={<Calculator size={18} />} title="محاسبه‌گر ارث" />
+        <QuickLink href="/calculator/diyyeh" icon={<Calculator size={18} />} title="محاسبه‌گر دیه" />
+        <QuickLink href="/coverage" icon={<FileCheck2 size={18} />} title="پوشش داده‌ها" />
+        <QuickLink href="/about" icon={<ShieldCheck size={18} />} title="منابع و اعتبار" />
+      </div>
 
       <SectionHeading title="موضوعات حقوقی" subtitle="قوانین را بر اساس حوزه پیدا کنید" />
       <CategoryGrid categories={catalog.categories} />

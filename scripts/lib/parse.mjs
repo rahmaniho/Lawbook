@@ -113,31 +113,46 @@ export function parseHubJson(raw) {
     articleRange: clean(data.article_range || ''),
   };
   const articles = [];
-  for (const div of data.divisions || []) {
-    const path = [];
-    if (div.type && div.title) path.push(clean(div.title));
-    for (const a of div.articles || []) {
-      const rawNum = a.article_number;
-      let num = null;
-      let mokarrar = false;
-      let label = '';
-      if (typeof rawNum === 'number') num = rawNum;
-      else if (typeof rawNum === 'string') {
-        const s = clean(rawNum);
-        const digits = toEnDigits(s);
-        const m = digits.match(/^([0-9]+)\s*(مکرر|تکراری)?$/);
-        if (m) {
-          num = Number(m[1]);
-          mokarrar = Boolean(m[2]);
-        } else {
-          label = s;
-        }
+
+  /** استخراج شمارهٔ ماده از مقدارِ عددی یا رشته‌ایِ منبع */
+  const parseNumber = (rawNum) => {
+    let num = null;
+    let mokarrar = false;
+    let label = '';
+    if (typeof rawNum === 'number') num = rawNum;
+    else if (typeof rawNum === 'string') {
+      const s = clean(rawNum);
+      const digits = toEnDigits(s);
+      const m = digits.match(/^([0-9]+)\s*(مکرر|تکراری)?$/);
+      if (m) {
+        num = Number(m[1]);
+        mokarrar = Boolean(m[2]);
+      } else {
+        label = s;
       }
-      const body = clean(a.text || '');
-      if (!body) continue;
-      articles.push({ number: num, mokarrar, label, path: [...path], text: body });
     }
-  }
+    return { num, mokarrar, label };
+  };
+
+  /**
+   * پیمایشِ بازگشتی: ماده‌ها می‌توانند در هر سطحی از درختِ تقسیمات باشند
+   * (بخش → فصل → مبحث → …). پیش از این فقط سطحِ اول خوانده می‌شد و برای
+   * برخی اسناد (مثل قانون امور حسبی و قانون امور گمرکی) بیشترِ مواد از دست می‌رفت.
+   */
+  const walk = (divisions, path) => {
+    for (const div of divisions || []) {
+      const nextPath = div.type && div.title ? [...path, clean(div.title)] : path;
+      for (const a of div.articles || []) {
+        const { num, mokarrar, label } = parseNumber(a.article_number);
+        const body = clean(a.text || '');
+        if (!body) continue;
+        articles.push({ number: num, mokarrar, label, path: nextPath, text: body });
+      }
+      walk(div.subdivisions || [], nextPath);
+    }
+  };
+
+  walk(data.divisions || [], []);
   return { meta, articles };
 }
 

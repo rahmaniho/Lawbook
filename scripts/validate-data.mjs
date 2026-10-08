@@ -47,10 +47,34 @@ const seenLawIds = new Set();
 const globalArticleIds = new Set();
 let totalArticles = 0;
 let empties = 0;
+let referenceLaws = 0;
+
+const REQUIRED_LAW_FIELDS = ['id', 'title', 'shortTitle', 'category', 'hierarchy', 'status', 'source'];
 
 for (const lawMeta of catalog.laws) {
   if (seenLawIds.has(lawMeta.id)) errors.push(`شناسه قانون تکراری: ${lawMeta.id}`);
   seenLawIds.add(lawMeta.id);
+
+  for (const field of REQUIRED_LAW_FIELDS) {
+    if (!lawMeta[field] || (typeof lawMeta[field] === 'object' && !Object.keys(lawMeta[field]).length)) {
+      errors.push(`${lawMeta.id}: فیلد الزامی «${field}» خالی است`);
+    }
+  }
+  if (!catalog.categories.some((c) => c.id === lawMeta.category)) {
+    errors.push(`${lawMeta.id}: دسته نامعتبر «${lawMeta.category}»`);
+  }
+  if (!catalog.hierarchy.some((h) => h.id === lawMeta.hierarchy)) {
+    errors.push(`${lawMeta.id}: سطح سلسله‌مراتب نامعتبر «${lawMeta.hierarchy}»`);
+  }
+
+  /* اسناد ارجاعی فقط شناسنامه دارند و فایل ماده‌ای برای آن‌ها ساخته نمی‌شود. */
+  if (lawMeta.source?.kind === 'reference') {
+    if (lawMeta.articleCount !== 0) errors.push(`${lawMeta.id}: سند ارجاعی نباید ماده داشته باشد`);
+    if (partsById.get(lawMeta.id)?.length) errors.push(`${lawMeta.id}: سند ارجاعی نباید فایل داده‌ای داشته باشد`);
+    if (!lawMeta.summary) warnings.push(`${lawMeta.id}: سند ارجاعی بدون خلاصه`);
+    referenceLaws++;
+    continue;
+  }
 
   const { law, articles } = loadLaw(lawMeta.id);
   if (!partsById.get(lawMeta.id)?.length) {
@@ -95,7 +119,35 @@ if (arabicChars) warnings.push(`${arabicChars} ماده دارای حرف عرب
 if (presentation) errors.push(`${presentation} ماده دارای صورت نمایشی عربی (OCR) است`);
 if (doubleSpaces) warnings.push(`${doubleSpaces} ماده دارای فاصله تکراری است`);
 
-/* ---------------- ۳) آزمون‌های صحت متنی ---------------- */
+/* ---------------- ۳) فهرست نهادها و سازمان‌ها ---------------- */
+const groups = catalog.entityGroups || [];
+const seenGroupIds = new Set();
+const seenEntityIds = new Set();
+let entityCount = 0;
+for (const group of groups) {
+  if (seenGroupIds.has(group.id)) errors.push(`شناسه گروه نهاد تکراری: ${group.id}`);
+  seenGroupIds.add(group.id);
+  if (!group.title) errors.push(`گروه ${group.id}: بدون عنوان`);
+  if (!Array.isArray(group.items)) {
+    errors.push(`گروه ${group.id}: فهرست آیتم‌ها معتبر نیست`);
+    continue;
+  }
+  for (const item of group.items) {
+    entityCount++;
+    if (seenEntityIds.has(item.id)) errors.push(`شناسه نهاد تکراری: ${item.id}`);
+    seenEntityIds.add(item.id);
+    if (!item.title || !item.title.trim()) errors.push(`نهاد ${item.id}: بدون عنوان`);
+    if (item.group !== group.id) errors.push(`نهاد ${item.id}: گروه (${item.group}) با ${group.id} هم‌خوان نیست`);
+    if (!item.status) errors.push(`نهاد ${item.id}: بدون وضعیت`);
+    if (!item.source) errors.push(`نهاد ${item.id}: بدون منبع`);
+    if (/[\u064A\u0643\u0629]/.test(item.title || '')) errors.push(`نهاد ${item.id}: عنوان دارای حرف عربی (ی/ك/ة)`);
+  }
+}
+if (catalog.stats?.entityCount !== undefined && catalog.stats.entityCount !== entityCount) {
+  errors.push(`ناسازگاری شمار نهادها: آمار ${catalog.stats.entityCount} در برابر ${entityCount} واقعی`);
+}
+
+/* ---------------- ۴) آزمون‌های صحت متنی ---------------- */
 const ASSERTIONS = [
   ['civil-code', 10, 'قراردادهای خصوصی نسبت به کسانی که آن را منعقد نموده'],
   ['civil-code', 190, 'برای صحت هر معامله شرایط ذیل اساسی است'],
@@ -151,7 +203,8 @@ for (const [lawId, num, needle] of ASSERTIONS) {
 /* ---------------- گزارش ---------------- */
 const gapsTotal = catalog.laws.reduce((s, l) => s + (l.gaps?.count || 0), 0);
 console.log(`\n🔍 اعتبارسنجی داده‌ها — نسخه ${pointer.version}`);
-console.log(`   قوانین: ${catalog.laws.length} | مواد: ${totalArticles}`);
+console.log(`   اسناد: ${catalog.laws.length} | مواد: ${totalArticles} | اسناد ارجاعی (بدون متن): ${referenceLaws}`);
+console.log(`   نهادها: ${entityCount} در ${groups.length} گروه`);
 console.log(`   آزمون صحت متنی: ${assertPass} موفق، ${assertFail} ناموفق`);
 console.log(`   مواد ناموجود در منابع: ${gapsTotal}`);
 if (warnings.length) {

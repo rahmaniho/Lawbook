@@ -7,7 +7,8 @@ export type HierarchyId =
   | 'regulation'
   | 'council'
   | 'precedent'
-  | 'advisory';
+  | 'advisory'
+  | 'treaty';
 
 export type ArticleStatus = 'لازم‌الاجرا' | 'اصلاحی' | 'منسوخ';
 
@@ -76,6 +77,8 @@ export interface LawMeta {
   keywords: string[];
   checklist: string[];
   source: { kind: string; file?: string; name?: string; url?: string };
+  /** منشأ مدخل: تدوین‌شده در پروژه، فهرست مرجع ورودی، یا فهرست عناوین استخراج‌شده */
+  origin: string;
   note: string;
   articleRange: string;
   updatedAt: string;
@@ -94,6 +97,69 @@ export interface ChecklistItem {
   status: 'included' | 'pending';
   laws: string[];
   note?: string;
+}
+
+/** یک نهاد/سازمان در فهرست مرجع (وزارتخانه، بانک، دانشگاه، نهاد بین‌المللی و…) */
+export interface Entity {
+  id: string;
+  title: string;
+  shortTitle: string;
+  abbr: string;
+  note: string;
+  /** شناسه گروهی که این نهاد به آن تعلق دارد */
+  group: string;
+  status: string;
+  source: string;
+}
+
+/** یک رأی قضایی (مجموعهٔ اختیاری آراء) */
+export interface Verdict {
+  id: string;
+  title: string;
+  number: string;
+  date: string;
+  dateSort: number;
+  type: string;
+  /** طول متن کامل در منبع (برای آگاهی از برش‌خوردگی) */
+  chars: number;
+  truncated: boolean;
+  text: string;
+  /** متن نرمال‌شده برای جست‌وجو (در زمان ساخت تولید می‌شود) */
+  norm: string;
+}
+
+/** مدخل فهرست آراء (بدون متن کامل) */
+export interface VerdictIndexEntry {
+  id: string;
+  title: string;
+  number: string;
+  date: string;
+  dateSort: number;
+  type: string;
+  chars: number;
+  truncated: boolean;
+  norm: string;
+}
+
+export interface CasesPointer {
+  version: string;
+  source: string;
+  count: number;
+  bytes: number;
+  indexPath: string;
+  indexBytes: number;
+  parts: LawPointerPart[];
+  types: string[];
+}
+
+export interface EntityGroup {
+  id: string;
+  title: string;
+  icon: string;
+  color: string;
+  order: number;
+  description: string;
+  items: Entity[];
 }
 
 export interface CreditPerson {
@@ -121,7 +187,16 @@ export interface Catalog {
   checklist: ChecklistItem[];
   guides: { id: string; title: string; summary: string; category: string }[];
   laws: LawMeta[];
-  stats: { lawCount: number; articleCount: number; categoryCount: number };
+  entityGroups: EntityGroup[];
+  stats: {
+    lawCount: number;
+    articleCount: number;
+    categoryCount: number;
+    entityCount: number;
+    fullTextCount: number;
+    referenceLawCount: number;
+    titleIndexCount: number;
+  };
 }
 
 export interface LawPointerPart {
@@ -147,6 +222,8 @@ export interface DataPointer {
   catalogPath: string;
   laws: LawPointer[];
   stats: { lawCount: number; articleCount: number };
+  /** مجموعهٔ اختیاری آراء قضایی — فقط در صورت ساخت داده وجود دارد */
+  cases?: CasesPointer;
 }
 
 export interface Bookmark {

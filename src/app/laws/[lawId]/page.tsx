@@ -1,17 +1,12 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import LawDetailPage from './law-detail-client';
+import { readVersionedJson } from '@/lib/server/data-version';
 
 interface CatalogFile {
   laws: Array<{ id: string }>;
 }
 
 async function readCatalog(): Promise<CatalogFile> {
-  const files = await fs.readdir(path.join(process.cwd(), 'public/data/v'));
-  const version = files.sort().at(-1);
-  if (!version) return { laws: [] };
-  const source = await fs.readFile(path.join(process.cwd(), 'public/data/v', version, 'catalog.json'), 'utf8');
-  return JSON.parse(source) as CatalogFile;
+  return (await readVersionedJson<CatalogFile>('catalog.json')) ?? { laws: [] };
 }
 
 export async function generateStaticParams() {

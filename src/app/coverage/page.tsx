@@ -17,6 +17,7 @@ export default function CoveragePage() {
   const pending = catalog.checklist.filter((c) => c.status !== 'included');
   const lawsWithGaps = catalog.laws.filter((l) => l.gaps?.count);
   const totalGaps = lawsWithGaps.reduce((s, l) => s + l.gaps.count, 0);
+  const referenceLaws = catalog.laws.filter((l) => !l.articleCount && l.origin !== 'law-title-index');
 
   return (
     <div className="app-container pb-10">
@@ -25,11 +26,18 @@ export default function CoveragePage() {
         subtitle="شفافیت کامل درباره آنچه در این نسخه گنجانده شده و آنچه باقی مانده است"
       />
 
-      <Card className="grid grid-cols-3 gap-2 p-3.5 text-center">
-        <Stat value={formatNumberFa(catalog.stats.lawCount)} label="سند حقوقی" />
+      <Card className="grid grid-cols-5 gap-2 p-3.5 text-center">
+        <Stat value={formatNumberFa(catalog.stats.fullTextCount ?? 0)} label="سند با متن کامل" />
+        <Stat value={formatNumberFa(catalog.stats.referenceLawCount ?? 0)} label="فقط شناسنامه" tone="warn" />
+        <Stat value={formatNumberFa(catalog.stats.titleIndexCount ?? 0)} label="فقط عنوان" tone="warn" />
         <Stat value={formatNumberFa(catalog.stats.articleCount)} label="ماده" />
         <Stat value={formatNumberFa(totalGaps)} label="ماده ناموجود" tone={totalGaps ? 'warn' : undefined} />
       </Card>
+
+      <p className="mt-2 text-center text-[10.5px] leading-5 text-muted-foreground">
+        افزون بر این، {formatNumberFa(catalog.stats.entityCount ?? 0)} نهاد، سازمان، بانک و دانشگاه در بخش «نهادها» و
+        مجموعهٔ اختیاری «آراء قضایی» در بخش جداگانه‌ای فهرست شده است.
+      </p>
 
       <SectionHeading title={`گنجانده‌شده (${toFaDigits(included.length)} مورد)`} />
       <Card className="divide-y">
@@ -75,6 +83,35 @@ export default function CoveragePage() {
           </div>
         ))}
       </Card>
+
+      {referenceLaws.length ? (
+        <>
+          <SectionHeading
+            title={`اسناد ثبت‌شده بدون متن (${toFaDigits(referenceLaws.length)} مورد)`}
+            subtitle="شناسنامه این اسناد از فهرست مرجع افزوده شده؛ متن ماده‌ها پس از دریافت از سامانه ملی قوانین نمایش داده می‌شود"
+          />
+          <Card className="divide-y">
+            {referenceLaws.map((law) => {
+              const cat = catalog.categories.find((c) => c.id === law.category);
+              return (
+                <div key={law.id} className="p-3.5">
+                  <Link href={`/laws/${law.id}`} className="text-[12.5px] font-medium leading-6 text-primary">
+                    {law.title}
+                  </Link>
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10.5px] text-muted-foreground">
+                    {cat ? <Badge tone="outline">{cat.title}</Badge> : null}
+                    <Badge tone="muted">{law.documentType}</Badge>
+                    {law.approvalDate ? <span>مصوب {law.approvalDate}</span> : null}
+                  </div>
+                  {law.summary ? (
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">{law.summary}</p>
+                  ) : null}
+                </div>
+              );
+            })}
+          </Card>
+        </>
+      ) : null}
 
       {lawsWithGaps.length ? (
         <>

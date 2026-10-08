@@ -1,13 +1,26 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Filter, Search } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { LawRowCard, SectionHeading } from '@/components/bits';
-import { EmptyState, Input, Skeleton } from '@/components/ui/primitives';
+import { Button, EmptyState, Input, Skeleton } from '@/components/ui/primitives';
 import { cn } from '@/lib/utils';
 import { normalizeForSearch } from '@/lib/fa';
+import { formatNumberFa } from '@/lib/format';
+
+/** تعداد نمایش در هر بار (برای روان‌ماندن فهرست‌های طولانی) */
+const PAGE = 40;
+
+type Availability = 'all' | 'full' | 'reference' | 'index';
+
+const AVAILABILITY_FILTERS: { id: Availability; label: string }[] = [
+  { id: 'all', label: 'همه' },
+  { id: 'full', label: 'دارای متن' },
+  { id: 'reference', label: 'فقط شناسنامه' },
+  { id: 'index', label: 'فهرست عناوین' },
+];
 
 export default function LawsPage() {
   return (
@@ -32,26 +45,37 @@ function LawsInner() {
   const params = useSearchParams();
   const initialCategory = params.get('category');
   const [category, setCategory] = useState<string | null>(initialCategory);
+  const [availability, setAvailability] = useState<Availability>('all');
   const [query, setQuery] = useState('');
+  const [limit, setLimit] = useState(PAGE);
 
   const laws = useMemo(() => {
     if (!catalog) return [];
     const q = normalizeForSearch(query);
     return catalog.laws
       .filter((l) => (category ? l.category === category : true))
-      .filter((l) => (q ? normalizeForSearch(`${l.title} ${l.shortTitle} ${l.keywords.join(' ')}`).includes(q) : true))
-      .sort((a, b) => (b.approvalSort ?? 0) - (a.approvalSort ?? 0));
-  }, [catalog, category, query]);
+      .filter((l) => {
+        if (availability === 'full') return l.articleCount > 0;
+        if (availability === 'reference') return l.articleCount === 0 && l.origin !== 'law-title-index';
+        if (availability === 'index') return l.origin === 'law-title-index';
+        return true;
+      })
+      .filter((l) =>
+        q ? normalizeForSearch(`${l.title} ${l.shortTitle} ${(l.keywords ?? []).join(' ')}`).includes(q) : true,
+      )
+      .sort((a, b) => (b.approvalSort ?? 0) - (a.approvalSort ?? 0) || a.title.localeCompare(b.title, 'fa'));
+  }, [catalog, category, availability, query]);
+
+  // با تغییر فیلترها، شمار نمایش از نو شروع می‌شود
+  useEffect(() => {
+    setLimit(PAGE);
+  }, [category, availability, query]);
 
   if (!catalog) {
-    return (
-      <div className="app-container space-y-3 py-4">
-        {[...Array(6)].map((_, i) => (
-          <Skeleton key={i} className="h-16 w-full" />
-        ))}
-      </div>
-    );
+    return <LawsSkeleton />;
   }
+
+  const visible = laws.slice(0, limit);
 
   return (
     <div className="app-container pb-8">
@@ -64,16 +88,23 @@ function LawsInner() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="نام قانون…"
               className="h-6 border-0 p-0 text-sm focus-visible:ring-0"
+              aria-label="جست‌وجو در عنوان قوانین"
             />
           </div>
           <span className="flex items-center gap-1 rounded-2xl border px-3 py-2 text-[11px] text-muted-foreground">
-            <Filter size={14} /> {laws.length}
+            <Filter size={14} /> {formatNumberFa(laws.length)}
           </span>
         </div>
 
         <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto pb-1">
+          {AVAILABILITY_FILTERS.map((f) => (
+            <Chip key={f.id} active={availability === f.id} onClick={() => setAvailability(f.id)}>
+              {f.label}
+            </Chip>
+          ))}
+          <span className="mx-1 w-px shrink-0 bg-border" />
           <Chip active={!category} onClick={() => setCategory(null)}>
-            همه
+            همه موضوعات
           </Chip>
           {catalog.categories.map((c) => (
             <Chip key={c.id} active={category === c.id} onClick={() => setCategory(c.id)}>
@@ -87,12 +118,26 @@ function LawsInner() {
         <EmptyState icon={<Search size={20} />} title="قانونی یافت نشد" description="عبارت دیگری را امتحان کنید." />
       ) : (
         <>
-          <SectionHeading title={`${laws.length} سند حقوقی`} subtitle={category ? undefined : 'مرتب‌شده بر اساس تاریخ تصویب'} />
+          <SectionHeading
+            title={`${formatNumberFa(laws.length)} سند حقوقی`}
+            subtitle={
+              availability === 'index'
+                ? 'فقط عنوان سند ثبت شده است؛ متن ماده‌ها در دسترس نیست'
+                : availability === 'reference'
+                  ? 'شناسنامهٔ کامل سند ثبت شده است؛ متن ماده‌ها در منابع آزاد نبود'
+                  : 'مرتب‌شده بر اساس تاریخ تصویب'
+            }
+          />
           <div className="space-y-2">
-            {laws.map((law) => (
+            {visible.map((law) => (
               <LawRowCard key={law.id} law={law} />
             ))}
           </div>
+          {limit < laws.length ? (
+            <Button variant="outline" className="mt-3 w-full" onClick={() => setLimit((l) => l + PAGE)}>
+              نمایش بیشتر ({formatNumberFa(Math.min(PAGE, laws.length - limit))} مورد دیگر)
+            </Button>
+          ) : null}
         </>
       )}
     </div>

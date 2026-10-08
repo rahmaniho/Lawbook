@@ -7,12 +7,18 @@
  * - همه داده‌ها در IndexedDB ذخیره می‌شود تا برنامه کاملاً آفلاین کار کند.
  */
 import { db, META_KEYS, getMeta, setMeta, type ArticleRow, type LawRow } from './db';
+import { rememberPointer } from './cases';
 import type { Catalog, DataPointer, LawPointer, SyncProgress } from './types';
 
 const POINTER_URL = '/data/version.json';
 
+/**
+ * مسیر داده‌ها با توجه به basePath برنامه.
+ * مقدار پیش‌فرض «/Lawbook» برای استقرار روی GitHub Pages است؛
+ * در اجرای محلی می‌توان با NEXT_PUBLIC_BASE_PATH آن را تغییر داد (مثلاً ریشه با مقدار خالی).
+ */
 function resolveDataPath(path: string) {
-  const basePath = '/Lawbook';
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/Lawbook';
   return `${basePath}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
@@ -95,6 +101,7 @@ export async function syncData(options: SyncOptions = {}): Promise<SyncResult> {
   const cachedVersion = await getMeta<string>(META_KEYS.dataVersion);
 
   const pointer = await fetchPointer();
+  await rememberPointer(pointer);
   if (!pointer) {
     rep.set({ phase: 'error', message: 'فهرست نسخه در دسترس نیست (آفلاین؟)' });
     const laws = await db.laws.count();

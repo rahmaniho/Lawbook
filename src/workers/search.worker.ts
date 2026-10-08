@@ -8,6 +8,9 @@ import MiniSearch from 'minisearch';
 import { normalizeForSearch, parseQuery, tokenize } from '../lib/fa';
 import type { ArticleRow } from '../lib/db';
 
+/** امتیازِ تطابق ساختاری «ماده X قانون Y» — باید از هر امتیاز متنی بزرگ‌تر باشد */
+const STRUCTURAL_SCORE = 100_000;
+
 export interface WorkerArticle extends ArticleRow {}
 
 interface InitMessage {
@@ -96,7 +99,8 @@ ctx.addEventListener('message', (event: MessageEvent<InMessage>) => {
     let hits: { id: string; score: number }[] = [];
 
     // ۱) تطابق مستقیم «ماده X قانون Y» و «ماده X»
-    if (parsed.article !== null && parsed.terms.length === 0) {
+    // تطابق ساختاری «ماده X قانون Y» — نگهبانِ lawHint جلوی نتیجهٔ نادرست را می‌گیرد
+    if (parsed.article !== null) {
       const lawHint = normalizeForSearch(parsed.lawHint);
       for (const a of byId.values()) {
         if (a.numberValue !== parsed.article) continue;
@@ -105,7 +109,10 @@ ctx.addEventListener('message', (event: MessageEvent<InMessage>) => {
           const title = normalizeForSearch(`${a.lawTitle} ${a.lawId}`);
           if (!title.includes(lawHint)) continue;
         }
-        hits.push({ id: a.id, score: 100 + (a.mokarrar ? 1 : 0) });
+        // امتیازِ غالب: وقتی کارور صریحاً «ماده X قانون Y» جست‌وجو کرده، آن ماده باید اول باشد.
+        // در تساوی، عنوانِ کوتاه‌تر (تطبیقِ نزدیک‌تر با نام قانون) مقدم است.
+        const title = normalizeForSearch(`${a.lawTitle} ${a.lawId}`);
+        hits.push({ id: a.id, score: STRUCTURAL_SCORE + Math.max(0, 200 - title.length) + (a.mokarrar ? 1 : 0) });
         if (hits.length > 120) break;
       }
     }
