@@ -285,6 +285,22 @@ function main() {
   const aggregateHash = sha256(Object.entries(lawFiles).map(([k, v]) => `${k}:${v.hash}`).sort().join('|')).slice(0, 8);
   const version = `${appInfo.dataVersion}+${aggregateHash}`;
   const versionDir = path.join(PUBLIC, 'data', 'v', version);
+  const casesDir = path.join(versionDir, 'cases');
+
+  /* مجموعهٔ آراء از یک منبعِ حجیمِ «اختیاری» ساخته می‌شود
+     (data/sources/legalchatbot/case.csv که با `npm run sources:fetch` می‌آید).
+     اگر آن منبع روی این دستگاه نباشد، نباید دادهٔ آرائی که پیش‌تر ساخته و در
+     مخزن ثبت شده از بین برود — وگرنه هر بار اجرای `data:build` (از جمله در
+     GitHub Actions) ۱۹۹۸ رأی را بی‌صدا حذف می‌کند. پس پوشهٔ cases پیش از
+     بازسازی کنار گذاشته می‌شود و در صورت نیاز سر جایش برمی‌گردد. */
+  const stashedCasesDir = path.join(PUBLIC, 'data', 'v', `.cases-stash-${version}`);
+  fs.rmSync(stashedCasesDir, { recursive: true, force: true });
+  if (fs.existsSync(casesDir)) fs.renameSync(casesDir, stashedCasesDir);
+  const previousPointerPath = path.join(PUBLIC, 'data', 'version.json');
+  const previousPointer = fs.existsSync(previousPointerPath) ? readJson(previousPointerPath) : null;
+  const previousCasesPointer =
+    previousPointer && previousPointer.version === version ? previousPointer.cases : undefined;
+
   // پوشه نسخه از صفر ساخته می‌شود تا فایل‌های قدیمی (مثلاً قالب پیش از قطعه‌بندی) باقی نمانند
   fs.rmSync(versionDir, { recursive: true, force: true });
   ensureDir(path.join(versionDir, 'laws'));
@@ -396,14 +412,24 @@ function main() {
 
   /* مجموعهٔ اختیاری آراء قضایی (منبع حجیم؛ فقط در صورت وجود فایل ساخته می‌شود) */
   const cases = buildCases({ versionDir, version });
-  if (cases) pointer.cases = cases.pointer;
+  if (cases) {
+    pointer.cases = cases.pointer;
+    fs.rmSync(stashedCasesDir, { recursive: true, force: true });
+  } else if (fs.existsSync(stashedCasesDir)) {
+    /* منبع خام نبود: همان نسخهٔ ثبت‌شده در مخزن را نگه می‌داریم */
+    fs.renameSync(stashedCasesDir, casesDir);
+    if (previousCasesPointer) pointer.cases = previousCasesPointer;
+    console.log('   ⓘ مجموعهٔ آراءِ ثبت‌شده در مخزن حفظ شد (منبع خامِ اختیاری در دسترس نبود)');
+  } else {
+    fs.rmSync(stashedCasesDir, { recursive: true, force: true });
+  }
 
   writeJson(path.join(PUBLIC, 'data', 'version.json'), pointer);
 
   /* پاک‌سازی نسخه‌های قدیمی (فقط ۲ نسخه آخر نگه داشته می‌شود).
      مجموعهٔ آراءِ نسخهٔ پیشین همیشه حذف می‌شود — حجیم است و دریافتِ آن اختیاری است. */
   const versionsDir = path.join(PUBLIC, 'data', 'v');
-  const all = fs.readdirSync(versionsDir).filter((d) => d !== version).sort();
+  const all = fs.readdirSync(versionsDir).filter((d) => d !== version && !d.startsWith('.')).sort();
   for (const old of all) {
     fs.rmSync(path.join(versionsDir, old, 'cases'), { recursive: true, force: true });
   }

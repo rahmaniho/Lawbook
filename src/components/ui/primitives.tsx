@@ -183,10 +183,23 @@ export function Sheet({
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+
+    /* قفل اسکرول پس‌زمینه.
+       `overflow: hidden` روی body به‌تنهایی بی‌اثر است؛ بدنهٔ سند همچنان از
+       راه viewport اسکرول می‌شود و پشت پنل حرکت می‌کرد. ریشه (html) باید بسته
+       شود و موقعیت اسکرول برای بازگشتِ سالم ذخیره گردد. */
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const scrollY = window.scrollY;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      window.scrollTo(0, scrollY);
     };
   }, [open, onClose]);
 
@@ -196,7 +209,7 @@ export function Sheet({
       <button aria-label="بستن" className="absolute inset-0 bg-black/45 backdrop-blur-[2px]" onClick={onClose} />
       <div
         className={cn(
-          'relative z-10 mt-auto max-h-[88vh] w-full overflow-y-auto rounded-t-3xl border-t bg-background p-4 shadow-sheet animate-slide-up safe-bottom',
+          'panel-scroll relative z-10 mt-auto w-full overflow-y-auto overscroll-contain rounded-t-3xl border-t bg-background p-4 shadow-sheet animate-slide-up safe-bottom',
           side === 'top' && 'mb-auto mt-0 rounded-b-3xl rounded-t-none',
         )}
       >

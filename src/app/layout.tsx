@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { AppShell } from '@/components/app-shell';
 import { DataBootstrap } from '@/components/data-bootstrap';
 import { ServiceWorkerRegistrar } from '@/components/pwa-register';
+import { withBase } from '@/lib/base-path';
 
 const vazirmatn = localFont({
   src: [
@@ -27,7 +28,16 @@ export const metadata: Metadata = {
   description:
     'قوانین و مقررات جمهوری اسلامی ایران؛ جست‌وجوی سریع و آفلاین در مواد قانونی. جمع‌آوری و تدوین: وکیل پایه یک دادگستری لیلا آبکه — توسعه: کارن سافت.',
   applicationName: 'کتابچه قانون',
-  manifest: '/manifest.webmanifest',
+  // Next.js فیلد manifest/icons را با basePath ترکیب نمی‌کند؛
+  // بدون این کار روی GitHub Pages به ریشهٔ دامنه اشاره می‌شد و ۴۰۴ می‌گرفت.
+  manifest: withBase('/manifest.webmanifest'),
+  icons: {
+    icon: [
+      { url: withBase('/icons/favicon-32.png'), sizes: '32x32', type: 'image/png' },
+      { url: withBase('/icons/icon-192.png'), sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: withBase('/icons/apple-touch-icon.png'), sizes: '180x180', type: 'image/png' }],
+  },
   appleWebApp: {
     capable: true,
     title: 'کتابچه قانون',

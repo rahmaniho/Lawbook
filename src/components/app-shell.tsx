@@ -47,8 +47,26 @@ function TopBar() {
     limit: 6,
   });
   const boxRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const catalog = useApp((s) => s.catalog);
   const online = useOnlineStatus();
+
+  /* ارتفاع واقعی نوار بالا در `--topbar-h` نوشته می‌شود تا نوارهای چسبندهٔ
+     صفحات (فیلترها/جست‌وجو/فصل‌ها) دقیقاً زیر آن بچسبند. ارتفاع ثابت ۵۲px
+     با safe-area-inset-top گوشی‌های ناچ‌دار و با تغییر ارتفاع نوار هم‌خوان
+     نبود و نوارها زیر هدر پنهان می‌شدند. */
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = () => {
+      const h = Math.round(el.getBoundingClientRect().height);
+      if (h > 0) document.documentElement.style.setProperty('--topbar-h', `${h}px`);
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   /* نهادهای منطبق با عبارت (فهرست مرجع) — در کنار نتایج ماده‌ها نمایش داده می‌شود */
   const entityMatches = useMemo(() => matchEntities(catalog, debounced, 4), [catalog, debounced]);
@@ -78,7 +96,7 @@ function TopBar() {
   };
 
   return (
-    <header className="glass sticky top-0 z-40 border-b no-print">
+    <header ref={headerRef} className="glass sticky top-0 z-40 border-b no-print">
       <div className="mx-auto flex max-w-xl items-center gap-2 px-4 py-2 safe-top" ref={boxRef}>
         <div className="relative flex-1">
           <form onSubmit={submit}>
@@ -102,7 +120,7 @@ function TopBar() {
           </form>
 
           {showDropdown ? (
-            <div className="absolute inset-x-0 top-[52px] z-50 max-h-[70vh] overflow-y-auto rounded-2xl border bg-popover shadow-lg">
+            <div className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 max-h-[70vh] overflow-y-auto rounded-2xl border bg-popover shadow-lg overscroll-contain">
               {entityMatches.length ? (
                 <ul className="divide-y border-b">
                   {entityMatches.map(({ entity, group }) => (
@@ -241,7 +259,7 @@ function OfflineIndicator() {
   const online = useOnlineStatus();
   if (online) return null;
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-[calc(52px+var(--safe-top))] z-30 mx-auto max-w-xl px-4 no-print">
+    <div className="pointer-events-none fixed inset-x-0 top-[var(--topbar-h)] z-30 mx-auto max-w-xl px-4 no-print">
       <div className="pointer-events-auto mt-1 flex items-center justify-center gap-2 rounded-full bg-amber-500/90 px-3 py-1 text-[11px] font-medium text-amber-950 shadow animate-fade-in">
         <WifiOff size={12} /> بدون اینترنت — نسخه ذخیره‌شده روی همین دستگاه نمایش داده می‌شود
       </div>
