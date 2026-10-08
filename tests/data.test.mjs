@@ -14,9 +14,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
+const sha = (s) => createHash('sha256').update(s).digest('hex');
 const read = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const inPublic = (urlPath) => path.join(PUBLIC, urlPath.replace(/^\//, ''));
 
@@ -63,6 +65,22 @@ test('آمار فهرست با محتوای واقعی هم‌خوان است', 
 
   const sumArticles = catalog.laws.reduce((n, l) => n + (l.articleCount ?? 0), 0);
   assert.equal(s.articleCount, sumArticles, 'شمار کل ماده‌ها ناسازگار است');
+});
+
+test('نسخهٔ داده، هشِ محتوای قوانین و فهرست (کاتالوگ) است', () => {
+  /* نسخه باید با تغییر «فهرست» (حذف/افزودن سند، دسته، چک‌لیست) هم عوض شود؛
+     وگرنه کلاینتی که فهرست قدیمی را کش کرده، فهرست تازه را نمی‌گیرد. */
+  const catalogForHash = { ...catalog, version: '' };
+  const catalogHash = sha(JSON.stringify(catalogForHash)).slice(0, 8);
+  const aggregateHash = sha(
+    [...catalog.laws.map((l) => `${l.id}:${l.hash}`).sort(), `catalog:${catalogHash}`].join('|'),
+  ).slice(0, 8);
+  assert.equal(
+    pointer.version,
+    `${pointer.version.split('+')[0]}+${aggregateHash}`,
+    'نسخهٔ داده با هش محتوای قوانین و فهرست هم‌خوان نیست',
+  );
+  assert.equal(pointer.version, catalog.version, 'نسخهٔ اشاره‌گر و فهرست باید یکی باشد');
 });
 
 test('دسته و سلسله‌مراتب هر سند معتبر است', () => {

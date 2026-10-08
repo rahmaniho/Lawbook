@@ -1312,20 +1312,6 @@
    }
   }
  ],
- "guides": [
-  {
-   "id": "constitution-guide",
-   "title": "راهنمای کاربردی قانون اساسی",
-   "type": "guide",
-   "source": {
-    "kind": "hub",
-    "file": "guides_constitution_guide.json"
-   },
-   "summary": "توضیح کاربردی موضوعات کلیدی قانون اساسی: حقوق ملت، ساختار قوا و نهادهای نظارتی.",
-   "category": "asasi",
-   "hierarchy": "constitution"
-  }
- ],
  "checklist": [
   {
    "id": "fiqh",

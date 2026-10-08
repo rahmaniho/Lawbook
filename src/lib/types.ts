@@ -159,7 +159,6 @@ export interface Catalog {
   categories: Category[];
   hierarchy: HierarchyLevel[];
   checklist: ChecklistItem[];
-  guides: { id: string; title: string; summary: string; category: string }[];
   laws: LawMeta[];
   stats: {
     lawCount: number;

@@ -248,9 +248,45 @@ function main() {
     });
   }
 
-  /* نسخه‌ی داده: نسخه‌ی معنایی + هش محتوا برای تشخیص تغییر */
-  const aggregateHash = sha256(Object.entries(lawFiles).map(([k, v]) => `${k}:${v.hash}`).sort().join('|')).slice(0, 8);
+  const totalArticles = lawsMeta.reduce((s, l) => s + l.articleCount, 0);
+
+  const clientCatalog = {
+    version: '',
+    appVersion: appInfo.appVersion,
+    releasedAt: new Date().toISOString().slice(0, 10),
+    releasedAtFa: toFaDigits(appInfo.releasedAt || ''),
+    appName: appInfo.appName,
+    shortName: appInfo.shortName,
+    credits: appInfo.credits,
+    disclaimer: appInfo.disclaimer,
+    privacy: appInfo.privacy,
+    officialSources: appInfo.officialSources,
+    hierarchyNote: appInfo.hierarchyNote,
+    dataSources: appInfo.dataSources,
+    categories: catalog.categories,
+    hierarchy: catalog.hierarchy,
+    checklist: catalog.checklist,
+    laws: lawsMeta,
+    stats: {
+      lawCount: lawsMeta.length,
+      articleCount: totalArticles,
+      categoryCount: catalog.categories.length,
+      /** اسنادی که متن ماده‌به‌ماده دارند */
+      fullTextCount: lawsMeta.filter((l) => l.articleCount > 0).length,
+    },
+  };
+
+  /* نسخهٔ داده: نسخهٔ معنایی + هش محتوای قوانین + هش محتوای فهرست (کاتالوگ).
+     هشِ فهرست هم لازم است؛ وگرنه حذف/افزودن سند، دسته یا چک‌لیست، نسخه را
+     عوض نمی‌کند و کلاینتی که فهرست قدیمی را در IndexedDB دارد، هرگز فهرست
+     تازه را نمی‌گیرد (مثلاً مدخل‌های حذف‌شده در نوار جست‌وجو می‌مانند). */
+  const catalogHash = sha256(JSON.stringify(clientCatalog)).slice(0, 8);
+  const aggregateHash = sha256(
+    [...Object.entries(lawFiles).map(([k, v]) => `${k}:${v.hash}`).sort(), `catalog:${catalogHash}`].join('|'),
+  ).slice(0, 8);
   const version = `${appInfo.dataVersion}+${aggregateHash}`;
+  clientCatalog.version = version;
+
   const versionDir = path.join(PUBLIC, 'data', 'v', version);
   const casesDir = path.join(versionDir, 'cases');
 
@@ -272,35 +308,6 @@ function main() {
   // پوشه نسخه از صفر ساخته می‌شود تا فایل‌های قدیمی (مثلاً قالب پیش از قطعه‌بندی) باقی نمانند
   fs.rmSync(versionDir, { recursive: true, force: true });
   ensureDir(path.join(versionDir, 'laws'));
-
-  const totalArticles = lawsMeta.reduce((s, l) => s + l.articleCount, 0);
-
-  const clientCatalog = {
-    version,
-    appVersion: appInfo.appVersion,
-    releasedAt: new Date().toISOString().slice(0, 10),
-    releasedAtFa: toFaDigits(appInfo.releasedAt || ''),
-    appName: appInfo.appName,
-    shortName: appInfo.shortName,
-    credits: appInfo.credits,
-    disclaimer: appInfo.disclaimer,
-    privacy: appInfo.privacy,
-    officialSources: appInfo.officialSources,
-    hierarchyNote: appInfo.hierarchyNote,
-    dataSources: appInfo.dataSources,
-    categories: catalog.categories,
-    hierarchy: catalog.hierarchy,
-    checklist: catalog.checklist,
-    guides: catalog.guides || [],
-    laws: lawsMeta,
-    stats: {
-      lawCount: lawsMeta.length,
-      articleCount: totalArticles,
-      categoryCount: catalog.categories.length,
-      /** اسنادی که متن ماده‌به‌ماده دارند */
-      fullTextCount: lawsMeta.filter((l) => l.articleCount > 0).length,
-    },
-  };
 
   writeJson(path.join(versionDir, 'catalog.json'), clientCatalog);
 
