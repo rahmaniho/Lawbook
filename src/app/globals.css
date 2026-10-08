@@ -4,26 +4,26 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 200 15% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 200 15% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 200 15% 12%;
-    --primary: 175 84% 26%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 175 30% 96%;
-    --secondary-foreground: 175 60% 20%;
-    --muted: 190 15% 96%;
-    --muted-foreground: 200 10% 42%;
-    --accent: 175 40% 94%;
-    --accent-foreground: 175 70% 22%;
-    --destructive: 0 72% 45%;
+    --background: 36 33% 97%;
+    --foreground: 220 21% 14%;
+    --card: 40 33% 99%;
+    --card-foreground: 220 21% 14%;
+    --popover: 40 33% 99%;
+    --popover-foreground: 220 21% 14%;
+    --primary: 173 68% 27%;
+    --primary-foreground: 40 33% 99%;
+    --secondary: 35 24% 92%;
+    --secondary-foreground: 220 21% 18%;
+    --muted: 35 22% 93%;
+    --muted-foreground: 220 10% 42%;
+    --accent: 172 25% 90%;
+    --accent-foreground: 173 68% 22%;
+    --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border: 195 15% 89%;
-    --input: 195 15% 89%;
-    --ring: 175 84% 26%;
-    --radius: 0.9rem;
+    --border: 35 17% 86%;
+    --input: 35 17% 86%;
+    --ring: 173 68% 27%;
+    --radius: 1rem;
     --font-serif-fa: Vazirmatn, system-ui, serif;
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-top: env(safe-area-inset-top, 0px);
@@ -89,7 +89,15 @@
 
 @layer components {
   .app-container {
-    @apply mx-auto w-full max-w-xl px-4;
+    @apply mx-auto w-full max-w-2xl px-4;
+  }
+
+  .eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em] text-primary;
+  }
+
+  .editorial-hero {
+    background: radial-gradient(circle at 12% 15%, hsl(var(--primary) / 0.12), transparent 34%), linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted) / 0.58));
   }
 
   .glass {
