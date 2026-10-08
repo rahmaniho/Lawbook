@@ -4,8 +4,8 @@
  *
  * چرا لازم است؟ Next.js فیلد `metadata.manifest` را با basePath ترکیب نمی‌کند و
  * خودِ manifest هم یک فایل ایستا در `public/` است. اگر `start_url`، `scope` و
- * `icons` به‌صورت مطلق از ریشهٔ دامنه نوشته شوند، روی GitHub Pages
- * (https://rahmaniho.github.io/Lawbook/) همهٔ آن‌ها ۴۰۴ یا خارج از scope
+ * `icons` به‌صورت مطلق از ریشهٔ دامنه نوشته شوند، در استقرار زیرمسیر
+ * همهٔ آن‌ها ۴۰۴ یا خارج از scope
  * می‌شوند و کروم دکمهٔ «نصب» را هرگز فعال نمی‌کند.
  *
  * این اسکریپت idempotent است و در `npm run data:build` صدا زده می‌شود.

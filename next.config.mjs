@@ -2,12 +2,12 @@ import { resolveBasePath } from './config/base-path.mjs';
 
 /** @type {import('next').NextConfig } */
 const isVercel = process.env.VERCEL === '1';
-// پیش‌فرض «/Lawbook» برای استقرار روی GitHub Pages است؛
+// پیش‌فرض «/Lawbook» برای استقرار زیرمسیر است؛
 // برای اجرای محلی در ریشه: NEXT_PUBLIC_BASE_PATH= VERCEL=1 npm run dev
 const basePath = resolveBasePath();
 
 const nextConfig = {
-  // GitHub Pages needs a static export, while Vercel should use its native Next.js output.
+  // Static hosting needs a static export, while Vercel uses its native Next.js output.
   ...(isVercel ? {} : { output: 'export' }),
   ...(basePath ? { basePath, assetPrefix: `${basePath}/` } : {}),
 

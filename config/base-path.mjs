@@ -1,10 +1,10 @@
 /**
  * تنها مرجعِ «basePath» برنامه.
  *
- * استقرار اصلی روی GitHub Pages است و برنامه زیر یک زیرمسیر سرو می‌شود
- * (مثلاً https://rahmaniho.github.io/Lawbook/). هر چیزی که مسیرِ مطلقِ URL
+ * استقرار برنامه زیر یک زیرمسیر است و از همان مسیر سرو می‌شود
+ * (مثلاً https://example.com/Lawbook/). هر چیزی که مسیرِ مطلقِ URL
  * می‌سازد — `manifest.webmanifest`، ثبت Service Worker، لینک آیکون‌ها و کشِ SW —
- * باید از همین تابع استفاده کند؛ وگرنه روی GitHub Pages به ریشهٔ دامنه اشاره
+ * باید از همین تابع استفاده کند؛ وگرنه در استقرار زیرمسیر به ریشهٔ دامنه اشاره
  * می‌کند و ۴۰۴ می‌گیرد (دلیل اصلیِ نصب‌نشدن PWA).
  */
 
@@ -25,7 +25,7 @@ export function normalizeBasePath(value) {
  *  - `NEXT_PUBLIC_BASE_PATH=` (خالی)  → ریشهٔ دامنه
  *  - `NEXT_PUBLIC_BASE_PATH=/foo`     → همان مقدار
  *  - تنظیم‌نشده + `VERCEL=1`          → ریشهٔ دامنه (Vercel)
- *  - تنظیم‌نشده                       → پیش‌فرض GitHub Pages
+ *  - تنظیم‌نشده                       → پیش‌فرض استقرار زیرمسیر
  */
 export function resolveBasePath(env = process.env) {
   const explicit = env.NEXT_PUBLIC_BASE_PATH;

@@ -6,7 +6,7 @@ import { swUrl } from '@/lib/base-path';
 /**
  * ثبت Service Worker و درخواست همگام‌سازی پس‌زمینه.
  *
- * مسیر SW از basePath ساخته می‌شود (روی GitHub Pages یعنی `/Lawbook/sw.js`).
+ * مسیر SW از basePath ساخته می‌شود (در استقرار زیرمسیر یعنی `/Lawbook/sw.js`).
  * scope به‌عمد تنظیم نمی‌شود: مقدار پیش‌فرض همان پوشهٔ فایل SW است، یعنی دقیقاً
  * همان scope که در manifest آمده — تنظیم scope گسترده‌تر بدون هدر
  * `Service-Worker-Allowed` از سوی مرورگر رد می‌شود.

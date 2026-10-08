@@ -51,7 +51,6 @@ export interface Article {
   lawTitle: string;
   category: string;
   hierarchy: HierarchyId;
-  sourceUrl?: string;
   /** در صورت تکمیل از منبع پشتیبان */
   filledFrom?: string;
 }
@@ -77,8 +76,6 @@ export interface LawMeta {
   keywords: string[];
   checklist: string[];
   source: { kind: string; file?: string; name?: string; url?: string };
-  /** منشأ مدخل: تدوین‌شده در پروژه، فهرست مرجع ورودی، یا فهرست عناوین استخراج‌شده */
-  origin: string;
   note: string;
   articleRange: string;
   updatedAt: string;
@@ -97,19 +94,6 @@ export interface ChecklistItem {
   status: 'included' | 'pending';
   laws: string[];
   note?: string;
-}
-
-/** یک نهاد/سازمان در فهرست مرجع (وزارتخانه، بانک، دانشگاه، نهاد بین‌المللی و…) */
-export interface Entity {
-  id: string;
-  title: string;
-  shortTitle: string;
-  abbr: string;
-  note: string;
-  /** شناسه گروهی که این نهاد به آن تعلق دارد */
-  group: string;
-  status: string;
-  source: string;
 }
 
 /** یک رأی قضایی (مجموعهٔ اختیاری آراء) */
@@ -152,16 +136,6 @@ export interface CasesPointer {
   types: string[];
 }
 
-export interface EntityGroup {
-  id: string;
-  title: string;
-  icon: string;
-  color: string;
-  order: number;
-  description: string;
-  items: Entity[];
-}
-
 export interface CreditPerson {
   name: string;
   role: string;
@@ -185,17 +159,12 @@ export interface Catalog {
   categories: Category[];
   hierarchy: HierarchyLevel[];
   checklist: ChecklistItem[];
-  guides: { id: string; title: string; summary: string; category: string }[];
   laws: LawMeta[];
-  entityGroups: EntityGroup[];
   stats: {
     lawCount: number;
     articleCount: number;
     categoryCount: number;
-    entityCount: number;
     fullTextCount: number;
-    referenceLawCount: number;
-    titleIndexCount: number;
   };
 }
 

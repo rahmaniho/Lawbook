@@ -4,14 +4,21 @@
  * این تست‌ها روی فایل‌های `public/data` اجرا می‌شوند — یعنی همان چیزی که
  * برنامه در زمان اجرا مصرف می‌کند. هرگونه ناسازگاریِ آمار، شناسه، قطعه‌ها
  * یا مجموعهٔ آراء در اینجا باید شکار شود.
+ *
+ * قواعدِ اصلیِ برنامه:
+ *   - همهٔ اسناد باید متن ماده‌به‌ماده داشته باشند (بدون سندِ «فقط شناسنامه» یا «فقط عنوان»)
+ *   - همهٔ ماده‌ها باید متن داشته باشند (بدون مادهٔ فقط‌عنوان)
+ *   - هیچ ارجاعی به گیت‌هاب در داده‌های منتشرشده نباشد
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
+const sha = (s) => createHash('sha256').update(s).digest('hex');
 const read = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const inPublic = (urlPath) => path.join(PUBLIC, urlPath.replace(/^\//, ''));
 
@@ -33,7 +40,7 @@ const catalog = versionDir ? read(path.join(versionDir, 'catalog.json')) : null;
 
 test('فهرست (catalog) بخش‌های اصلی را دارد', () => {
   assert.ok(catalog, 'فهرست بارگذاری نشد');
-  for (const key of ['categories', 'hierarchy', 'laws', 'entityGroups', 'stats']) {
+  for (const key of ['categories', 'hierarchy', 'laws', 'stats']) {
     assert.ok(catalog[key], `بخش «${key}» در فهرست نیست`);
   }
   assert.equal(catalog.version ?? pointer.version, pointer.version);
@@ -44,24 +51,36 @@ test('شناسهٔ قوانین یکتاست', () => {
   assert.equal(new Set(ids).size, ids.length, 'شناسهٔ تکراری در قوانین وجود دارد');
 });
 
+test('همهٔ اسناد متن کامل دارند (بدون سندِ «فقط شناسنامه» یا «فقط عنوان»)', () => {
+  const withoutText = catalog.laws.filter((l) => (l.articleCount ?? 0) === 0);
+  assert.equal(withoutText.length, 0, `اسناد بدون متن ماده: ${withoutText.map((l) => l.id).join(', ')}`);
+  assert.equal(catalog.stats.fullTextCount, catalog.laws.length, 'همهٔ اسناد باید متن کامل داشته باشند');
+});
+
 test('آمار فهرست با محتوای واقعی هم‌خوان است', () => {
   const s = catalog.stats;
-  const withText = catalog.laws.filter((l) => (l.articleCount ?? 0) > 0);
-  const onlyTitle = catalog.laws.filter((l) => (l.articleCount ?? 0) === 0 && l.origin === 'law-title-index');
-  const onlyRef = catalog.laws.filter(
-    (l) => (l.articleCount ?? 0) === 0 && l.origin !== 'law-title-index',
-  );
   assert.equal(s.lawCount, catalog.laws.length, 'شمار کل اسناد ناسازگار است');
-  assert.equal(s.fullTextCount, withText.length, 'شمار اسناد با متن ناسازگار است');
-  assert.equal(s.titleIndexCount, onlyTitle.length, 'شمار عنوان‌های فهرستی ناسازگار است');
-  assert.equal(s.referenceLawCount, onlyRef.length, 'شمار اسناد فقط‌شناسنامه ناسازگار است');
+  assert.equal(s.fullTextCount, catalog.laws.length, 'شمار اسناد با متن ناسازگار است');
   assert.equal(s.categoryCount, catalog.categories.length, 'شمار دسته‌ها ناسازگار است');
 
   const sumArticles = catalog.laws.reduce((n, l) => n + (l.articleCount ?? 0), 0);
   assert.equal(s.articleCount, sumArticles, 'شمار کل ماده‌ها ناسازگار است');
+});
 
-  const entities = catalog.entityGroups.reduce((n, g) => n + (g.items?.length ?? 0), 0);
-  assert.equal(s.entityCount, entities, 'شمار نهادها ناسازگار است');
+test('نسخهٔ داده، هشِ محتوای قوانین و فهرست (کاتالوگ) است', () => {
+  /* نسخه باید با تغییر «فهرست» (حذف/افزودن سند، دسته، چک‌لیست) هم عوض شود؛
+     وگرنه کلاینتی که فهرست قدیمی را کش کرده، فهرست تازه را نمی‌گیرد. */
+  const catalogForHash = { ...catalog, version: '' };
+  const catalogHash = sha(JSON.stringify(catalogForHash)).slice(0, 8);
+  const aggregateHash = sha(
+    [...catalog.laws.map((l) => `${l.id}:${l.hash}`).sort(), `catalog:${catalogHash}`].join('|'),
+  ).slice(0, 8);
+  assert.equal(
+    pointer.version,
+    `${pointer.version.split('+')[0]}+${aggregateHash}`,
+    'نسخهٔ داده با هش محتوای قوانین و فهرست هم‌خوان نیست',
+  );
+  assert.equal(pointer.version, catalog.version, 'نسخهٔ اشاره‌گر و فهرست باید یکی باشد');
 });
 
 test('دسته و سلسله‌مراتب هر سند معتبر است', () => {
@@ -80,10 +99,6 @@ test('قطعه‌های ماده‌ها با آمار و شناسه‌ها هم�
   let total = 0;
   for (const law of catalog.laws) {
     const meta = byId.get(law.id);
-    if ((law.articleCount ?? 0) === 0) {
-      assert.equal(meta, undefined, `${law.id}: سند بدون ماده نباید قطعه داشته باشد`);
-      continue;
-    }
     assert.ok(meta, `${law.id}: قطعه‌ای در version.json ثبت نشده است`);
     let count = 0;
     for (const part of meta.parts) {
@@ -105,38 +120,37 @@ test('قطعه‌های ماده‌ها با آمار و شناسه‌ها هم�
   assert.equal(total, catalog.stats.articleCount, 'جمع ماده‌های قطعه‌ها با آمار هم‌خوان نیست');
 });
 
-test('مدخل‌های «فقط عنوان» معتبرند و با اسناد دیگر تداخل ندارند', () => {
-  const squash = (t) => t.replace(/\s+/g, '');
-  const titles = new Map();
-  const index = catalog.laws.filter((l) => l.origin === 'law-title-index');
-  assert.ok(index.length > 0, 'هیچ عنوان فهرستی در خروجی نیست');
-  for (const law of index) {
-    assert.ok(law.summary?.trim(), `${law.id}: خلاصه ندارد`);
-    assert.ok(law.title.includes(' '), `${law.id}: عنوان تک‌واژه‌ای است (${law.title})`);
-    assert.equal(law.articleCount, 0, `${law.id}: عنوان فهرستی نباید ماده داشته باشد`);
-    const key = squash(law.title);
-    assert.ok(!titles.has(key), `${law.id}: عنوان تکراری «${law.title}»`);
-    titles.set(key, law.id);
-    assert.ok(Array.isArray(law.keywords) && law.keywords.length, `${law.id}: کلیدواژه ندارد`);
-  }
+test('همهٔ ماده‌ها متن دارند (بدون مادهٔ «فقط عنوان»)', () => {
   for (const law of catalog.laws) {
-    if (law.origin === 'law-title-index') continue;
-    assert.ok(!titles.has(squash(law.title)), `عنوان «${law.title}» هم در فهرست عناوین و هم در اسناد اصلی است`);
+    const meta = pointer.laws.find((l) => l.id === law.id);
+    assert.ok(meta, `${law.id}: در version.json ثبت نشده است`);
+    for (const part of meta.parts) {
+      const body = read(inPublic(part.path));
+      const articles = Array.isArray(body) ? body : body.articles ?? [];
+      for (const a of articles) {
+        assert.ok(a.text?.trim(), `مادهٔ ${a.id} متن ندارد (فقط عنوان/شماره)`);
+      }
+    }
   }
 });
 
-test('نهادها شناسهٔ یکتا و گروه معتبر دارند', () => {
-  const groupIds = new Set(catalog.entityGroups.map((g) => g.id));
-  assert.equal(groupIds.size, catalog.entityGroups.length, 'شناسهٔ گروه نهاد تکراری است');
-  const seen = new Set();
-  for (const group of catalog.entityGroups) {
-    assert.ok(group.title?.trim(), `گروه ${group.id}: عنوان ندارد`);
-    assert.ok((group.items ?? []).length, `گروه ${group.id}: بدون عضو است`);
-    for (const item of group.items) {
-      assert.ok(!seen.has(item.id), `شناسهٔ نهاد تکراری: ${item.id}`);
-      seen.add(item.id);
-      assert.equal(item.group, group.id, `نهاد ${item.id}: گروه ناسازگار است`);
-      assert.ok(item.title?.trim(), `نهاد ${item.id}: عنوان ندارد`);
+test('هیچ ارجاعی به گیت‌هاب در داده‌های منتشرشده نیست', () => {
+  const GITHUB_RE = /github\.(com|io)\//i;
+  const catalogRaw = fs.readFileSync(path.join(versionDir, 'catalog.json'), 'utf8');
+  assert.ok(!GITHUB_RE.test(catalogRaw), 'catalog.json حاوی ارجاع به گیت‌هاب است');
+  const pointerRaw = fs.readFileSync(pointerPath, 'utf8');
+  assert.ok(!GITHUB_RE.test(pointerRaw), 'version.json حاوی ارجاع به گیت‌هاب است');
+  for (const law of pointer.laws) {
+    for (const part of law.parts) {
+      const raw = fs.readFileSync(inPublic(part.path), 'utf8');
+      assert.ok(!GITHUB_RE.test(raw), `${part.path} حاوی ارجاع به گیت‌هاب است`);
+    }
+  }
+  if (pointer.cases) {
+    const casesFiles = [pointer.cases.indexPath, ...pointer.cases.parts.map((p) => p.path)];
+    for (const p of casesFiles) {
+      const raw = fs.readFileSync(inPublic(p), 'utf8');
+      assert.ok(!GITHUB_RE.test(raw), `${p} حاوی ارجاع به گیت‌هاب است`);
     }
   }
 });

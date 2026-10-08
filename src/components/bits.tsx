@@ -12,7 +12,6 @@ import { toFaDigits } from '@/lib/fa';
 import { copyText, shareArticle } from '@/lib/share';
 import { haptic, readerStyle, useBookmark } from '@/lib/hooks';
 import { DEFAULT_READER, useApp } from '@/lib/store';
-import { isReferenceLaw } from '@/lib/entities';
 import { db } from '@/lib/db';
 import type { ArticleRow } from '@/lib/db';
 import type { Article, Category, LawMeta } from '@/lib/types';
@@ -62,8 +61,6 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
 }
 
 export function LawRowCard({ law, href }: { law: LawMeta; href?: string }) {
-  const reference = isReferenceLaw(law);
-  const onlyTitle = reference && law.origin === 'law-title-index';
   return (
     <Link
       href={href ?? `/laws/${law.id}`}
@@ -72,13 +69,7 @@ export function LawRowCard({ law, href }: { law: LawMeta; href?: string }) {
       <div className="min-w-0 flex-1">
         <p className="text-[13.5px] font-semibold leading-6">{law.title}</p>
         <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-          {!reference ? (
-            <span>{formatNumberFa(law.articleCount)} ماده</span>
-          ) : onlyTitle ? (
-            <Badge tone="outline">فقط عنوان</Badge>
-          ) : (
-            <Badge tone="muted">فقط شناسنامه</Badge>
-          )}
+          <span>{formatNumberFa(law.articleCount)} ماده</span>
           {law.approvalDate ? <span>• مصوب {law.approvalDate}</span> : null}
           {law.status !== 'لازم‌الاجرا' ? <Badge tone="danger">{law.status}</Badge> : null}
           {law.gaps?.count ? <Badge tone="warning">{formatNumberFa(law.gaps.count)} ماده ناموجود</Badge> : null}

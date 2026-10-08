@@ -1,7 +1,7 @@
 /**
  * تجزیه‌گر منابع داده‌ی «کتابچه قانون»:
  *  ۱) فایل‌های متنی پاک‌سازی‌شده‌ی قوانین (q*.txt) با ساختار سرآمد/❯/ماده
- *  ۲) فایل‌های JSON ساختاریافته (IranLegalHUB) با ساختار divisions → articles
+ *  ۲) فایل‌های JSON ساختاریافته (متون قوانین) با ساختار divisions → articles
  *  ۳) قانون اساسی از فایل YAML (Principles ۱ تا ۱۷۷)
  */
 import fs from 'node:fs';
@@ -103,7 +103,7 @@ export function splitAtMarker(raw, marker) {
 }
 
 /* ------------------------------------------------------------------ *
- * ۲) تجزیه‌گر JSON ساختاریافته (IranLegalHUB)
+ * ۲) تجزیه‌گر JSON ساختاریافته
  * ------------------------------------------------------------------ */
 export function parseHubJson(raw) {
   const data = JSON.parse(raw);
@@ -265,7 +265,6 @@ export function normalizeArticle(law, art, lawTitle) {
     lawTitle,
     category: law.category,
     hierarchy: law.hierarchy,
-    sourceUrl: law.source?.url,
   };
 }
 

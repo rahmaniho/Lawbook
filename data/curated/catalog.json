@@ -179,8 +179,7 @@
    "source": {
     "kind": "constitution",
     "file": "constitution.yaml",
-    "name": "متن قانون اساسی (CC-BY 4.0)",
-    "url": "https://github.com/mehdisadeghi/iranconstitution"
+    "name": "متن قانون اساسی (سند رسمی)"
    },
    "summary": "قانون اساسی با مقدمه و ۱۴ فصل و ۱۷۷ اصل، مطابق اصلاحات سال ۱۳۶۸؛ شامل حقوق ملت، ساختار قوا، اقتصاد و حکومت.",
    "keywords": [
@@ -335,7 +334,7 @@
    "fillFrom": {
     "kind": "hub",
     "file": "laws_criminal_procedure_code_criminal_procedure_code.json",
-    "label": "IranLegalHUB (MIT)"
+    "label": "منبع پشتیبان (متون ساختاریافتهٔ قوانین)"
    }
   },
   {
@@ -1313,20 +1312,6 @@
    }
   }
  ],
- "guides": [
-  {
-   "id": "constitution-guide",
-   "title": "راهنمای کاربردی قانون اساسی",
-   "type": "guide",
-   "source": {
-    "kind": "hub",
-    "file": "guides_constitution_guide.json"
-   },
-   "summary": "توضیح کاربردی موضوعات کلیدی قانون اساسی: حقوق ملت، ساختار قوا و نهادهای نظارتی.",
-   "category": "asasi",
-   "hierarchy": "constitution"
-  }
- ],
  "checklist": [
   {
    "id": "fiqh",
@@ -1469,15 +1454,8 @@
    "id": "environment",
    "label": "قوانین محیط زیست (حفاظت و بهسازی، هوای پاک، پسماندها، شکار و صید، حفاظت از خاک، ایمنی زیستی)",
    "status": "pending",
-   "laws": [
-    "environment-protection-law",
-    "clean-air-law",
-    "waste-management-law",
-    "hunting-fishing-law",
-    "soil-protection-law",
-    "biosafety-law"
-   ],
-   "note": "شناسنامه این شش قانون از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده باید از سامانه ملی قوانین (qavanin.ir) با اسکریپت پیوست دریافت شود."
+   "laws": [],
+   "note": "متن ماده‌به‌ماده این قوانین باید از سامانه ملی قوانین (qavanin.ir) دریافت شود."
   },
   {
    "id": "authors-rights",
@@ -1506,11 +1484,8 @@
    "id": "civil-service",
    "label": "قانون مدیریت خدمات کشوری و استخدام کشوری",
    "status": "pending",
-   "laws": [
-    "civil-service-management-law",
-    "administrative-health-anti-corruption-law"
-   ],
-   "note": "شناسنامه این دو قانون از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده نیازمند ورود از سامانه ملی قوانین است."
+   "laws": [],
+   "note": "متن ماده‌به‌ماده نیازمند ورود از سامانه ملی قوانین است."
   },
   {
    "id": "usury-free-banking",
@@ -1585,94 +1560,6 @@
     "dispute-resolution-councils-law",
     "general-courts-law"
    ]
-  },
-  {
-   "id": "ref-permanent-development",
-   "label": "قانون احکام دائمی برنامه‌های توسعه کشور",
-   "status": "pending",
-   "laws": [
-    "permanent-development-provisions-law"
-   ],
-   "note": "شناسنامه سند از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده از منابع آزاد در دسترس نبود."
-  },
-  {
-   "id": "ref-civil",
-   "label": "قانون الزام به ثبت رسمی معاملات اموال غیرمنقول",
-   "status": "pending",
-   "laws": [
-    "mandatory-registration-of-immovable-transactions-law"
-   ],
-   "note": "شناسنامه سند از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده از منابع آزاد در دسترس نبود."
-  },
-  {
-   "id": "ref-criminal",
-   "label": "قوانین کیفری تکمیلی (مجازات جرایم نیروهای مسلح، تشدید مجازات ارتشاء و اختلاس و کلاهبرداری)",
-   "status": "pending",
-   "laws": [
-    "armed-forces-crimes-punishment-law",
-    "aggravated-punishment-bribery-embezzlement-fraud-law"
-   ],
-   "note": "شناسنامه این دو قانون از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده از منابع آزاد در دسترس نبود."
-  },
-  {
-   "id": "ref-commercial",
-   "label": "قانون اداره تصفیه امور ورشکستگی",
-   "status": "pending",
-   "laws": [
-    "bankruptcy-liquidation-administration-law"
-   ],
-   "note": "شناسنامه سند از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده از منابع آزاد در دسترس نبود."
-  },
-  {
-   "id": "ref-labor",
-   "label": "قانون بیمه بیکاری",
-   "status": "pending",
-   "laws": [
-    "unemployment-insurance-law"
-   ],
-   "note": "شناسنامه سند از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده از منابع آزاد در دسترس نبود."
-  },
-  {
-   "id": "ref-tax",
-   "label": "قانون پایانه‌های فروشگاهی و سامانه مؤدیان",
-   "status": "pending",
-   "laws": [
-    "taxpayer-pos-system-law"
-   ],
-   "note": "شناسنامه سند از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده از منابع آزاد در دسترس نبود."
-  },
-  {
-   "id": "ref-registration",
-   "label": "قوانین ثبتی (ثبت احوال، تعیین تکلیف اراضی فاقد سند، جامع حدنگار)",
-   "status": "pending",
-   "laws": [
-    "civil-registration-law",
-    "unregistered-lands-buildings-status-law",
-    "comprehensive-cadastre-law"
-   ],
-   "note": "شناسنامه این سه قانون از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده از منابع آزاد در دسترس نبود."
-  },
-  {
-   "id": "ref-ip",
-   "label": "مالکیت فکری تکمیلی (ترجمه و تکثیر کتب، ثبت اختراعات و علائم تجاری)",
-   "status": "pending",
-   "laws": [
-    "translation-reproduction-books-law",
-    "patents-trademarks-industrial-designs-law"
-   ],
-   "note": "شناسنامه این دو قانون از فهرست مرجع افزوده شده است؛ متن ماده‌به‌ماده از منابع آزاد در دسترس نبود."
-  },
-  {
-   "id": "ref-intl",
-   "label": "معاهدات و کنوانسیون‌های بین‌المللی حقوق بشر",
-   "status": "pending",
-   "laws": [
-    "iccpr-convention",
-    "icescr-convention",
-    "child-rights-convention",
-    "disability-rights-convention"
-   ],
-   "note": "شناسنامه این چهار کنوانسیون از فهرست مرجع افزوده شده است؛ متن مواد باید از مراجع رسمی (سازمان ملل متحد) دریافت شود."
   }
  ]
 }

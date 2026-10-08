@@ -12,7 +12,7 @@ import path from 'node:path';
 import { parseHubJson } from '../scripts/lib/parse.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const HUB = path.join(ROOT, 'data', 'sources', 'iranlegalhub');
+const HUB = path.join(ROOT, 'data', 'sources', 'structured-laws');
 const read = (f) => parseHubJson(fs.readFileSync(path.join(HUB, f), 'utf8'));
 
 /** شمارشِ مستقل از تجزیه‌گر (برای اینکه آزمون، خودِ تجزیه‌گر را بازتولید نکند) */
@@ -71,14 +71,14 @@ test('شمارهٔ ماده‌ها و مکررها درست استخراج می�
   );
 });
 
-test('هر سندِ IranLegalHUBِ یکپارچه‌شده در فهرست، ماده دارد', async () => {
+test('هر سندِ ساخت‌یافتهٔ یکپارچه‌شده در فهرست، ماده دارد', async () => {
   const version = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'data', 'version.json'), 'utf8')).version;
   const catalog = JSON.parse(
     fs.readFileSync(path.join(ROOT, 'public', 'data', 'v', version, 'catalog.json'), 'utf8'),
   );
   const hubLaws = catalog.laws.filter((l) => l.source?.kind === 'hub');
-  assert.ok(hubLaws.length > 0, 'هیچ سندی با منبع IranLegalHUB نیست');
+  assert.ok(hubLaws.length > 0, 'هیچ سندی با منبع ساخت‌یافته نیست');
   for (const law of hubLaws) {
-    assert.ok(law.articleCount > 0, `${law.id}: سندِ IranLegalHUB بدون ماده است`);
+    assert.ok(law.articleCount > 0, `${law.id}: سندِ ساخت‌یافته بدون ماده است`);
   }
 });

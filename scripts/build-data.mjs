@@ -27,8 +27,6 @@ const PUBLIC = path.join(ROOT, 'public');
 
 const readJson = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
 const readText = (p) => fs.readFileSync(p, 'utf8');
-/** خواندن یک فایلِ اختیاریِ دستی؛ اگر نبود، مقدار جایگزین برگردانده می‌شود */
-const readJsonMaybe = (p, fallback) => (fs.existsSync(p) ? readJson(p) : fallback);
 
 /* ---------------------------------------------------------------- *
  * ساخت یک سند قانون از منبع مربوطه
@@ -41,14 +39,14 @@ function buildFromCorpus(law) {
 }
 
 function buildFromHub(law) {
-  const file = path.join(SOURCES, 'iranlegalhub', law.source.file);
+  const file = path.join(SOURCES, 'structured-laws', law.source.file);
   if (!fs.existsSync(file)) throw new Error(`منبع یافت نشد: ${file}`);
   const { meta, articles } = parseHubJson(readText(file));
-  return { meta, articles, sourceName: 'IranLegalHUB (MIT)' };
+  return { meta, articles, sourceName: 'متون ساختاریافتهٔ قوانین' };
 }
 
 function buildConstitution(law) {
-  const yamlFile = path.join(SOURCES, 'iranconstitution', 'constitution.yaml');
+  const yamlFile = path.join(SOURCES, 'constitution', 'constitution.yaml');
   let articles = [];
   if (fs.existsSync(yamlFile)) {
     articles = parseConstitutionYaml(readText(yamlFile)).articles;
@@ -84,24 +82,7 @@ function buildConstitution(law) {
   return {
     meta: { title: 'قانون اساسی جمهوری اسلامی ایران', note: 'مصوب ۱۳۵۸/۰۹/۱۲ با اصلاحات ۱۳۶۸', articleRange: 'مقدمه و اصول ۱ تا ۱۷۷' },
     articles,
-    sourceName: 'iranconstitution (CC-BY 4.0)',
-  };
-}
-
-/**
- * سند «ارجاعی» (بدون متن ماده‌ها):
- * برای قوانینی که در فهرست مرجع هستند اما متن رسمی آن‌ها هنوز در منابع پروژه
- * موجود نیست. فقط شناسنامه سند ساخته می‌شود و هیچ ماده‌ای تولید نمی‌شود.
- */
-function buildReference(law, registrySource) {
-  return {
-    meta: {
-      title: law.title,
-      note: law.note || 'متن ماده‌به‌ماده این سند در منابع آزاد پروژه موجود نیست؛ برای استناد به سامانه ملی قوانین مراجعه شود.',
-      articleRange: '',
-    },
-    articles: [],
-    sourceName: law.source?.name || registrySource.name || 'فهرست مرجع',
+    sourceName: 'متن قانون اساسی',
   };
 }
 
@@ -163,27 +144,10 @@ function chapterSummary(articles) {
 function main() {
   const catalog = readJson(path.join(CURATED, 'catalog.json'));
   const appInfo = readJson(path.join(CURATED, 'app-info.json'));
-  const referenceLaws = readJson(path.join(CURATED, 'reference-laws.json'));
-  const entities = readJson(path.join(CURATED, 'entities.json'));
-  const titleIndex = readJsonMaybe(path.join(CURATED, 'law-title-index.json'), { laws: [] });
-  const extraEntities = readJsonMaybe(path.join(CURATED, 'entities-extra.json'), { groups: [] });
 
-  /* فهرست مرجع (قوانین بدون متن) به انتهای فهرست قوانین افزوده می‌شود تا هیچ
-     مدخل موجودی تغییر نکند. منبع پیش‌فرض این اسناد از فایل reference-laws.json خوانده می‌شود. */
-  const registrySource = referenceLaws.source || { kind: 'reference' };
-  const titleIndexSource = titleIndex.source || { kind: 'reference', name: 'فهرست عناوین' };
-  const allLawDefs = [
-    ...catalog.laws,
-    ...(referenceLaws.laws || []).map((l) => ({
-      ...l,
-      source: { ...registrySource, ...(l.source || {}) },
-    })),
-    ...(titleIndex.laws || []).map((l) => ({
-      ...l,
-      origin: l.origin || 'law-title-index',
-      source: { ...titleIndexSource, kind: 'reference', ...(l.source || {}) },
-    })),
-  ];
+  /* فقط اسنادی که متن ماده‌به‌ماده دارند وارد برنامه می‌شوند؛
+     سندِ «فقط شناسنامه» یا «فقط عنوان» در داده‌های نهایی جایی ندارد. */
+  const allLawDefs = catalog.laws;
 
   const lawsMeta = [];
   const lawFiles = {};
@@ -196,7 +160,6 @@ function main() {
       case 'hub': built = buildFromHub(lawDef); break;
       case 'constitution': built = buildConstitution(lawDef); break;
       case 'curated': built = buildFromCurated(lawDef); break;
-      case 'reference': built = buildReference(lawDef, registrySource); break;
       default: throw new Error(`نوع منبع نامعتبر: ${lawDef.source.kind}`);
     }
 
@@ -216,7 +179,6 @@ function main() {
       keywords: lawDef.keywords || [],
       checklist: lawDef.checklist || [],
       source: { ...lawDef.source, name: lawDef.source.name || built.sourceName },
-      origin: lawDef.origin || 'curated',
       note: built.meta.note || '',
       articleRange: built.meta.articleRange || '',
       updatedAt: new Date().toISOString().slice(0, 10),
@@ -243,6 +205,13 @@ function main() {
         }
         articles.sort((a, b) => (a.numberValue ?? 0) - (b.numberValue ?? 0) || String(a.number).localeCompare(String(b.number)));
       }
+    }
+
+    /* مادهٔ بدون متن (فقط عنوان/شماره) حذف می‌شود؛ هر ماده‌ای که در برنامه
+       می‌آید باید متن داشته باشد. */
+    articles = articles.filter((a) => (a.text || '').trim().length > 0);
+    if (!articles.length) {
+      throw new Error(`قانون «${title}» (${lawDef.id}) پس از پاک‌سازی بدون مادهٔ متنی است؛ منبع آن را بررسی کنید.`);
     }
 
     const stats = analyze(articles);
@@ -276,62 +245,13 @@ function main() {
       missing: missing.length,
       moved: movedTo ? 1 : 0,
       max: stats.max,
-      reference: articles.length === 0,
-      titleIndex: lawRecord.origin === 'law-title-index',
     });
   }
 
-  /* نسخه‌ی داده: نسخه‌ی معنایی + هش محتوا برای تشخیص تغییر */
-  const aggregateHash = sha256(Object.entries(lawFiles).map(([k, v]) => `${k}:${v.hash}`).sort().join('|')).slice(0, 8);
-  const version = `${appInfo.dataVersion}+${aggregateHash}`;
-  const versionDir = path.join(PUBLIC, 'data', 'v', version);
-  const casesDir = path.join(versionDir, 'cases');
-
-  /* مجموعهٔ آراء از یک منبعِ حجیمِ «اختیاری» ساخته می‌شود
-     (data/sources/legalchatbot/case.csv که با `npm run sources:fetch` می‌آید).
-     اگر آن منبع روی این دستگاه نباشد، نباید دادهٔ آرائی که پیش‌تر ساخته و در
-     مخزن ثبت شده از بین برود — وگرنه هر بار اجرای `data:build` (از جمله در
-     GitHub Actions) ۱۹۹۸ رأی را بی‌صدا حذف می‌کند. پس پوشهٔ cases پیش از
-     بازسازی کنار گذاشته می‌شود و در صورت نیاز سر جایش برمی‌گردد. */
-  const stashedCasesDir = path.join(PUBLIC, 'data', 'v', `.cases-stash-${version}`);
-  fs.rmSync(stashedCasesDir, { recursive: true, force: true });
-  if (fs.existsSync(casesDir)) fs.renameSync(casesDir, stashedCasesDir);
-  const previousPointerPath = path.join(PUBLIC, 'data', 'version.json');
-  const previousPointer = fs.existsSync(previousPointerPath) ? readJson(previousPointerPath) : null;
-  const previousCasesPointer =
-    previousPointer && previousPointer.version === version ? previousPointer.cases : undefined;
-
-  // پوشه نسخه از صفر ساخته می‌شود تا فایل‌های قدیمی (مثلاً قالب پیش از قطعه‌بندی) باقی نمانند
-  fs.rmSync(versionDir, { recursive: true, force: true });
-  ensureDir(path.join(versionDir, 'laws'));
-
   const totalArticles = lawsMeta.reduce((s, l) => s + l.articleCount, 0);
 
-  /* نهادها، سازمان‌ها، بانک‌ها و … (فهرست مرجع + استخراج‌شده از منابع) */
-  const entityGroups = [...(entities.groups || []), ...(extraEntities.groups || [])]
-    .slice()
-    .sort((a, b) => a.order - b.order)
-    .map((g) => ({
-      ...g,
-      items: (g.items || []).map((item) => ({
-        id: item.id,
-        title: item.title,
-        shortTitle: item.shortTitle || item.title,
-        abbr: item.abbr || '',
-        note: item.note || '',
-        group: g.id,
-        status: item.status || 'فعال',
-        source:
-          item.source ||
-          (g.id === 'councils-and-authorities'
-            ? extraEntities.source?.name || 'استخراج‌شده از منابع'
-            : entities.source?.name || 'فهرست مرجع ورودی'),
-      })),
-    }));
-  const entityCount = entityGroups.reduce((s, g) => s + g.items.length, 0);
-
   const clientCatalog = {
-    version,
+    version: '',
     appVersion: appInfo.appVersion,
     releasedAt: new Date().toISOString().slice(0, 10),
     releasedAtFa: toFaDigits(appInfo.releasedAt || ''),
@@ -346,22 +266,48 @@ function main() {
     categories: catalog.categories,
     hierarchy: catalog.hierarchy,
     checklist: catalog.checklist,
-    guides: catalog.guides || [],
     laws: lawsMeta,
-    entityGroups,
     stats: {
       lawCount: lawsMeta.length,
       articleCount: totalArticles,
       categoryCount: catalog.categories.length,
-      entityCount,
       /** اسنادی که متن ماده‌به‌ماده دارند */
       fullTextCount: lawsMeta.filter((l) => l.articleCount > 0).length,
-      /** اسناد فقط‌شناسنامه برگرفته از فهرست مرجع ورودی */
-      referenceLawCount: lawsMeta.filter((l) => l.articleCount === 0 && l.origin !== 'law-title-index').length,
-      /** عناوین استخراج‌شده از فهرست منبع (فقط نام سند) */
-      titleIndexCount: lawsMeta.filter((l) => l.origin === 'law-title-index').length,
     },
   };
+
+  /* نسخهٔ داده: نسخهٔ معنایی + هش محتوای قوانین + هش محتوای فهرست (کاتالوگ).
+     هشِ فهرست هم لازم است؛ وگرنه حذف/افزودن سند، دسته یا چک‌لیست، نسخه را
+     عوض نمی‌کند و کلاینتی که فهرست قدیمی را در IndexedDB دارد، هرگز فهرست
+     تازه را نمی‌گیرد (مثلاً مدخل‌های حذف‌شده در نوار جست‌وجو می‌مانند). */
+  const catalogHash = sha256(JSON.stringify(clientCatalog)).slice(0, 8);
+  const aggregateHash = sha256(
+    [...Object.entries(lawFiles).map(([k, v]) => `${k}:${v.hash}`).sort(), `catalog:${catalogHash}`].join('|'),
+  ).slice(0, 8);
+  const version = `${appInfo.dataVersion}+${aggregateHash}`;
+  clientCatalog.version = version;
+
+  const versionDir = path.join(PUBLIC, 'data', 'v', version);
+  const casesDir = path.join(versionDir, 'cases');
+
+  /* مجموعهٔ آراء از یک منبعِ حجیمِ «اختیاری» ساخته می‌شود
+     (data/sources/cases/case.csv).
+     اگر آن منبع روی این دستگاه نباشد، نباید دادهٔ آرائی که پیش‌تر ساخته و در
+     مخزن ثبت شده از بین برود — وگرنه هر بار اجرای `data:build` (از جمله در
+     خط تولید) ۱۹۹۸ رأی را بی‌صدا حذف می‌کند. پس پوشهٔ cases پیش از
+     بازسازی کنار گذاشته می‌شود و در صورت نیاز سر جایش برمی‌گردد؛ با تغییر نسخهٔ
+     داده، مجموعهٔ آراء نسخهٔ پیشین با مسیرهای نسخهٔ جدید بازگردانده می‌شود. */
+  const stashedCasesDir = path.join(PUBLIC, 'data', 'v', `.cases-stash-${version}`);
+  fs.rmSync(stashedCasesDir, { recursive: true, force: true });
+  if (fs.existsSync(casesDir)) fs.renameSync(casesDir, stashedCasesDir);
+  const previousPointerPath = path.join(PUBLIC, 'data', 'version.json');
+  const previousPointer = fs.existsSync(previousPointerPath) ? readJson(previousPointerPath) : null;
+  const previousCasesPointer =
+    previousPointer && previousPointer.version === version ? previousPointer.cases : undefined;
+
+  // پوشه نسخه از صفر ساخته می‌شود تا فایل‌های قدیمی (مثلاً قالب پیش از قطعه‌بندی) باقی نمانند
+  fs.rmSync(versionDir, { recursive: true, force: true });
+  ensureDir(path.join(versionDir, 'laws'));
 
   writeJson(path.join(versionDir, 'catalog.json'), clientCatalog);
 
@@ -371,8 +317,6 @@ function main() {
   const pointerLaws = [];
   for (const meta of lawsMeta) {
     const file = lawFiles[meta.id];
-    // اسناد ارجاعی (بدون متن ماده) فایل داده‌ای ندارند؛ فقط در کاتالوگ هستند.
-    if (!file.count) continue;
     const parsed = JSON.parse(file.payload);
     const parts = [];
     const chunks = [];
@@ -411,24 +355,63 @@ function main() {
   };
 
   /* مجموعهٔ اختیاری آراء قضایی (منبع حجیم؛ فقط در صورت وجود فایل ساخته می‌شود) */
+  const versionsDir = path.join(PUBLIC, 'data', 'v');
   const cases = buildCases({ versionDir, version });
   if (cases) {
     pointer.cases = cases.pointer;
     fs.rmSync(stashedCasesDir, { recursive: true, force: true });
   } else if (fs.existsSync(stashedCasesDir)) {
-    /* منبع خام نبود: همان نسخهٔ ثبت‌شده در مخزن را نگه می‌داریم */
+    /* منبع خام نبود: همان پوشهٔ کنارگذاشته‌شدهٔ همین نسخه را نگه می‌داریم */
     fs.renameSync(stashedCasesDir, casesDir);
     if (previousCasesPointer) pointer.cases = previousCasesPointer;
     console.log('   ⓘ مجموعهٔ آراءِ ثبت‌شده در مخزن حفظ شد (منبع خامِ اختیاری در دسترس نبود)');
   } else {
     fs.rmSync(stashedCasesDir, { recursive: true, force: true });
+    /* نسخهٔ داده عوض شده و منبع خام هم در دسترس نیست؛ مجموعهٔ آراءِ ساختِ
+       پیشین از پوشهٔ نسخهٔ قبلی به نسخهٔ جدید منتقل می‌شود تا دادهٔ سنگینِ
+       ثبت‌شده در مخزن از دست نرود (فقط مسیرهای اشاره‌گر به‌روز می‌شوند). */
+    const previousVersionDir = fs
+      .readdirSync(versionsDir)
+      .filter((d) => d !== version && !d.startsWith('.') && fs.existsSync(path.join(versionsDir, d, 'cases')))
+      .sort()
+      .pop();
+    if (previousVersionDir) {
+      const oldCasesDir = path.join(versionsDir, previousVersionDir, 'cases');
+      fs.cpSync(oldCasesDir, casesDir, { recursive: true });
+      const oldPointerPath = path.join(oldCasesDir, 'index.json');
+      const oldIndex = fs.existsSync(oldPointerPath) ? readJson(oldPointerPath) : null;
+      const oldParts = [];
+      for (const name of fs.readdirSync(oldCasesDir).filter((n) => /^c\d+\.json$/.test(n)).sort((a, b) => Number(a.slice(1, -5)) - Number(b.slice(1, -5)))) {
+        const body = fs.readFileSync(path.join(oldCasesDir, name), 'utf8');
+        oldParts.push({
+          path: `/data/v/${version}/cases/${name}`,
+          bytes: Buffer.byteLength(body),
+          count: (JSON.parse(body).items || []).length,
+        });
+      }
+      if (oldIndex && oldParts.length) {
+        /* نام منبع در فایل فهرست آراء بازنویسی می‌شود تا ارجاعی به مخزن در داده نماند */
+        const indexBody = JSON.stringify({ ...oldIndex, version, source: 'مجموعهٔ آراء قضایی', count: oldParts.reduce((s, p) => s + p.count, 0) });
+        fs.writeFileSync(path.join(casesDir, 'index.json'), indexBody, 'utf8');
+        pointer.cases = {
+          version,
+          source: 'مجموعهٔ آراء قضایی',
+          count: oldParts.reduce((s, p) => s + p.count, 0),
+          bytes: oldParts.reduce((s, p) => s + p.bytes, 0) + Buffer.byteLength(indexBody),
+          indexPath: `/data/v/${version}/cases/index.json`,
+          indexBytes: Buffer.byteLength(indexBody),
+          parts: oldParts,
+          types: [...new Set(oldIndex.index.map((row) => row.type))].sort(),
+        };
+        console.log(`   ⓘ مجموعهٔ آراءِ نسخهٔ پیشین (${toFaDigits(pointer.cases.count)} رأی) به نسخهٔ جدید منتقل شد`);
+      }
+    }
   }
 
   writeJson(path.join(PUBLIC, 'data', 'version.json'), pointer);
 
   /* پاک‌سازی نسخه‌های قدیمی (فقط ۲ نسخه آخر نگه داشته می‌شود).
      مجموعهٔ آراءِ نسخهٔ پیشین همیشه حذف می‌شود — حجیم است و دریافتِ آن اختیاری است. */
-  const versionsDir = path.join(PUBLIC, 'data', 'v');
   const all = fs.readdirSync(versionsDir).filter((d) => d !== version && !d.startsWith('.')).sort();
   for (const old of all) {
     fs.rmSync(path.join(versionsDir, old, 'cases'), { recursive: true, force: true });
@@ -439,15 +422,11 @@ function main() {
 
   /* گزارش */
   console.log(`\n📚 کتابچه قانون — ساخت داده‌ها\n   نسخه: ${version}`);
-  console.log(
-    `   ${lawsMeta.length} سند حقوقی | ${toFaDigits(clientCatalog.stats.fullTextCount)} با متن کامل | ${toFaDigits(clientCatalog.stats.referenceLawCount)} فقط‌شناسنامه | ${toFaDigits(clientCatalog.stats.titleIndexCount)} عنوانِ فهرستی`,
-  );
-  console.log(`   ${toFaDigits(totalArticles)} ماده`);
-  console.log(`   ${toFaDigits(entityCount)} نهاد/سازمان در ${toFaDigits(entityGroups.length)} گروه\n`);
+  console.log(`   ${lawsMeta.length} سند حقوقی با متن کامل`);
+  console.log(`   ${toFaDigits(totalArticles)} ماده\n`);
   const pad = (s, n) => String(s).padEnd(n);
   for (const r of report) {
-    const gap = r.reference ? (r.titleIndex ? ' ＋ عنوان فهرستی' : ' ↷ فقط شناسنامه (متن در منابع آزاد نیست)')
-      : r.missing ? ` ⚠ ${r.missing} ماده ناموجود در منبع`
+    const gap = r.missing ? ` ⚠ ${r.missing} ماده ناموجود در منبع`
       : r.moved ? ' ↪ مواد ۲۱–۹۳ در لایحه اصلاحی ۱۳۴۷'
       : '';
     console.log(`   ${pad(r.id, 46)} ${pad(r.count, 6)} ماده${gap}`);
