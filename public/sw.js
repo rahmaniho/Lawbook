@@ -6,10 +6,10 @@
  *  - کش نسخه‌ای (immutable) برای داده‌های قوانین: /data/v/<version>/...
  *  - Background Sync + Periodic Sync برای بررسی به‌روزرسانی قوانین
  *
- * نکتهٔ مهم: برنامه روی GitHub Pages زیر یک زیرمسیر (basePath) سرو می‌شود،
- * بنابراین هیچ مسیری اینجا به‌صورت مطلق از ریشهٔ دامنه نوشته نمی‌شود.
- * basePath در زمان اجرا از خودِ آدرس سرویس‌ورکر استخراج می‌شود تا هم برای
- * استقرار در ریشه و هم زیر /Lawbook درست کار کند.
+ * نکتهٔ مهم: برنامه زیر یک زیرمسیر (basePath) سرو می‌شود، بنابراین هیچ مسیری
+ * اینجا به‌صورت مطلق از ریشهٔ دامنه نوشته نمی‌شود. basePath در زمان اجرا از خودِ
+ * آدرس سرویس‌ورکر استخراج می‌شود تا هم برای استقرار در ریشه و هم زیر /Lawbook
+ * درست کار کند.
  */
 const VERSION = 'v1';
 const SHELL_CACHE = `ghanoun-shell-${VERSION}`;
@@ -28,7 +28,7 @@ const u = (urlPath) => `${BASE}${urlPath}`;
 const OFFLINE_URL = u('/offline/');
 
 const SHELL_ROUTES = [
-  '/', '/laws/', '/entities/', '/search/', '/bookmarks/', '/settings/', '/about/', '/offline/', '/coverage/',
+  '/', '/laws/', '/search/', '/bookmarks/', '/settings/', '/about/', '/offline/', '/coverage/',
 ].map(u);
 
 self.addEventListener('install', (event) => {

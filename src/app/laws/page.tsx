@@ -13,13 +13,11 @@ import { formatNumberFa } from '@/lib/format';
 /** تعداد نمایش در هر بار (برای روان‌ماندن فهرست‌های طولانی) */
 const PAGE = 40;
 
-type Availability = 'all' | 'full' | 'reference' | 'index';
+type Availability = 'all' | 'full';
 
 const AVAILABILITY_FILTERS: { id: Availability; label: string }[] = [
   { id: 'all', label: 'همه' },
   { id: 'full', label: 'دارای متن' },
-  { id: 'reference', label: 'فقط شناسنامه' },
-  { id: 'index', label: 'فهرست عناوین' },
 ];
 
 export default function LawsPage() {
@@ -56,8 +54,6 @@ function LawsInner() {
       .filter((l) => (category ? l.category === category : true))
       .filter((l) => {
         if (availability === 'full') return l.articleCount > 0;
-        if (availability === 'reference') return l.articleCount === 0 && l.origin !== 'law-title-index';
-        if (availability === 'index') return l.origin === 'law-title-index';
         return true;
       })
       .filter((l) =>
@@ -120,13 +116,7 @@ function LawsInner() {
         <>
           <SectionHeading
             title={`${formatNumberFa(laws.length)} سند حقوقی`}
-            subtitle={
-              availability === 'index'
-                ? 'فقط عنوان سند ثبت شده است؛ متن ماده‌ها در دسترس نیست'
-                : availability === 'reference'
-                  ? 'شناسنامهٔ کامل سند ثبت شده است؛ متن ماده‌ها در منابع آزاد نبود'
-                  : 'مرتب‌شده بر اساس تاریخ تصویب'
-            }
+            subtitle="مرتب‌شده بر اساس تاریخ تصویب"
           />
           <div className="space-y-2">
             {visible.map((law) => (

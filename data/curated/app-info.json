@@ -43,30 +43,6 @@
    "license": "تدوین داخلی",
    "url": "https://karen-soft.ir",
    "note": "جمع‌آوری و تطبیق: وکیل پایه یک دادگستری لیلا آبکه"
-  },
-  {
-   "name": "مجموعه متون پاک‌سازی‌شده قوانین — HamedJahantigh-git/legal_chatbot",
-   "license": "متن قوانین: سند رسمی و آزاد (پایگاه‌داده: شرایط مخزن)",
-   "url": "https://github.com/HamedJahantigh-git/legal_chatbot",
-   "note": "منبع متن بسیاری از قوانین، همراه با سرصفحه و تاریخ تصویب"
-  },
-  {
-   "name": "GeekNeuron/IranLegalHUB",
-   "license": "MIT (برای ساختار و آرایه‌گذاری)",
-   "url": "https://github.com/GeekNeuron/IranLegalHUB",
-   "note": "منبع کمکی و ساختار اضافی برای برخی قوانین"
-  },
-  {
-   "name": "mehdisadeghi/iranconstitution",
-   "license": "CC-BY 4.0",
-   "url": "https://github.com/mehdisadeghi/iranconstitution",
-   "note": "متن کامل قانون اساسی — مقدمه، ۱۴ فصل و ۱۷۷ اصل"
-  },
-  {
-   "name": "فهرست عناوین، مراجع و مجموعهٔ آراء قضایی — HamedJahantigh-git/legal_chatbot",
-   "license": "MIT (فهرست‌ها و آراء) — دارندهٔ حق‌نشر: Hamed Jahantigh ۲۰۲۴",
-   "url": "https://github.com/HamedJahantigh-git/legal_chatbot",
-   "note": "فقط مواردِ جدید استخراج شده است: ۲۸۰ عنوان سند، ۱۶۷ مرجع صادرکننده و ۱٬۹۹۸ رأی قضایی (دریافتِ اختیاری و با جنبهٔ مطالعاتی؛ این آراء، آرای وحدت رویه نیستند)"
   }
  ]
 }

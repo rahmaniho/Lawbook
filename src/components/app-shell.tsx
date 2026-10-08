@@ -4,12 +4,11 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  BookOpen, Home, Landmark, Search, Settings, Star, X, WifiOff, Download, Sparkles, Scale,
+  BookOpen, Home, Search, Settings, Star, X, WifiOff, Download, Sparkles, Scale,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { useDebounced, useInstallPrompt, useOnlineStatus } from '@/lib/hooks';
 import { useSearch } from '@/lib/use-search';
-import { matchEntities, matchReferenceLaws } from '@/lib/entities';
 import { toFaDigits } from '@/lib/fa';
 import { cn } from '@/lib/utils';
 import { cleanExcerpt } from '@/lib/format';
@@ -18,7 +17,6 @@ import type { ArticleRow } from '@/lib/db';
 const TABS = [
   { href: '/', label: 'خانه', icon: Home },
   { href: '/laws', label: 'قوانین', icon: BookOpen },
-  { href: '/entities', label: 'نهادها', icon: Landmark },
   { href: '/search', label: 'جست‌وجو', icon: Search },
   { href: '/bookmarks', label: 'نشان‌ها', icon: Star },
   { href: '/settings', label: 'تنظیمات', icon: Settings },
@@ -67,10 +65,6 @@ function TopBar() {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-
-  /* نهادهای منطبق با عبارت (فهرست مرجع) — در کنار نتایج ماده‌ها نمایش داده می‌شود */
-  const entityMatches = useMemo(() => matchEntities(catalog, debounced, 4), [catalog, debounced]);
-  const referenceMatches = useMemo(() => matchReferenceLaws(catalog, debounced, 3), [catalog, debounced]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -121,50 +115,10 @@ function TopBar() {
 
           {showDropdown ? (
             <div className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 max-h-[70vh] overflow-y-auto rounded-2xl border bg-popover shadow-lg overscroll-contain">
-              {entityMatches.length ? (
-                <ul className="divide-y border-b">
-                  {entityMatches.map(({ entity, group }) => (
-                    <li key={entity.id}>
-                      <Link
-                        href={`/entities?group=${encodeURIComponent(entity.group)}`}
-                        className="block px-4 py-2.5 active:bg-accent"
-                        onClick={() => setFocused(false)}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-medium text-primary">{entity.title}</span>
-                          {group ? (
-                            <span className="shrink-0 text-[10.5px] text-muted-foreground">{group.title}</span>
-                          ) : null}
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {referenceMatches.length ? (
-                <ul className="divide-y border-b">
-                  {referenceMatches.map((law) => (
-                    <li key={law.id}>
-                      <Link
-                        href={`/laws/${law.id}`}
-                        className="block px-4 py-2.5 active:bg-accent"
-                        onClick={() => setFocused(false)}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-medium text-primary">{law.shortTitle}</span>
-                          <span className="shrink-0 text-[10.5px] text-muted-foreground">فقط شناسنامه</span>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
               {!engineReady ? (
                 <p className="px-4 py-3 text-xs text-muted-foreground">آماده‌سازی ایندکس جست‌وجو…</p>
               ) : results.length === 0 ? (
-                entityMatches.length || referenceMatches.length ? null : (
-                  <p className="px-4 py-3 text-xs text-muted-foreground">نتیجه‌ای یافت نشد.</p>
-                )
+                <p className="px-4 py-3 text-xs text-muted-foreground">نتیجه‌ای یافت نشد.</p>
               ) : (
                 <ul className="divide-y">
                   {results.map(({ article }) => (

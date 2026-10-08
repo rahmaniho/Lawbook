@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import {
-  AlertTriangle, Database, Download, Gavel, Info, Landmark, Loader2, Moon, RefreshCw, Smartphone, Sun, Trash2,
+  AlertTriangle, Database, Download, Gavel, Info, Loader2, Moon, RefreshCw, Smartphone, Sun, Trash2,
 } from 'lucide-react';
 import { clearLocalData, db, getMeta, META_KEYS, storageEstimate } from '@/lib/db';
 import { syncData } from '@/lib/sync';
@@ -277,7 +277,6 @@ export default function SettingsPage() {
       <Card className="divide-y">
         <Row href="/about" icon={<Info size={16} />} title="درباره ما، اعتبار حقوقی و منابع رسمی" />
         <Row href="/coverage" icon={<Database size={16} />} title="گزارش پوشش قوانین و مواد ناموجود" />
-        <Row href="/entities" icon={<Landmark size={16} />} title="نهادها، سازمان‌ها، بانک‌ها و دانشگاه‌ها" />
         <Row href="/cases" icon={<Gavel size={16} />} title="آراء قضایی (رویهٔ قضایی)" />
       </Card>
 

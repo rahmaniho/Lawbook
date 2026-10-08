@@ -1,7 +1,7 @@
 /**
  * آزمون‌های PWA و سازگاری basePath.
  *
- * این‌ها همان چیزهایی را بررسی می‌کنند که باعث می‌شد برنامه روی GitHub Pages
+ * این‌ها همان چیزهایی را بررسی می‌کنند که باعث می‌شد برنامه در استقرار زیرمسیر
  * نصب نشود: manifest با مسیرهای ریشهٔ دامنه، ثبت Service Worker روی `/sw.js`،
  * و مسیرهای مطلقِ داخل خودِ Service Worker.
  *
@@ -34,8 +34,8 @@ test('normalizeBasePath شکل‌های مختلف را یکسان می‌کند
   assert.equal(normalizeBasePath(undefined), '');
 });
 
-test('resolveBasePath پیش‌فرض GitHub Pages و حالت‌های صریح را درست انتخاب می‌کند', () => {
-  assert.equal(resolveBasePath({}), DEFAULT_BASE_PATH, 'بدون هیچ env باید پیش‌فرض GitHub Pages باشد');
+test('resolveBasePath پیش‌فرض استقرار زیرمسیر و حالت‌های صریح را درست انتخاب می‌کند', () => {
+  assert.equal(resolveBasePath({}), DEFAULT_BASE_PATH, 'بدون هیچ env باید پیش‌فرض استقرار زیرمسیر باشد');
   assert.equal(resolveBasePath({ NEXT_PUBLIC_BASE_PATH: '' }), '', 'رشتهٔ خالی یعنی ریشهٔ دامنه');
   assert.equal(resolveBasePath({ NEXT_PUBLIC_BASE_PATH: '/foo' }), '/foo');
   assert.equal(resolveBasePath({ VERCEL: '1' }), '', 'روی Vercel پیش‌فرض اعمال نمی‌شود');
@@ -164,7 +164,7 @@ test('بیلد تولیدی، basePath را درون باندلِ کلاینت �
     .join('\n');
   // next.config.mjs مقدار را از راه `env` به DefinePlugin می‌دهد؛ اگر این
   // جای‌گذاری انجام نشود، BASE_PATH در مرورگر خالی می‌ماند و SW روی
-  // `/sw.js` ثبت می‌شود (۴۰۴ روی GitHub Pages).
+  // `/sw.js` ثبت می‌شود (۴۰۴ در استقرار زیرمسیر).
   assert.ok(
     layoutChunk.includes(`("${expected}")`),
     `basePath=${expected} درون باندل کلاینت جای‌گذاری نشده است`,
@@ -263,12 +263,11 @@ function isIntercepted(sw, url, mode = 'navigate') {
 }
 
 test('sw.js زیر basePath پوسته را با همان پیشوند کش می‌کند', async () => {
-  const sw = loadServiceWorker('https://rahmaniho.github.io/Lawbook/sw.js');
+  const sw = loadServiceWorker('https://example.com/Lawbook/sw.js');
   await runInstall(sw);
   assert.deepEqual(sw.cachedRequests, [
     '/Lawbook/',
     '/Lawbook/laws/',
-    '/Lawbook/entities/',
     '/Lawbook/search/',
     '/Lawbook/bookmarks/',
     '/Lawbook/settings/',
@@ -285,7 +284,6 @@ test('sw.js در استقرار روی ریشهٔ دامنه هم درست کا�
   assert.deepEqual(sw.cachedRequests, [
     '/',
     '/laws/',
-    '/entities/',
     '/search/',
     '/bookmarks/',
     '/settings/',
@@ -297,27 +295,27 @@ test('sw.js در استقرار روی ریشهٔ دامنه هم درست کا�
 });
 
 test('sw.js ناوبری و داده‌های نسخه‌دار زیر basePath را رهگیری می‌کند', () => {
-  const sw = loadServiceWorker('https://rahmaniho.github.io/Lawbook/sw.js');
-  assert.ok(isIntercepted(sw, 'https://rahmaniho.github.io/Lawbook/laws/civil-code/'), 'ناوبری باید رهگیری شود');
+  const sw = loadServiceWorker('https://example.com/Lawbook/sw.js');
+  assert.ok(isIntercepted(sw, 'https://example.com/Lawbook/laws/civil-code/'), 'ناوبری باید رهگیری شود');
   assert.ok(
-    isIntercepted(sw, 'https://rahmaniho.github.io/Lawbook/data/v/1.0.0+abc/catalog.json', 'cors'),
+    isIntercepted(sw, 'https://example.com/Lawbook/data/v/1.0.0+abc/catalog.json', 'cors'),
     'دادهٔ نسخه‌دار باید رهگیری شود',
   );
   assert.ok(
-    isIntercepted(sw, 'https://rahmaniho.github.io/Lawbook/_next/static/css/a.css', 'no-cors'),
+    isIntercepted(sw, 'https://example.com/Lawbook/_next/static/css/a.css', 'no-cors'),
     'دارایی‌های ایستا باید رهگیری شوند',
   );
 });
 
 test('sw.js خودش را رهگیری نمی‌کند تا نسخهٔ کهنه قفل نشود', () => {
-  const sw = loadServiceWorker('https://rahmaniho.github.io/Lawbook/sw.js');
-  assert.equal(isIntercepted(sw, 'https://rahmaniho.github.io/Lawbook/sw.js', 'no-cors'), false);
+  const sw = loadServiceWorker('https://example.com/Lawbook/sw.js');
+  assert.equal(isIntercepted(sw, 'https://example.com/Lawbook/sw.js', 'no-cors'), false);
 });
 
 test('sw.js درخواست‌های دامنهٔ دیگر را رهگیری نمی‌کند', () => {
-  const sw = loadServiceWorker('https://rahmaniho.github.io/Lawbook/sw.js');
+  const sw = loadServiceWorker('https://example.com/Lawbook/sw.js');
   assert.equal(isIntercepted(sw, 'https://cdn.example.com/lib.js', 'no-cors'), false);
-  assert.equal(isIntercepted(sw, 'https://example.com/Lawbook/', 'navigate'), false);
+  assert.equal(isIntercepted(sw, 'https://other.example.org/Lawbook/', 'navigate'), false);
 });
 
 /* ------------------------------------------------------------------ *
@@ -328,7 +326,7 @@ const registerSrc = fs.readFileSync(path.join(ROOT, 'src/components/pwa-register
 
 test('ثبت Service Worker از مسیر basePath-آگاه استفاده می‌کند', () => {
   assert.match(registerSrc, /serviceWorker\.register\(swUrl\(\)\)/, 'ثبت SW باید از swUrl() استفاده کند');
-  assert.doesNotMatch(registerSrc, /register\(['"]\/sw\.js['"]/, 'ثبت SW با مسیر مطلقِ ریشه روی GitHub Pages ۴۰۴ می‌شود');
+  assert.doesNotMatch(registerSrc, /register\(['"]\/sw\.js['"]/, 'ثبت SW با مسیر مطلقِ ریشه در استقرار زیرمسیر ۴۰۴ می‌شود');
   assert.doesNotMatch(registerSrc, /scope:\s*['"]\/['"]/, 'scope گسترده‌تر از پوشهٔ SW بدون هدر مخصوص رد می‌شود');
 });
 

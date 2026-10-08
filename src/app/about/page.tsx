@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLink, Github, Heart, Landmark, Scale, ShieldCheck, Sparkles } from 'lucide-react';
+import { Database, ExternalLink, Heart, Landmark, Scale, ShieldCheck, Sparkles } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { Card } from '@/components/ui/primitives';
 import { SectionHeading } from '@/components/bits';
@@ -117,7 +117,7 @@ export default function AboutPage() {
         {catalog.dataSources.map((d) => (
           <div key={d.name} className="border-b pb-3 last:border-0 last:pb-0">
             <p className="flex items-center gap-1 text-[12.5px] font-medium">
-              <Github size={13} /> {d.name}
+              <Database size={13} /> {d.name}
             </p>
             <p className="mt-0.5 text-[11px] leading-5 text-muted-foreground">
               {d.note} — مجوز: {d.license}

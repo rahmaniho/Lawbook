@@ -10,7 +10,6 @@ import { useApp } from '@/lib/store';
 import type { ArticleRow } from '@/lib/db';
 import { Badge, Button, Card, Input, Skeleton } from '@/components/ui/primitives';
 import { ArticleList, ReaderSettingsSheet } from '@/components/bits';
-import { isReferenceLaw } from '@/lib/entities';
 import { formatNumberFa } from '@/lib/format';
 import { normalizeForSearch, toFaDigits } from '@/lib/fa';
 import { cn } from '@/lib/utils';
@@ -68,68 +67,6 @@ export default function LawDetailPage() {
     );
   }
 
-  /* سند ارجاعی: فقط شناسنامه دارد و متن ماده‌ها در برنامه موجود نیست */
-  const isReference = isReferenceLaw(law);
-
-  if (isReference) {
-    return (
-      <div className="app-container pb-8">
-        <div className="pt-3">
-          <Link href="/laws" className="mb-2 inline-flex items-center gap-1 text-[11.5px] text-muted-foreground">
-            <ArrowRight size={13} /> همه قوانین
-          </Link>
-          <Card className="p-4">
-            <h1 className="text-[15px] font-bold leading-6">{law.title}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
-              <Badge tone="muted">{law.documentType}</Badge>
-              {law.approvalDate ? <span>مصوب {law.approvalDate}</span> : null}
-              <Badge tone="warning">فقط شناسنامه</Badge>
-            </div>
-            {law.summary ? (
-              <p className="mt-3 text-[12.5px] leading-6 text-muted-foreground">{law.summary}</p>
-            ) : null}
-            {law.note ? (
-              <p className="mt-2 rounded-xl bg-muted/60 p-2.5 text-[11px] leading-5 text-muted-foreground">{law.note}</p>
-            ) : null}
-            {law.keywords?.length ? (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {law.keywords.map((k) => (
-                  <span key={k} className="rounded-full bg-muted px-2.5 py-1 text-[10.5px] text-muted-foreground">
-                    {k}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-            {law.source?.url ? (
-              <a
-                href={law.source.url}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-4 flex items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-[12px] font-medium text-primary"
-              >
-                <ExternalLink size={14} /> مشاهده متن رسمی در سامانه ملی قوانین (qavanin.ir)
-              </a>
-            ) : null}
-            <div className="mt-3 flex items-center justify-between text-[10.5px] text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <BookText size={12} /> {law.source?.name}
-              </span>
-              <span>{law.status}</span>
-            </div>
-          </Card>
-        </div>
-
-        <div className="mt-4 flex gap-2 rounded-2xl bg-muted p-3.5 text-[11px] leading-6 text-muted-foreground">
-          <AlertTriangle size={15} className="mt-0.5 shrink-0 text-primary" />
-          <span>
-            متن ماده‌به‌ماده این سند در نسخه فعلی برنامه موجود نیست و تنها شناسنامه آن ثبت شده است. با
-            افزوده‌شدن متن رسمی از سامانه ملی قوانین، ماده‌های آن در همین صفحه نمایش داده خواهد شد.
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="app-container pb-8">
       <header className="pt-3">
@@ -143,11 +80,7 @@ export default function LawDetailPage() {
               <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
                 <Badge tone="muted">{law.documentType}</Badge>
                 {law.approvalDate ? <span>مصوب {law.approvalDate}</span> : null}
-                {isReference ? (
-                  <Badge tone="warning">فقط شناسنامه</Badge>
-                ) : (
-                  <span>• {formatNumberFa(law.articleCount)} ماده</span>
-                )}
+                <span>• {formatNumberFa(law.articleCount)} ماده</span>
               </div>
             </div>
             <Button variant="outline" size="icon-sm" aria-label="تنظیمات خواندن" onClick={() => setReaderOpen(true)}>
@@ -190,11 +123,7 @@ export default function LawDetailPage() {
           <div className="mt-3 flex items-center justify-between text-[10.5px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <Download size={12} />{' '}
-              {isReference
-                ? 'داده‌ای برای ذخیره ندارد'
-                : downloaded === false
-                  ? 'ذخیره نشده روی دستگاه'
-                  : 'ذخیره‌شده برای حالت آفلاین'}
+              {downloaded === false ? 'ذخیره نشده روی دستگاه' : 'ذخیره‌شده برای حالت آفلاین'}
             </span>
             {law.source?.url ? (
               <a href={law.source.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-primary">

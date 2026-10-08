@@ -14,7 +14,7 @@ const POINTER_URL = '/data/version.json';
 
 /**
  * مسیر داده‌ها با توجه به basePath برنامه.
- * مقدار پیش‌فرض «/Lawbook» برای استقرار روی GitHub Pages است؛
+ * مقدار پیش‌فرض «/Lawbook» برای استقرار زیرمسیر است؛
  * در اجرای محلی می‌توان با NEXT_PUBLIC_BASE_PATH آن را تغییر داد (مثلاً ریشه با مقدار خالی).
  */
 function resolveDataPath(path: string) {

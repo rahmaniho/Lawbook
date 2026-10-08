@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * ساخت مجموعهٔ «آراء قضایی» از فایل resource/case/case.csv
- * (مجموعهٔ پژوهشی HamedJahantigh-git/legal_chatbot — پروانهٔ MIT).
+ * ساخت مجموعهٔ «آراء قضایی» از فایل data/sources/cases/case.csv.
  *
  * خروجی درون پوشهٔ نسخه:
  *   cases/index.json   فهرست قابل‌جست‌وجو (شناسه، عنوان، شماره، تاریخ، نوع و متن نرمال‌شده)
@@ -26,16 +25,16 @@ const NORM_CAP = 900;
 /** تعداد رأی در هر قطعه */
 const CHUNK = 200;
 
-const SOURCE_NAME = 'مجموعهٔ آراء قضایی — HamedJahantigh-git/legal_chatbot (MIT)';
+const SOURCE_NAME = 'مجموعهٔ آراء قضایی';
 
 /**
  * @param {{ versionDir: string, version: string }} opts
  * @returns {{pointer: object, count: number} | null}
  */
 export function buildCases({ versionDir, version }) {
-  const csvPath = path.join(ROOT, 'data', 'sources', 'legalchatbot', 'case.csv');
+  const csvPath = path.join(ROOT, 'data', 'sources', 'cases', 'case.csv');
   if (!fs.existsSync(csvPath)) {
-    console.log('   ⓘ مجموعهٔ آراء قضایی در دسترس نیست (data/sources/legalchatbot/case.csv) — برای دریافت: npm run sources:fetch');
+    console.log('   ⓘ فایل خام مجموعهٔ آراء قضایی (data/sources/cases/case.csv) در این دستگاه نیست؛ دادهٔ ساخته‌شدهٔ پیشین حفظ می‌شود.');
     return null;
   }
 

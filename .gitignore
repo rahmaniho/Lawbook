@@ -47,5 +47,5 @@ scripts/scrape/.cache/
 .vscode/*
 !.vscode/extensions.json
 
-# منابع حجیم (با npm run sources:fetch از codeload.github.com دریافت می‌شوند)
-data/sources/legalchatbot/case.csv
+# فایل خامِ حجیم مجموعهٔ آراء قضایی (در مخزن نگه‌داری نمی‌شود؛ دادهٔ ساخته‌شده در public/data می‌ماند)
+data/sources/cases/case.csv
