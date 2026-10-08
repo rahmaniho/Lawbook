@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import {
-  AlertTriangle, Database, Download, Info, Moon, RefreshCw, Smartphone, Sun, Trash2,
+  AlertTriangle, Database, Download, Info, Landmark, Moon, RefreshCw, Smartphone, Sun, Trash2,
 } from 'lucide-react';
 import { clearLocalData, db, getMeta, META_KEYS, storageEstimate } from '@/lib/db';
 import { syncData } from '@/lib/sync';
@@ -14,6 +14,12 @@ import { SectionHeading } from '@/components/bits';
 import { formatBytes, formatIsoToJalali, formatNumberFa } from '@/lib/format';
 import { toFaDigits } from '@/lib/fa';
 import { haptic, useInstallPrompt } from '@/lib/hooks';
+import type { Catalog } from '@/lib/types';
+
+/** تعداد اسنادی که متن دارند (اسناد ارجاعی داده‌ای برای دریافت ندارند) */
+function downloadableLawCount(catalog: Catalog) {
+  return catalog.laws.filter((l) => l.articleCount > 0).length;
+}
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -162,10 +168,10 @@ export default function SettingsPage() {
 
         {message ? <p className="text-[11px] text-primary">{message}</p> : null}
 
-        {catalog && stats.laws < catalog.laws.length ? (
+        {catalog && stats.laws < downloadableLawCount(catalog) ? (
           <p className="flex items-start gap-2 rounded-xl bg-amber-500/10 p-2.5 text-[11px] leading-5 text-amber-800 dark:text-amber-300">
             <AlertTriangle size={14} className="mt-0.5 shrink-0" />
-            {formatNumberFa(catalog.laws.length - stats.laws)} سند هنوز روی این دستگاه ذخیره نشده است؛ برای استفاده کامل آفلاین،
+            {formatNumberFa(downloadableLawCount(catalog) - stats.laws)} سند هنوز روی این دستگاه ذخیره نشده است؛ برای استفاده کامل آفلاین،
             «بررسی و دریافت به‌روزرسانی» را بزنید.
           </p>
         ) : null}
@@ -206,6 +212,7 @@ export default function SettingsPage() {
       <Card className="divide-y">
         <Row href="/about" icon={<Info size={16} />} title="درباره ما، اعتبار حقوقی و منابع رسمی" />
         <Row href="/coverage" icon={<Database size={16} />} title="گزارش پوشش قوانین و مواد ناموجود" />
+        <Row href="/entities" icon={<Landmark size={16} />} title="نهادها، سازمان‌ها، بانک‌ها و دانشگاه‌ها" />
       </Card>
 
       <p className="mt-6 text-center text-[10.5px] leading-5 text-muted-foreground">

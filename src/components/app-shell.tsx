@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  BookOpen, Home, Search, Settings, Star, X, WifiOff, Download, Sparkles, Scale,
+  BookOpen, Home, Landmark, Search, Settings, Star, X, WifiOff, Download, Sparkles, Scale,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { useDebounced, useInstallPrompt, useOnlineStatus } from '@/lib/hooks';
 import { useSearch } from '@/lib/use-search';
+import { matchEntities, matchReferenceLaws } from '@/lib/entities';
 import { toFaDigits } from '@/lib/fa';
 import { cn } from '@/lib/utils';
 import { cleanExcerpt } from '@/lib/format';
@@ -17,8 +18,9 @@ import type { ArticleRow } from '@/lib/db';
 const TABS = [
   { href: '/', label: 'خانه', icon: Home },
   { href: '/laws', label: 'قوانین', icon: BookOpen },
+  { href: '/entities', label: 'نهادها', icon: Landmark },
   { href: '/search', label: 'جست‌وجو', icon: Search },
-  { href: '/bookmarks', label: 'نشان‌شده‌ها', icon: Star },
+  { href: '/bookmarks', label: 'نشان‌ها', icon: Star },
   { href: '/settings', label: 'تنظیمات', icon: Settings },
 ];
 
@@ -47,6 +49,10 @@ function TopBar() {
   const boxRef = useRef<HTMLDivElement>(null);
   const catalog = useApp((s) => s.catalog);
   const online = useOnlineStatus();
+
+  /* نهادهای منطبق با عبارت (فهرست مرجع) — در کنار نتایج ماده‌ها نمایش داده می‌شود */
+  const entityMatches = useMemo(() => matchEntities(catalog, debounced, 4), [catalog, debounced]);
+  const referenceMatches = useMemo(() => matchReferenceLaws(catalog, debounced, 3), [catalog, debounced]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -96,13 +102,53 @@ function TopBar() {
           </form>
 
           {showDropdown ? (
-            <div className="absolute inset-x-0 top-[52px] z-50 overflow-hidden rounded-2xl border bg-popover shadow-lg">
+            <div className="absolute inset-x-0 top-[52px] z-50 max-h-[70vh] overflow-y-auto rounded-2xl border bg-popover shadow-lg">
+              {entityMatches.length ? (
+                <ul className="divide-y border-b">
+                  {entityMatches.map(({ entity, group }) => (
+                    <li key={entity.id}>
+                      <Link
+                        href={`/entities?group=${encodeURIComponent(entity.group)}`}
+                        className="block px-4 py-2.5 active:bg-accent"
+                        onClick={() => setFocused(false)}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-medium text-primary">{entity.title}</span>
+                          {group ? (
+                            <span className="shrink-0 text-[10.5px] text-muted-foreground">{group.title}</span>
+                          ) : null}
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {referenceMatches.length ? (
+                <ul className="divide-y border-b">
+                  {referenceMatches.map((law) => (
+                    <li key={law.id}>
+                      <Link
+                        href={`/laws/${law.id}`}
+                        className="block px-4 py-2.5 active:bg-accent"
+                        onClick={() => setFocused(false)}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-medium text-primary">{law.shortTitle}</span>
+                          <span className="shrink-0 text-[10.5px] text-muted-foreground">فقط شناسنامه</span>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
               {!engineReady ? (
                 <p className="px-4 py-3 text-xs text-muted-foreground">آماده‌سازی ایندکس جست‌وجو…</p>
               ) : results.length === 0 ? (
-                <p className="px-4 py-3 text-xs text-muted-foreground">نتیجه‌ای یافت نشد.</p>
+                entityMatches.length || referenceMatches.length ? null : (
+                  <p className="px-4 py-3 text-xs text-muted-foreground">نتیجه‌ای یافت نشد.</p>
+                )
               ) : (
-                <ul className="max-h-[60vh] divide-y overflow-y-auto">
+                <ul className="divide-y">
                   {results.map(({ article }) => (
                     <li key={article.id}>
                       <Link
@@ -165,20 +211,22 @@ function BottomNav({ pathname }: { pathname: string }) {
               <Link
                 href={tab.href}
                 className={cn(
-                  'relative flex h-[60px] flex-col items-center justify-center gap-1 text-[11px] transition-colors',
+                  'relative flex h-[60px] flex-col items-center justify-center gap-1 px-0.5 text-[11px] transition-colors',
                   active ? 'text-primary' : 'text-muted-foreground',
                 )}
                 aria-current={active ? 'page' : undefined}
               >
                 <span className="relative">
-                  <Icon size={21} strokeWidth={active ? 2.4 : 1.9} />
+                  <Icon size={20} strokeWidth={active ? 2.4 : 1.9} />
                   {tab.href === '/bookmarks' && bookmarks > 0 ? (
                     <span className="absolute -left-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] text-primary-foreground">
                       {toFaDigits(bookmarks)}
                     </span>
                   ) : null}
                 </span>
-                <span className={cn(active && 'font-semibold')}>{tab.label}</span>
+                <span className={cn('w-full truncate text-center text-[10.5px] leading-tight', active && 'font-semibold')}>
+                  {tab.label}
+                </span>
                 {active ? <span className="absolute top-0 h-0.5 w-8 rounded-full bg-primary" /> : null}
               </Link>
             </li>

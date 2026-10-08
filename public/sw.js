@@ -12,7 +12,7 @@ const ASSET_CACHE = `ghanoun-assets-${VERSION}`;
 const DATA_CACHE = `ghanoun-data-${VERSION}`;
 const OFFLINE_URL = '/offline';
 
-const SHELL_ROUTES = ['/', '/laws', '/search', '/bookmarks', '/settings', '/about', '/offline', '/coverage'];
+const SHELL_ROUTES = ['/', '/laws', '/entities', '/search', '/bookmarks', '/settings', '/about', '/offline', '/coverage'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

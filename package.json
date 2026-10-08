@@ -12,6 +12,7 @@
     "lint": "next lint",
     "data:build": "node scripts/build-data.mjs",
     "data:validate": "node scripts/validate-data.mjs",
+    "registry:verify": "node scripts/verify-registry.mjs",
     "icons:gen": "node scripts/gen-icons.mjs",
     "scrape": "python3 scripts/scrape/scrape_qavanin.py",
     "typecheck": "tsc --noEmit"

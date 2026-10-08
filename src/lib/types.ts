@@ -7,7 +7,8 @@ export type HierarchyId =
   | 'regulation'
   | 'council'
   | 'precedent'
-  | 'advisory';
+  | 'advisory'
+  | 'treaty';
 
 export type ArticleStatus = 'لازم‌الاجرا' | 'اصلاحی' | 'منسوخ';
 
@@ -96,6 +97,29 @@ export interface ChecklistItem {
   note?: string;
 }
 
+/** یک نهاد/سازمان در فهرست مرجع (وزارتخانه، بانک، دانشگاه، نهاد بین‌المللی و…) */
+export interface Entity {
+  id: string;
+  title: string;
+  shortTitle: string;
+  abbr: string;
+  note: string;
+  /** شناسه گروهی که این نهاد به آن تعلق دارد */
+  group: string;
+  status: string;
+  source: string;
+}
+
+export interface EntityGroup {
+  id: string;
+  title: string;
+  icon: string;
+  color: string;
+  order: number;
+  description: string;
+  items: Entity[];
+}
+
 export interface CreditPerson {
   name: string;
   role: string;
@@ -121,7 +145,14 @@ export interface Catalog {
   checklist: ChecklistItem[];
   guides: { id: string; title: string; summary: string; category: string }[];
   laws: LawMeta[];
-  stats: { lawCount: number; articleCount: number; categoryCount: number };
+  entityGroups: EntityGroup[];
+  stats: {
+    lawCount: number;
+    articleCount: number;
+    categoryCount: number;
+    entityCount: number;
+    referenceLawCount: number;
+  };
 }
 
 export interface LawPointerPart {

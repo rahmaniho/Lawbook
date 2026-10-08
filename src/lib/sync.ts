@@ -11,8 +11,13 @@ import type { Catalog, DataPointer, LawPointer, SyncProgress } from './types';
 
 const POINTER_URL = '/data/version.json';
 
+/**
+ * مسیر داده‌ها با توجه به basePath برنامه.
+ * مقدار پیش‌فرض «/Lawbook» برای استقرار روی GitHub Pages است؛
+ * در اجرای محلی می‌توان با NEXT_PUBLIC_BASE_PATH آن را تغییر داد (مثلاً ریشه با مقدار خالی).
+ */
 function resolveDataPath(path: string) {
-  const basePath = '/Lawbook';
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '/Lawbook';
   return `${basePath}${path.startsWith('/') ? path : `/${path}`}`;
 }
 

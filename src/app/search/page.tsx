@@ -3,14 +3,15 @@
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Clock, Filter, Search as SearchIcon, X } from 'lucide-react';
+import { Clock, FileText, Filter, Landmark, Search as SearchIcon, X } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { useSearch } from '@/lib/use-search';
 import { addHistory, clearHistory, db } from '@/lib/db';
 import type { ArticleRow } from '@/lib/db';
+import { matchEntities, matchReferenceLaws } from '@/lib/entities';
 import { ArticleCard } from '@/components/article-card';
 import { FilterSheet } from '@/components/bits';
-import { Badge, Button, EmptyState, Skeleton } from '@/components/ui/primitives';
+import { Badge, Button, Card, EmptyState, Skeleton } from '@/components/ui/primitives';
 import { toFaDigits } from '@/lib/fa';
 import { formatNumberFa } from '@/lib/format';
 import type { SearchHistoryItem } from '@/lib/types';
@@ -64,6 +65,9 @@ function SearchInner() {
     () => Object.values(filters).filter(Boolean).length,
     [filters],
   );
+
+  const entityMatches = useMemo(() => matchEntities(catalog, query, 6), [catalog, query]);
+  const referenceMatches = useMemo(() => matchReferenceLaws(catalog, query, 6), [catalog, query]);
 
   return (
     <div className="app-container pb-8">
@@ -174,6 +178,42 @@ function SearchInner() {
         </div>
       ) : null}
 
+      {/* نهادهای منطبق (فهرست مرجع) */}
+      {query.trim().length > 1 && entityMatches.length ? (
+        <Card className="mt-3 divide-y">
+          <div className="flex items-center gap-2 px-3.5 py-2.5 text-[11px] text-muted-foreground">
+            <Landmark size={14} className="text-primary" />
+            نهادها و سازمان‌های منطبق
+          </div>
+          {entityMatches.map(({ entity, group }) => (
+            <Link key={entity.id} href={`/entities?group=${encodeURIComponent(entity.group)}`} className="block px-3.5 py-2.5 active:bg-accent/40">
+              <p className="text-[12.5px] font-medium leading-6">{entity.title}</p>
+              <p className="mt-0.5 text-[10.5px] text-muted-foreground">
+                {group ? `${group.title} • ` : ''}
+                {entity.abbr ? `${entity.abbr} • ` : ''}
+                {entity.status}
+              </p>
+            </Link>
+          ))}
+        </Card>
+      ) : null}
+
+      {/* اسناد فقط‌شناسنامه (بدون متن ماده) */}
+      {query.trim().length > 1 && referenceMatches.length ? (
+        <Card className="mt-3 divide-y">
+          <div className="flex items-center gap-2 px-3.5 py-2.5 text-[11px] text-muted-foreground">
+            <FileText size={14} className="text-primary" />
+            اسناد ثبت‌شده بدون متن ماده
+          </div>
+          {referenceMatches.map((law) => (
+            <Link key={law.id} href={`/laws/${law.id}`} className="block px-3.5 py-2.5 active:bg-accent/40">
+              <p className="text-[12.5px] font-medium leading-6">{law.title}</p>
+              <p className="mt-0.5 line-clamp-2 text-[10.5px] leading-5 text-muted-foreground">{law.summary}</p>
+            </Link>
+          ))}
+        </Card>
+      ) : null}
+
       {/* نتایج */}
       <div className="mt-2 space-y-2.5 pb-4">
         {loading && !results.length ? (
@@ -208,7 +248,9 @@ function SearchInner() {
           onClose={() => setFilterOpen(false)}
           categories={catalog.categories}
           hierarchies={catalog.hierarchy}
-          laws={catalog.laws.map((l) => ({ id: l.id, shortTitle: l.shortTitle }))}
+          laws={catalog.laws
+            .filter((l) => l.articleCount > 0)
+            .map((l) => ({ id: l.id, shortTitle: l.shortTitle }))}
           value={filters}
           onChange={(v) => setFilters(v as Record<string, string | null>)}
         />

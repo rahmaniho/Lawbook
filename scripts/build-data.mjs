@@ -85,6 +85,23 @@ function buildConstitution(law) {
   };
 }
 
+/**
+ * سند «ارجاعی» (بدون متن ماده‌ها):
+ * برای قوانینی که در فهرست مرجع هستند اما متن رسمی آن‌ها هنوز در منابع پروژه
+ * موجود نیست. فقط شناسنامه سند ساخته می‌شود و هیچ ماده‌ای تولید نمی‌شود.
+ */
+function buildReference(law, registrySource) {
+  return {
+    meta: {
+      title: law.title,
+      note: law.note || 'متن ماده‌به‌ماده این سند در منابع آزاد پروژه موجود نیست؛ برای استناد به سامانه ملی قوانین مراجعه شود.',
+      articleRange: '',
+    },
+    articles: [],
+    sourceName: law.source?.name || registrySource.name || 'فهرست مرجع',
+  };
+}
+
 function buildFromCurated(law) {
   const file = path.join(CURATED, law.source.file);
   const data = readJson(file);
@@ -143,18 +160,32 @@ function chapterSummary(articles) {
 function main() {
   const catalog = readJson(path.join(CURATED, 'catalog.json'));
   const appInfo = readJson(path.join(CURATED, 'app-info.json'));
+  const referenceLaws = readJson(path.join(CURATED, 'reference-laws.json'));
+  const entities = readJson(path.join(CURATED, 'entities.json'));
+
+  /* فهرست مرجع (قوانین بدون متن) به انتهای فهرست قوانین افزوده می‌شود تا هیچ
+     مدخل موجودی تغییر نکند. منبع پیش‌فرض این اسناد از فایل reference-laws.json خوانده می‌شود. */
+  const registrySource = referenceLaws.source || { kind: 'reference' };
+  const allLawDefs = [
+    ...catalog.laws,
+    ...(referenceLaws.laws || []).map((l) => ({
+      ...l,
+      source: { ...registrySource, ...(l.source || {}) },
+    })),
+  ];
 
   const lawsMeta = [];
   const lawFiles = {};
   const report = [];
 
-  for (const lawDef of catalog.laws) {
+  for (const lawDef of allLawDefs) {
     let built;
     switch (lawDef.source.kind) {
       case 'corpus': built = buildFromCorpus(lawDef); break;
       case 'hub': built = buildFromHub(lawDef); break;
       case 'constitution': built = buildConstitution(lawDef); break;
       case 'curated': built = buildFromCurated(lawDef); break;
+      case 'reference': built = buildReference(lawDef, registrySource); break;
       default: throw new Error(`نوع منبع نامعتبر: ${lawDef.source.kind}`);
     }
 
@@ -226,7 +257,15 @@ function main() {
     lawFiles[lawRecord.id] = { payload, hash, count: articles.length };
     lawsMeta.push({ ...lawRecord, hash });
 
-    report.push({ id: lawRecord.id, title, count: articles.length, missing: missing.length, moved: movedTo ? 1 : 0, max: stats.max });
+    report.push({
+      id: lawRecord.id,
+      title,
+      count: articles.length,
+      missing: missing.length,
+      moved: movedTo ? 1 : 0,
+      max: stats.max,
+      reference: articles.length === 0,
+    });
   }
 
   /* نسخه‌ی داده: نسخه‌ی معنایی + هش محتوا برای تشخیص تغییر */
@@ -238,6 +277,25 @@ function main() {
   ensureDir(path.join(versionDir, 'laws'));
 
   const totalArticles = lawsMeta.reduce((s, l) => s + l.articleCount, 0);
+
+  /* نهادها، سازمان‌ها، بانک‌ها و … (فهرست مرجع) */
+  const entityGroups = (entities.groups || [])
+    .slice()
+    .sort((a, b) => a.order - b.order)
+    .map((g) => ({
+      ...g,
+      items: (g.items || []).map((item) => ({
+        id: item.id,
+        title: item.title,
+        shortTitle: item.shortTitle || item.title,
+        abbr: item.abbr || '',
+        note: item.note || '',
+        group: g.id,
+        status: item.status || 'فعال',
+        source: item.source || entities.source?.name || 'فهرست مرجع ورودی',
+      })),
+    }));
+  const entityCount = entityGroups.reduce((s, g) => s + g.items.length, 0);
 
   const clientCatalog = {
     version,
@@ -257,10 +315,13 @@ function main() {
     checklist: catalog.checklist,
     guides: catalog.guides || [],
     laws: lawsMeta,
+    entityGroups,
     stats: {
       lawCount: lawsMeta.length,
       articleCount: totalArticles,
       categoryCount: catalog.categories.length,
+      entityCount,
+      referenceLawCount: lawsMeta.filter((l) => l.articleCount === 0).length,
     },
   };
 
@@ -272,6 +333,8 @@ function main() {
   const pointerLaws = [];
   for (const meta of lawsMeta) {
     const file = lawFiles[meta.id];
+    // اسناد ارجاعی (بدون متن ماده) فایل داده‌ای ندارند؛ فقط در کاتالوگ هستند.
+    if (!file.count) continue;
     const parsed = JSON.parse(file.payload);
     const parts = [];
     const chunks = [];
@@ -319,11 +382,15 @@ function main() {
 
   /* گزارش */
   console.log(`\n📚 کتابچه قانون — ساخت داده‌ها\n   نسخه: ${version}`);
-  console.log(`   ${lawsMeta.length} قانون | ${toFaDigits(totalArticles)} ماده\n`);
+  console.log(`   ${lawsMeta.length} سند حقوقی (${toFaDigits(lawsMeta.length - clientCatalog.stats.referenceLawCount)} با متن کامل) | ${toFaDigits(totalArticles)} ماده`);
+  console.log(`   ${toFaDigits(entityCount)} نهاد/سازمان در ${toFaDigits(entityGroups.length)} گروه\n`);
   const pad = (s, n) => String(s).padEnd(n);
   for (const r of report) {
-    const gap = r.missing ? ` ⚠ ${r.missing} ماده ناموجود در منبع` : r.moved ? ' ↪ مواد ۲۱–۹۳ در لایحه اصلاحی ۱۳۴۷' : '';
-    console.log(`   ${pad(r.id, 38)} ${pad(r.count, 6)} ماده${gap}`);
+    const gap = r.reference ? ' ↷ فقط شناسنامه (متن در منابع آزاد نیست)'
+      : r.missing ? ` ⚠ ${r.missing} ماده ناموجود در منبع`
+      : r.moved ? ' ↪ مواد ۲۱–۹۳ در لایحه اصلاحی ۱۳۴۷'
+      : '';
+    console.log(`   ${pad(r.id, 46)} ${pad(r.count, 6)} ماده${gap}`);
   }
   const withGaps = report.filter((r) => r.missing > 0);
   if (withGaps.length) {
