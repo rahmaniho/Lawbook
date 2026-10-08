@@ -11,6 +11,11 @@ import type { Catalog, DataPointer, LawPointer, SyncProgress } from './types';
 
 const POINTER_URL = '/data/version.json';
 
+function resolveDataPath(path: string) {
+  const basePath = '/Lawbook';
+  return `${basePath}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 export interface SyncOptions {
   force?: boolean;
   signal?: AbortSignal;
@@ -46,7 +51,7 @@ function progressReporter(pointer: DataPointer | null, onProgress?: (p: SyncProg
 
 export async function fetchPointer(): Promise<DataPointer | null> {
   try {
-    const res = await fetch(POINTER_URL, { cache: 'no-store' });
+    const res = await fetch(resolveDataPath(POINTER_URL), { cache: 'no-store' });
     if (!res.ok) return null;
     return (await res.json()) as DataPointer;
   } catch {
@@ -60,7 +65,7 @@ async function fetchPart(
   onBytes: (n: number) => void,
   signal?: AbortSignal,
 ): Promise<ArticleRow[]> {
-  const res = await fetch(part.path, { signal });
+  const res = await fetch(resolveDataPath(part.path), { signal });
   if (!res.ok) throw new Error(`خطا در دریافت ${part.path}`);
   if (!res.body) {
     const json = (await res.json()) as { articles: ArticleRow[] };
@@ -104,7 +109,7 @@ export async function syncData(options: SyncOptions = {}): Promise<SyncResult> {
   let catalog = await getMeta<Catalog>(META_KEYS.catalog);
   if (!catalog || catalog.version !== pointer.version || force) {
     reporter.set({ phase: 'catalog' });
-    const res = await fetch(pointer.catalogPath, { signal, cache: force ? 'no-store' : 'default' });
+    const res = await fetch(resolveDataPath(pointer.catalogPath), { signal, cache: force ? 'no-store' : 'default' });
     if (!res.ok) throw new Error('دریافت فهرست قوانین ناموفق بود');
     catalog = (await res.json()) as Catalog;
     await setMeta(META_KEYS.catalog, catalog);

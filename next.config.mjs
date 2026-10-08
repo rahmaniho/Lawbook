@@ -23,4 +23,4 @@ const nextConfig = {
   // پس این بخش‌ها را حذف کنید یا به _redirects منتقل کنید
 };
 
-module.exports = nextConfig;
+export default nextConfig;
