@@ -4,7 +4,7 @@
  * فهرست نهادها، سازمان‌ها، نیروهای مسلح، سازمان‌های بین‌المللی،
  * بانک‌ها، دانشگاه‌ها و شرکت‌های دولتی ایران (فهرست مرجع).
  */
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   Banknote, Building2, Factory, GraduationCap, HeartHandshake, Landmark,
@@ -12,11 +12,14 @@ import {
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { SectionHeading } from '@/components/bits';
-import { Badge, Card, EmptyState, Input, Skeleton } from '@/components/ui/primitives';
+import { Badge, Button, Card, EmptyState, Input, Skeleton } from '@/components/ui/primitives';
 import { cn } from '@/lib/utils';
 import { normalizeForSearch, toFaDigits } from '@/lib/fa';
 import { formatNumberFa } from '@/lib/format';
 import type { EntityGroup } from '@/lib/types';
+
+/** تعداد نمایش در هر بار (برای روان‌ماندن فهرست‌های طولانی) */
+const PAGE = 40;
 
 type IconComponent = React.ComponentType<React.SVGProps<SVGSVGElement> & { size?: string | number }>;
 
@@ -62,10 +65,16 @@ function EntitiesInner() {
   const initialGroup = params.get('group');
   const [group, setGroup] = useState<string | null>(initialGroup);
   const [query, setQuery] = useState('');
+  const [limit, setLimit] = useState(PAGE);
 
   const groups = useMemo<EntityGroup[]>(() => catalog?.entityGroups ?? [], [catalog]);
 
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
+
+  // با تغییر گروه یا عبارت، شمار نمایش از نو شروع می‌شود
+  useEffect(() => {
+    setLimit(PAGE);
+  }, [group, query]);
 
   const filtered = useMemo(() => {
     const q = normalizeForSearch(query);
@@ -157,7 +166,7 @@ function EntitiesInner() {
         <EmptyState icon={<Search size={20} />} title="نهادی یافت نشد" description="عبارت دیگری را امتحان کنید." />
       ) : (
         <Card className="divide-y">
-          {filtered.map((e) => {
+          {filtered.slice(0, limit).map((e) => {
             const g = groups.find((x) => x.id === e.group);
             return (
               <div key={e.id} className="flex items-start gap-3 p-3.5">
@@ -182,6 +191,12 @@ function EntitiesInner() {
           })}
         </Card>
       )}
+
+      {limit < filtered.length ? (
+        <Button variant="outline" className="mt-3 w-full" onClick={() => setLimit((l) => l + PAGE)}>
+          نمایش بیشتر ({toFaDigits(Math.min(PAGE, filtered.length - limit))} مورد دیگر)
+        </Button>
+      ) : null}
 
       <p className="mt-5 text-center text-[10.5px] leading-5 text-muted-foreground">
         این فهرست صرفاً برای آشنایی و ارجاع سریع است و جایگزین اطلاعیه‌ها و مصوبات رسمی هر نهاد نیست.

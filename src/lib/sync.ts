@@ -7,6 +7,7 @@
  * - همه داده‌ها در IndexedDB ذخیره می‌شود تا برنامه کاملاً آفلاین کار کند.
  */
 import { db, META_KEYS, getMeta, setMeta, type ArticleRow, type LawRow } from './db';
+import { rememberPointer } from './cases';
 import type { Catalog, DataPointer, LawPointer, SyncProgress } from './types';
 
 const POINTER_URL = '/data/version.json';
@@ -100,6 +101,7 @@ export async function syncData(options: SyncOptions = {}): Promise<SyncResult> {
   const cachedVersion = await getMeta<string>(META_KEYS.dataVersion);
 
   const pointer = await fetchPointer();
+  await rememberPointer(pointer);
   if (!pointer) {
     rep.set({ phase: 'error', message: 'فهرست نسخه در دسترس نیست (آفلاین؟)' });
     const laws = await db.laws.count();

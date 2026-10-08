@@ -92,7 +92,8 @@ export function normalizeForSearch(raw) {
   t = t.replace(/[\u200c]/g, '');
   t = t.replace(/می\s+/g, 'می');
   t = t.replace(/[«»"'`؛،:,\.\(\)\[\]\{\}\!\?\-\u00ab\u00bb\u201c\u201d\u2018\u2019]/g, ' ');
-  t = t.replace(/[^\u0621-\u064A0-9a-zA-Z ]/g, ' ');
+  // محدودهٔ کامل حروف فارسی/عربی (ی، ک، گ، چ، پ، ژ همگی بالاتر از U+064A هستند)
+  t = t.replace(/[^\u0600-\u06FF0-9a-zA-Z ]/g, ' ');
   t = t.replace(/\s+/g, ' ').trim();
   return t;
 }

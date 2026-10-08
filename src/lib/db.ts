@@ -5,7 +5,7 @@
  * همه‌چیز محلی است: یادداشت‌ها، نشان‌گذاری‌ها و تاریخچه هیچ‌گاه به سرور فرستاده نمی‌شود.
  */
 import Dexie, { type Table } from 'dexie';
-import type { Article, Bookmark, Catalog, Note, SearchHistoryItem } from './types';
+import type { Article, Bookmark, Catalog, Note, SearchHistoryItem, Verdict, VerdictIndexEntry } from './types';
 
 export interface ArticleRow extends Article {
   /** متن نرمال‌شده برای جست‌وجو (در زمان ایندکس‌گذاری استفاده می‌شود) */
@@ -24,6 +24,9 @@ class GhanounDatabase extends Dexie {
   notes!: Table<Note, string>;
   history!: Table<SearchHistoryItem, number>;
   meta!: Table<MetaRow, string>;
+  /** مجموعهٔ اختیاری آراء قضایی */
+  cases!: Table<Verdict, string>;
+  caseIndex!: Table<VerdictIndexEntry, string>;
 
   constructor() {
     super('GhanounDB');
@@ -34,6 +37,11 @@ class GhanounDatabase extends Dexie {
       notes: 'articleId, lawId, updatedAt',
       history: '++id, q, createdAt',
       meta: 'key',
+    });
+    // نسخهٔ ۲: افزودن جداول مجموعهٔ اختیاری آراء قضایی
+    this.version(2).stores({
+      cases: 'id, type, dateSort',
+      caseIndex: 'id, type, dateSort',
     });
   }
 }
@@ -59,6 +67,7 @@ export const META_KEYS = {
   reader: 'readerSettings',
   theme: 'themePreference',
   lastSync: 'lastSyncAt',
+  pointer: 'pointer',
 } as const;
 
 export async function getMeta<T>(key: string): Promise<T | null> {
@@ -130,6 +139,16 @@ export async function clearLocalData(): Promise<void> {
   await db.bookmarks.clear();
   await db.notes.clear();
   await db.history.clear();
+}
+
+/* ------------------------------ آراء قضایی ------------------------------ */
+export async function countCases(): Promise<number> {
+  return db.cases.count();
+}
+
+export async function clearCases(): Promise<void> {
+  await db.cases.clear();
+  await db.caseIndex.clear();
 }
 
 export async function storageEstimate(): Promise<{ usage: number; quota: number }> {

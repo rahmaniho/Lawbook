@@ -10,6 +10,9 @@ import MiniSearch from 'minisearch';
 import { normalizeForSearch, parseQuery, tokenize } from './fa';
 import type { ArticleRow } from './db';
 
+/** امتیازِ تطابق ساختاری «ماده X قانون Y» — باید از هر امتیاز متنی بزرگ‌تر باشد */
+const STRUCTURAL_SCORE = 100_000;
+
 export interface SearchFilters {
   category?: string | null;
   lawId?: string | null;
@@ -102,13 +105,21 @@ function localSearch(q: string, filters: SearchFilters | undefined, limit: numbe
   const parsed = parseQuery(q);
   const normQ = normalizeForSearch(q);
   const scored = new Map<string, number>();
+  /** شناسه‌هایی که با تطابق ساختاری «ماده X قانون Y» به‌دست آمده‌اند — همیشه در صدر می‌مانند */
+  const structural = new Set<string>();
 
-  if (parsed.article !== null && parsed.terms.length === 0) {
+  /* تطابق ساختاری «ماده X قانون Y»: حتی وقتی نام قانون هم در عبارت هست،
+     ابتدا همان مادهٔ مشخص‌شده نمایش داده می‌شود (نگهبانِ lawHint جلوی نتیجهٔ نادرست را می‌گیرد). */
+  if (parsed.article !== null) {
     const lawHint = normalizeForSearch(parsed.lawHint);
     for (const a of localById.values()) {
       if (a.numberValue !== parsed.article) continue;
       if (lawHint.length > 2 && !normalizeForSearch(`${a.lawTitle} ${a.lawId}`).includes(lawHint)) continue;
-      scored.set(a.id, 100);
+      // امتیازِ غالب: وقتی کارور صریحاً «ماده X قانون Y» جست‌وجو کرده، آن ماده باید اول باشد.
+      // در تساوی، عنوانِ کوتاه‌تر (تطبیقِ نزدیک‌تر با نام قانون) مقدم است.
+      const title = normalizeForSearch(`${a.lawTitle} ${a.lawId}`);
+      structural.add(a.id);
+      scored.set(a.id, STRUCTURAL_SCORE + Math.max(0, 200 - title.length));
     }
   }
 
@@ -117,11 +128,18 @@ function localSearch(q: string, filters: SearchFilters | undefined, limit: numbe
     if (!hits.length) {
       hits = (localIndex.search(normQ, { combineWith: 'OR' }) as unknown as { id: string; score: number }[]).slice(0, 200);
     }
-    for (const h of hits) scored.set(h.id, (scored.get(h.id) ?? 0) + h.score);
+    // امتیازِ متنی برای مدخل‌هایِ تطابق‌یافتهٔ ساختاری اعمال نمی‌شود تا ترتیبِ آن‌ها ثابت بماند
+    for (const h of hits) {
+      if (structural.has(h.id)) continue;
+      scored.set(h.id, (scored.get(h.id) ?? 0) + h.score);
+    }
   }
 
   const results: SearchResultItem[] = [];
-  for (const [id, score] of [...scored.entries()].sort((a, b) => b[1] - a[1])) {
+  const rank = (id: string) => (structural.has(id) ? 1 : 0);
+  for (const [id, score] of [...scored.entries()].sort(
+    (a, b) => rank(b[0]) - rank(a[0]) || b[1] - a[1],
+  )) {
     const a = localById.get(id);
     if (!a) continue;
     if (filters?.category && a.category !== filters.category) continue;

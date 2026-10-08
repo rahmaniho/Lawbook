@@ -17,7 +17,7 @@ export default function CoveragePage() {
   const pending = catalog.checklist.filter((c) => c.status !== 'included');
   const lawsWithGaps = catalog.laws.filter((l) => l.gaps?.count);
   const totalGaps = lawsWithGaps.reduce((s, l) => s + l.gaps.count, 0);
-  const referenceLaws = catalog.laws.filter((l) => !l.articleCount);
+  const referenceLaws = catalog.laws.filter((l) => !l.articleCount && l.origin !== 'law-title-index');
 
   return (
     <div className="app-container pb-10">
@@ -26,19 +26,17 @@ export default function CoveragePage() {
         subtitle="شفافیت کامل درباره آنچه در این نسخه گنجانده شده و آنچه باقی مانده است"
       />
 
-      <Card className="grid grid-cols-4 gap-2 p-3.5 text-center">
-        <Stat
-          value={formatNumberFa(catalog.stats.lawCount - (catalog.stats.referenceLawCount ?? 0))}
-          label="سند با متن کامل"
-        />
-        <Stat value={formatNumberFa(catalog.stats.referenceLawCount ?? 0)} label="سند بدون متن" tone="warn" />
+      <Card className="grid grid-cols-5 gap-2 p-3.5 text-center">
+        <Stat value={formatNumberFa(catalog.stats.fullTextCount ?? 0)} label="سند با متن کامل" />
+        <Stat value={formatNumberFa(catalog.stats.referenceLawCount ?? 0)} label="فقط شناسنامه" tone="warn" />
+        <Stat value={formatNumberFa(catalog.stats.titleIndexCount ?? 0)} label="فقط عنوان" tone="warn" />
         <Stat value={formatNumberFa(catalog.stats.articleCount)} label="ماده" />
         <Stat value={formatNumberFa(totalGaps)} label="ماده ناموجود" tone={totalGaps ? 'warn' : undefined} />
       </Card>
 
       <p className="mt-2 text-center text-[10.5px] leading-5 text-muted-foreground">
-        افزون بر این، {formatNumberFa(catalog.stats.entityCount ?? 0)} نهاد، سازمان، بانک و دانشگاه در بخش «نهادها» فهرست
-        شده است.
+        افزون بر این، {formatNumberFa(catalog.stats.entityCount ?? 0)} نهاد، سازمان، بانک و دانشگاه در بخش «نهادها» و
+        مجموعهٔ اختیاری «آراء قضایی» در بخش جداگانه‌ای فهرست شده است.
       </p>
 
       <SectionHeading title={`گنجانده‌شده (${toFaDigits(included.length)} مورد)`} />

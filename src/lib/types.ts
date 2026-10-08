@@ -77,6 +77,8 @@ export interface LawMeta {
   keywords: string[];
   checklist: string[];
   source: { kind: string; file?: string; name?: string; url?: string };
+  /** منشأ مدخل: تدوین‌شده در پروژه، فهرست مرجع ورودی، یا فهرست عناوین استخراج‌شده */
+  origin: string;
   note: string;
   articleRange: string;
   updatedAt: string;
@@ -108,6 +110,46 @@ export interface Entity {
   group: string;
   status: string;
   source: string;
+}
+
+/** یک رأی قضایی (مجموعهٔ اختیاری آراء) */
+export interface Verdict {
+  id: string;
+  title: string;
+  number: string;
+  date: string;
+  dateSort: number;
+  type: string;
+  /** طول متن کامل در منبع (برای آگاهی از برش‌خوردگی) */
+  chars: number;
+  truncated: boolean;
+  text: string;
+  /** متن نرمال‌شده برای جست‌وجو (در زمان ساخت تولید می‌شود) */
+  norm: string;
+}
+
+/** مدخل فهرست آراء (بدون متن کامل) */
+export interface VerdictIndexEntry {
+  id: string;
+  title: string;
+  number: string;
+  date: string;
+  dateSort: number;
+  type: string;
+  chars: number;
+  truncated: boolean;
+  norm: string;
+}
+
+export interface CasesPointer {
+  version: string;
+  source: string;
+  count: number;
+  bytes: number;
+  indexPath: string;
+  indexBytes: number;
+  parts: LawPointerPart[];
+  types: string[];
 }
 
 export interface EntityGroup {
@@ -151,7 +193,9 @@ export interface Catalog {
     articleCount: number;
     categoryCount: number;
     entityCount: number;
+    fullTextCount: number;
     referenceLawCount: number;
+    titleIndexCount: number;
   };
 }
 
@@ -178,6 +222,8 @@ export interface DataPointer {
   catalogPath: string;
   laws: LawPointer[];
   stats: { lawCount: number; articleCount: number };
+  /** مجموعهٔ اختیاری آراء قضایی — فقط در صورت ساخت داده وجود دارد */
+  cases?: CasesPointer;
 }
 
 export interface Bookmark {
