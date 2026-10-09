@@ -9,6 +9,7 @@ import { formatBytes, formatNumberFa } from '@/lib/format';
 import { DEFAULT_READER } from '@/lib/store';
 import type { ReaderSettings } from '@/lib/types';
 import { Button } from '@/components/ui/primitives';
+import { withBase } from '@/lib/base-path';
 import { useOnlineStatus, useReaderSettings } from '@/lib/hooks';
 
 /** بارگذاری اولیه داده‌ها + نمایش اسپلش با اعتبار حقوقی و توسعه‌دهنده */
@@ -102,9 +103,14 @@ function SplashScreen({
   return (
     <main className="flex min-h-app flex-col items-center justify-between px-6 py-12">
       <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
-        <div className="splash-logo flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-3xl">
-          ⚖️
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={withBase('/icons/icon-512.png')}
+          alt="کتابچه حقوق"
+          width={96}
+          height={96}
+          className="splash-logo h-24 w-24 rounded-[1.6rem] shadow-card"
+        />
         <div>
           <h1 className="text-2xl font-bold">کتابچه قانون ایران</h1>
           <p className="mt-2 max-w-xs text-sm leading-6 text-muted-foreground">

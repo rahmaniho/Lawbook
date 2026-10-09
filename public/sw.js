@@ -11,7 +11,7 @@
  * آدرس سرویس‌ورکر استخراج می‌شود تا هم برای استقرار در ریشه و هم زیر /Lawbook
  * درست کار کند.
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL_CACHE = `ghanoun-shell-${VERSION}`;
 const ASSET_CACHE = `ghanoun-assets-${VERSION}`;
 const DATA_CACHE = `ghanoun-data-${VERSION}`;

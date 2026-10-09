@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  BookOpen, Home, Search, Settings, Star, X, WifiOff, Download, Sparkles, Scale,
+  BookOpen, Home, Search, Settings, Star, X, WifiOff, Download, Sparkles,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { useDebounced, useInstallPrompt, useOnlineStatus } from '@/lib/hooks';
@@ -12,6 +12,7 @@ import { useSearch } from '@/lib/use-search';
 import { toFaDigits } from '@/lib/fa';
 import { cn } from '@/lib/utils';
 import { cleanExcerpt } from '@/lib/format';
+import { withBase } from '@/lib/base-path';
 import type { ArticleRow } from '@/lib/db';
 
 const TABS = [
@@ -293,14 +294,14 @@ export function ArticleRowSkeleton() {
 
 export function AppLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   return (
-    <span
-      className={cn(
-        'inline-flex items-center justify-center rounded-2xl bg-primary/10 text-primary',
-        size === 'sm' ? 'h-9 w-9 text-base' : 'h-12 w-12 text-xl',
-      )}
-    >
-      <Scale size={size === 'sm' ? 17 : 22} />
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element -- خروجی استاتیک با basePath؛ بهینه‌سازی تصویر لازم نیست
+    <img
+      src={withBase('/icons/icon-192.png')}
+      alt="کتابچه حقوق"
+      width={size === 'sm' ? 36 : 48}
+      height={size === 'sm' ? 36 : 48}
+      className={cn('shrink-0 rounded-xl shadow-card', size === 'sm' ? 'h-9 w-9' : 'h-12 w-12')}
+    />
   );
 }
 
