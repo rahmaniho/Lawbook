@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 /**
- * تولید آیکون‌های PWA از یک طرح SVG (بدون وابستگی به فایل تصویری خارجی).
+ * تولید همهٔ آیکون‌ها (PWA، apple-touch، maskable، فاویکون) از لوگوی اصلی برنامه.
+ *
+ * منبع حقیقت: public/icons/logo-source.png (لوگوی اصلی «کتابچه حقوق»؛ دست‌نخورده)
  * اجرا: npm run icons:gen
+ *
+ * - گوشه‌های بیرونیِ تیره (پس‌زمینهٔ بیرون از جعبهٔ گرد) شفاف می‌شوند.
+ * - نسخه‌های opaque (apple-touch و maskable) روی رنگ سرمهٔ لوگو تخت می‌شوند،
+ *   چون iOS و سیستم‌های maskable شفافیت را سیاه نمایش می‌دهند.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -11,48 +17,75 @@ import sharp from 'sharp';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const OUT = path.join(ROOT, 'public', 'icons');
+const SOURCE = path.join(OUT, 'logo-source.png');
+
+/** رنگ زمینهٔ سرمه‌ای لوگو (نمونه‌برداری از مرکز پس‌زمینه) */
+const BG = { r: 29, g: 43, b: 69, alpha: 1 };
+
+if (!fs.existsSync(SOURCE)) {
+  console.error(`✗ لوگوی منبع پیدا نشد: ${SOURCE}`);
+  process.exit(1);
+}
 fs.mkdirSync(OUT, { recursive: true });
 
-/** ترازو (نماد عدالت) روی زمینه سبز برند */
-function svg({ size, maskable = false, rounded = true }) {
-  const pad = maskable ? size * 0.16 : size * 0.08;
-  const scale = (size - pad * 2) / 100;
-  const radius = rounded ? size * 0.22 : 0;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f766e"/>
-      <stop offset="100%" stop-color="#115e59"/>
-    </linearGradient>
-  </defs>
-  <rect x="0" y="0" width="${size}" height="${size}" rx="${radius}" fill="url(#g)"/>
-  <g transform="translate(${pad} ${pad}) scale(${scale})" fill="none" stroke="#ffffff" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="50" y1="14" x2="50" y2="86"/>
-    <line x1="16" y1="26" x2="84" y2="26"/>
-    <line x1="50" y1="86" x2="30" y2="90"/>
-    <line x1="50" y1="86" x2="70" y2="90"/>
-    <path d="M16 26 L6 50 H26 Z" fill="#ffffff" fill-opacity="0.16"/>
-    <path d="M84 26 L74 50 H94 Z" fill="#ffffff" fill-opacity="0.16"/>
-    <path d="M8 50 a10 10 0 0 0 20 0"/>
-    <path d="M72 50 a10 10 0 0 0 20 0"/>
-    <circle cx="50" cy="12" r="5" fill="#ffffff" stroke="none"/>
-  </g>
-</svg>`;
+/** نسخهٔ RGBA با گوشه‌های بیرونی شفاف (flood-fill از چهار گوشه روی پیکسل‌های تقریباً سیاه). */
+async function transparentLogo() {
+  const { data, info } = await sharp(SOURCE).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: W, height: H } = info;
+  const out = Buffer.from(data);
+  const seen = new Uint8Array(W * H);
+  const stack = [0, W - 1, (H - 1) * W, W * H - 1];
+  const isDark = (i) => out[i] < 40 && out[i + 1] < 40 && out[i + 2] < 40;
+  while (stack.length) {
+    const p = stack.pop();
+    if (seen[p]) continue;
+    seen[p] = 1;
+    const i = p * 4;
+    if (!isDark(i)) continue;
+    out[i + 3] = 0;
+    const x = p % W;
+    const y = (p - x) / W;
+    if (x > 0) stack.push(p - 1);
+    if (x < W - 1) stack.push(p + 1);
+    if (y > 0) stack.push(p - W);
+    if (y < H - 1) stack.push(p + W);
+  }
+  return sharp(out, { raw: { width: W, height: H, channels: 4 } }).png().toBuffer();
 }
 
-async function render(name, size, opts) {
+async function write(name, pipeline) {
   const file = path.join(OUT, name);
-  await sharp(Buffer.from(svg({ size, ...opts }))).png({ compressionLevel: 9 }).toFile(file);
-  console.log(`✓ ${name} (${size}×${size})`);
+  await pipeline.png({ compressionLevel: 9 }).toFile(file);
+  const meta = await sharp(file).metadata();
+  console.log(`✓ ${name} (${meta.width}×${meta.height})`);
 }
 
-await render('icon-192.png', 192);
-await render('icon-512.png', 512);
-await render('maskable-512.png', 512, { maskable: true });
-await render('apple-touch-icon.png', 180, { rounded: false });
-await render('favicon-32.png', 32);
-await render('maskable-192.png', 192, { maskable: true });
+const logo = await transparentLogo();
 
-// favicon.ico (نسخه PNG ۳۲ داخل ظرف ICO ساده مرورگرها را راضی می‌کند)
+// any: لوگوی گرد و شفاف
+await write('icon-192.png', sharp(logo).resize(192, 192));
+await write('icon-512.png', sharp(logo).resize(512, 512));
+await write('favicon-32.png', sharp(logo).resize(32, 32));
+
+// maskable: زمینهٔ کامل سرمه‌ای، لوگو در ناحیهٔ امن ۸۰٪ مرکزی
+async function maskable(size) {
+  const inner = Math.round(size * 0.8);
+  const innerPng = await sharp(logo).resize(inner, inner).png().toBuffer();
+  return sharp({ create: { width: size, height: size, channels: 4, background: BG } }).composite([
+    { input: innerPng, gravity: 'centre' },
+  ]);
+}
+await write('maskable-192.png', await maskable(192));
+await write('maskable-512.png', await maskable(512));
+
+// apple-touch: opaque و تخت، iOS خودش گوشه‌ها را گرد می‌کند
+await write(
+  'apple-touch-icon.png',
+  sharp({ create: { width: 180, height: 180, channels: 4, background: BG } }).composite([
+    { input: await sharp(logo).resize(180, 180).png().toBuffer(), gravity: 'centre' },
+  ]),
+);
+
+// favicon.ico: نسخهٔ PNG ۳۲ پیکسلی کنار همین فایل (مرورگرهای مدرن PNG داخل ico را می‌پذیرند)
 fs.copyFileSync(path.join(OUT, 'favicon-32.png'), path.join(ROOT, 'public', 'favicon.ico'));
 console.log('✓ favicon.ico');
