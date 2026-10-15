@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  BookOpen, Home, Search, Settings, Star, X, WifiOff, Download, Sparkles,
+  BookOpen, GraduationCap, Home, Search, Settings, Star, X, WifiOff, Download, Sparkles,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { useDebounced, useInstallPrompt, useOnlineStatus } from '@/lib/hooks';
@@ -18,6 +18,7 @@ import type { ArticleRow } from '@/lib/db';
 const TABS = [
   { href: '/', label: 'خانه', icon: Home },
   { href: '/laws', label: 'قوانین', icon: BookOpen },
+  { href: '/exam', label: 'آزمون', icon: GraduationCap },
   { href: '/search', label: 'جست‌وجو', icon: Search },
   { href: '/bookmarks', label: 'نشان‌ها', icon: Star },
   { href: '/settings', label: 'تنظیمات', icon: Settings },
