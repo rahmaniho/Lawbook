@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, BookMarked, Calculator, ChevronLeft, FileCheck2, Gavel, Landmark, Search, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookMarked, Calculator, ChevronLeft, FileCheck2, Gavel, GraduationCap, Landmark, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { CategoryGrid, LawRowCard, SectionHeading, StatsStrip } from '@/components/bits';
 import { Card, Skeleton } from '@/components/ui/primitives';
@@ -42,6 +42,7 @@ export default function HomePage() {
       <div className="grid grid-cols-2 gap-2.5">
         <QuickLink href="/laws" icon={<BookMarked size={18} />} title="مرور قوانین" />
         <QuickLink href="/search" icon={<Search size={18} />} title="جست‌وجوی پیشرفته" />
+        <QuickLink href="/exam" icon={<GraduationCap size={18} />} title="آزمون اختبار" />
         <QuickLink href="/cases" icon={<Gavel size={18} />} title="آراء قضایی" />
         <QuickLink href="/calculator/inheritance" icon={<Calculator size={18} />} title="محاسبه‌گر ارث" />
         <QuickLink href="/calculator/diyyeh" icon={<Calculator size={18} />} title="محاسبه‌گر دیه" />

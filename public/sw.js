@@ -28,7 +28,7 @@ const u = (urlPath) => `${BASE}${urlPath}`;
 const OFFLINE_URL = u('/offline/');
 
 const SHELL_ROUTES = [
-  '/', '/laws/', '/search/', '/bookmarks/', '/settings/', '/about/', '/offline/', '/coverage/',
+  '/', '/laws/', '/exam/', '/search/', '/bookmarks/', '/settings/', '/about/', '/offline/', '/coverage/',
 ].map(u);
 
 self.addEventListener('install', (event) => {

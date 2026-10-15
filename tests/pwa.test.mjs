@@ -157,16 +157,22 @@ test('بیلد تولیدی، basePath را درون باندلِ کلاینت �
     t.skip('basePath این بیلد خالی است');
     return;
   }
-  const layoutChunk = fs
-    .readdirSync(path.join(chunks, 'app'))
-    .filter((f) => f.startsWith('layout-') && f.endsWith('.js'))
-    .map((f) => fs.readFileSync(path.join(chunks, 'app', f), 'utf8'))
-    .join('\n');
   // next.config.mjs مقدار را از راه `env` به DefinePlugin می‌دهد؛ اگر این
   // جای‌گذاری انجام نشود، BASE_PATH در مرورگر خالی می‌ماند و SW روی
   // `/sw.js` ثبت می‌شود (۴۰۴ در استقرار زیرمسیر).
+  // ماژول‌های اشتراکی (مانند AppShell که ثبت SW در آن است) ممکن است بسته به
+  // تجمیع بیلد در chunk لی‌اوت یا chunkهای اشتراکیِ بالاتر بیفتند؛ بنابراین
+  // همهٔ chunkهای سطح بالای باندل کلاینت بررسی می‌شوند.
+  const bundleChunks = [
+    ...fs.readdirSync(chunks).filter((f) => f.endsWith('.js')).map((f) => path.join(chunks, f)),
+    ...fs
+      .readdirSync(path.join(chunks, 'app'))
+      .filter((f) => f.startsWith('layout-') && f.endsWith('.js'))
+      .map((f) => path.join(chunks, 'app', f)),
+  ];
+  const bundle = bundleChunks.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
   assert.ok(
-    layoutChunk.includes(`("${expected}")`),
+    bundle.includes(`("${expected}")`),
     `basePath=${expected} درون باندل کلاینت جای‌گذاری نشده است`,
   );
 });
@@ -268,6 +274,7 @@ test('sw.js زیر basePath پوسته را با همان پیشوند کش می
   assert.deepEqual(sw.cachedRequests, [
     '/Lawbook/',
     '/Lawbook/laws/',
+    '/Lawbook/exam/',
     '/Lawbook/search/',
     '/Lawbook/bookmarks/',
     '/Lawbook/settings/',
@@ -284,6 +291,7 @@ test('sw.js در استقرار روی ریشهٔ دامنه هم درست کا�
   assert.deepEqual(sw.cachedRequests, [
     '/',
     '/laws/',
+    '/exam/',
     '/search/',
     '/bookmarks/',
     '/settings/',
