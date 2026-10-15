@@ -9,6 +9,7 @@
 
 import { EXAM_CATEGORIES } from './categories';
 import { QUESTION_BANK, questionsOfCategory } from './questions';
+import { toFaDigits } from '../fa';
 import type {
   ExamCategoryDef,
   ExamCategoryId,
@@ -17,9 +18,9 @@ import type {
   ExamScore,
 } from './types';
 
-/** پیشوند عنوان آزمون‌ها بر پایهٔ نام دسته */
+/** پیشوند عنوان آزمون‌ها بر پایهٔ نام دسته (شمارهٔ سری با ارقام فارسی) */
 function examTitle(cat: ExamCategoryDef, series: number): string {
-  return `آزمون ${cat.title} — سری ${series}`;
+  return `آزمون ${cat.title} — سری ${toFaDigits(series)}`;
 }
 
 /** فهرست کامل ۱۰۰ آزمون، مرتب بر اساس دسته و شمارهٔ سری */
