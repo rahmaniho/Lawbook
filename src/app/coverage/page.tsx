@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { AlertTriangle, CheckCircle2, Clock, Database, FileWarning } from 'lucide-react';
+import { CheckCircle2, Clock } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { Badge, Card } from '@/components/ui/primitives';
 import { SectionHeading } from '@/components/bits';
@@ -102,24 +102,6 @@ export default function CoveragePage() {
           </Card>
         </>
       ) : null}
-
-      <SectionHeading title="چگونه داده‌ها تکمیل می‌شوند؟" />
-      <Card className="space-y-2 p-4 text-[11.5px] leading-6 text-muted-foreground">
-        <p className="flex gap-2">
-          <Database size={15} className="mt-0.5 shrink-0 text-primary" />
-          اسکریپت‌های استخراج (Playwright/BeautifulSoup) در پوشه <code className="rounded bg-muted px-1">scripts/scrape</code> همراه
-          این پروژه ارائه شده است؛ با اجرای آن‌ها می‌توان متن کامل قوانین را از سامانه ملی قوانین و روزنامه رسمی دریافت و
-          به قالب این برنامه افزود.
-        </p>
-        <p className="flex gap-2">
-          <FileWarning size={15} className="mt-0.5 shrink-0 text-primary" />
-          راهنمای گام‌به‌گام افزودن قانون جدید در <code className="rounded bg-muted px-1">docs/UPDATE-DATA.md</code> آمده است.
-        </p>
-        <p className="flex gap-2">
-          <AlertTriangle size={15} className="mt-0.5 shrink-0 text-primary" />
-          برای استناد رسمی، همیشه به روزنامه رسمی و سامانه ملی قوانین مراجعه کنید.
-        </p>
-      </Card>
 
       <p className="mt-5 text-center text-[10.5px] text-muted-foreground">
         نسخه داده {toFaDigits(catalog.version)} •{' '}
