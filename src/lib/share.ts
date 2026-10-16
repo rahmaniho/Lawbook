@@ -6,7 +6,7 @@ import type { Article } from './types';
 export function articleShareText(article: Article): string {
   const header = `${article.lawTitle} — ماده ${article.numberFa}`;
   const chapter = article.chapter ? `\n${article.chapter}` : '';
-  return `${header}${chapter}\n\n${article.text}\n\n— کتابچه قانون ایران (جمع‌آوری و تدوین: وکیل دادگستری، عضو رسمی کانون وکلای دادگستری قزوین)`;
+  return `${header}${chapter}\n\n${article.text}\n\n— کتابچه قانون ایران `;
 }
 
 export async function shareArticle(article: Article): Promise<'shared' | 'copied' | 'failed'> {

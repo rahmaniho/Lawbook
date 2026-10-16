@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Database, RefreshCw, WifiOff } from 'lucide-react';
+import { RefreshCw, WifiOff } from 'lucide-react';
 import { getCatalog, META_KEYS, getMeta } from '@/lib/db';
 import { syncData } from '@/lib/sync';
 import { useApp } from '@/lib/store';
@@ -164,9 +164,6 @@ function SplashScreen({
       </div>
 
       <footer className="mt-8 space-y-1 text-center text-[11px] leading-5 text-muted-foreground">
-        <p className="flex items-center justify-center gap-1">
-          <Database size={12} /> جمع‌آوری و تدوین: وکیل دادگستری، عضو رسمی کانون وکلای دادگستری قزوین
-        </p>
         <p>
           توسعه نرم‌افزار:{' '}
           <a className="font-medium text-primary" href="https://karen-soft.ir" target="_blank" rel="noreferrer">
