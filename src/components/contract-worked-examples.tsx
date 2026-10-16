@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, BookOpen, ChevronDown } from 'lucide-react';
 import { Card } from '@/components/ui/primitives';
 import { toFaDigits } from '@/lib/fa';
+import { getExampleGoal } from '@/lib/contracts';
 import type { WorkedExample } from '@/lib/contracts';
 
 const rials = (value: number) => `${toFaDigits(value.toLocaleString('en-US'))} ریال`;
@@ -24,10 +25,14 @@ export function ContractWorkedExamples({ examples }: { examples: WorkedExample[]
                 <span className="min-w-0 flex-1">
                   <span className="block text-[12.5px] font-semibold">{example.title}</span>
                   <span className="mt-1 block text-[11px] leading-5 text-muted-foreground">{example.situation}</span>
+                  <span className="mt-1 block text-[10.5px] font-medium text-primary">هدف یادگیری: {getExampleGoal(example.contractId)?.title}</span>
                 </span>
                 <ChevronDown size={17} className="mt-0.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
               </summary>
               <div className="border-t px-4 pb-4 pt-3">
+                <p className="mb-3 rounded-xl bg-primary/5 p-3 text-[11.5px] leading-6 text-foreground">
+                  <strong className="text-primary">هدف یادگیری: </strong>{getExampleGoal(example.contractId)?.outcome}
+                </p>
                 <h3 className="text-[11.5px] font-semibold">داده‌های این موقعیت فرضی</h3>
                 <ul className="mt-2 list-inside list-disc space-y-1 text-[11.5px] leading-6 text-muted-foreground">
                   {example.facts.map((fact) => <li key={fact}>{fact}</li>)}

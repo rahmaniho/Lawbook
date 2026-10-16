@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { ArrowRight, BookOpen, CheckCircle2, FileText } from 'lucide-react';
 import { getContract, getContractGuide, getTopic, workedExamplesForContract } from '@/lib/contracts';
 import { ContractWorkedExamples } from '@/components/contract-worked-examples';
+import { ContractLearningPanel } from '@/components/contract-learning-panel';
 import { SectionHeading } from '@/components/bits';
 import { Card } from '@/components/ui/primitives';
 
@@ -39,6 +40,7 @@ export default function ContractViewer() {
         <p className="mt-3 text-[11.5px] leading-6 text-muted-foreground"><span className="font-semibold text-foreground">نکته بررسی: </span>{guide.lesson}</p>
       </Card>
 
+      <ContractLearningPanel topicId={topic.id} />
       <ContractWorkedExamples examples={workedExamplesForContract(contract.id)} />
 
       <SectionHeading title="چک‌لیست پیش از تنظیم" subtitle="مواردی که باید در نسخه واقعی مشخص شوند" />
