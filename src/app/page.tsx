@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, BookMarked, Calculator, ChevronLeft, FileCheck2, FileText, Gavel, GraduationCap, Landmark, Search, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookMarked, Calculator, ChevronLeft, FileCheck2, FilePenLine, FileText, Gavel, GraduationCap, Landmark, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { CategoryGrid, LawRowCard, SectionHeading, StatsStrip } from '@/components/bits';
 import { Card, Skeleton } from '@/components/ui/primitives';
@@ -48,6 +48,7 @@ export default function HomePage() {
         <QuickLink href="/calculator/diyyeh" icon={<Calculator size={18} />} title="محاسبه‌گر دیه" />
         <QuickLink href="/coverage" icon={<FileCheck2 size={18} />} title="پوشش داده‌ها" />
         <QuickLink href="/contracts" icon={<FileText size={18} />} title="آموزش قرارداد نویسی" />
+        <QuickLink href="/contracts/draft" icon={<FilePenLine size={18} />} title="قراردادنویس" />
         <QuickLink href="/about" icon={<ShieldCheck size={18} />} title="منابع و اعتبار" />
       </div>
 
