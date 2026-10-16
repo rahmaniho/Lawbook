@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { ArrowRight, BookOpen, FileText, Search } from 'lucide-react';
+import { ArrowRight, BookOpen, FilePenLine, FileText, Search } from 'lucide-react';
 import { CONTRACT_TOPICS, CONTRACTS, WORKED_EXAMPLES, getContractGuide, workedExamplesForContract, workedExamplesForTopic } from '@/lib/contracts';
 import { SectionHeading } from '@/components/bits';
 import { Card, Input } from '@/components/ui/primitives';
@@ -35,7 +35,12 @@ export default function ContractsPage() {
         subtitle={`${toFaDigits(CONTRACTS.length)} موضوع و ${toFaDigits(WORKED_EXAMPLES.length)} مطالعه موردی واقع‌نما`}
       />
 
-      <Link href="/contracts/guide" className="mt-3 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10">
+      <Link href="/contracts/draft" className="mt-3 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10">
+        <FilePenLine size={22} className="shrink-0 text-primary" />
+        <span className="flex-1"><span className="block text-[13px] font-semibold">قراردادنویس</span><span className="mt-1 block text-[11px] leading-5 text-muted-foreground">انتخاب نوع، ورود اطلاعات، نوشتن بندها و چاپ پیش‌نویس</span></span>
+        <ArrowRight size={16} className="rotate-180 text-primary" />
+      </Link>
+      <Link href="/contracts/guide" className="mt-2 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10">
         <BookOpen size={22} className="shrink-0 text-primary" />
         <span className="flex-1">
           <span className="block text-[13px] font-semibold">از کجا شروع کنم؟</span>

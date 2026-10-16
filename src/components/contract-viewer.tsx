@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowRight, BookOpen, CheckCircle2, FileText } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle2, FilePenLine, FileText } from 'lucide-react';
 import { getContract, getContractGuide, getTopic, workedExamplesForContract } from '@/lib/contracts';
 import { ContractWorkedExamples } from '@/components/contract-worked-examples';
 import { ContractLearningPanel } from '@/components/contract-learning-panel';
@@ -39,6 +39,8 @@ export default function ContractViewer() {
         <p className="mt-1 whitespace-pre-line border-r-2 border-primary/40 pr-3 text-[12px] leading-7">«{guide.sample}»</p>
         <p className="mt-3 text-[11.5px] leading-6 text-muted-foreground"><span className="font-semibold text-foreground">نکته بررسی: </span>{guide.lesson}</p>
       </Card>
+
+      <Link href={`/contracts/draft/${contract.id}`} className="mt-3 flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 p-3 text-[12px] font-semibold text-primary hover:bg-primary/10"><FilePenLine size={17} /> تنظیم اطلاعات و بندهای این عنوان در قراردادنویس <ArrowRight size={15} className="mr-auto rotate-180" /></Link>
 
       <ContractLearningPanel topicId={topic.id} />
       <ContractWorkedExamples examples={workedExamplesForContract(contract.id)} />

@@ -222,4 +222,25 @@
   body {
     padding: 0;
   }
+  /* قرارداد چاپی نباید به عرض پوسته موبایلی محدود شود. */
+  main:has(.contract-print),
+  .contract-draft-page {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .contract-print {
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #0f172a !important;
+    background: white !important;
+  }
+  .contract-print .print-section {
+    break-inside: avoid;
+  }
 }
