@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, BookOpen, CheckCircle2 } from 'lucide-react';
-import { CONTRACTS, CONTRACT_TOPICS, DRAFTING_COMPARISONS, DRAFTING_STEPS, WORKED_EXAMPLES } from '@/lib/contracts';
+import { CONTRACTS, CONTRACT_TOPICS, DRAFTING_COMPARISONS, DRAFTING_STEPS, LEARNING_METHOD, WORKED_EXAMPLES } from '@/lib/contracts';
 import type { ContractTopic, WorkedExample } from '@/lib/contracts';
 import { SectionHeading } from '@/components/bits';
 import { Card } from '@/components/ui/primitives';
@@ -24,6 +24,18 @@ export default function ContractGuidePage() {
         <BookOpen size={18} className="mb-2 text-primary" />
         این راهنما برای یادگیری پرسش‌های درست هنگام تنظیم قرارداد است، نه قرارداد آماده امضا. اعتبار هر شرط به نوع رابطه، قوانین آمره، مدارک و شرایط روز بستگی دارد. پیش از امضا، نسخه نهایی را با مقررات جاری و در موارد مهم با متخصص بررسی کنید.
       </Card>
+
+      <h2 className="mt-6 text-[14px] font-bold">چگونه با مثال‌ها تمرین کنیم؟</h2>
+      <ol className="mt-3 grid gap-2 sm:grid-cols-2">
+        {LEARNING_METHOD.map((step, index) => (
+          <li key={step.title}>
+            <Card className="h-full p-3.5">
+              <p className="text-[12px] font-semibold text-primary">{toFaDigits(index + 1)}. {step.title}</p>
+              <p className="mt-1 text-[11.5px] leading-6 text-muted-foreground">{step.detail}</p>
+            </Card>
+          </li>
+        ))}
+      </ol>
 
       <h2 className="mt-6 text-[14px] font-bold">پنج گام پیش از امضا</h2>
       <div className="mt-3 space-y-2.5">

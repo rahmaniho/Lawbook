@@ -3,6 +3,7 @@ import education from '@data/contracts/education.json';
 import workedExamples from '@data/contracts/case-studies.json';
 import additionalExamples from '@data/contracts/case-studies-additional.json';
 import practiceExamples from '@data/contracts/case-studies-practice.json';
+import deepDiveExamples from '@data/contracts/case-studies-deep-dive.json';
 import learning from '@data/contracts/learning-goals.json';
 
 export interface ContractClause { title: string; text: string; }
@@ -17,6 +18,7 @@ export interface ContractTemplate {
 }
 export interface ContractTopic { id: string; title: string; description: string; color: string; }
 export interface DraftingStep { title: string; detail: string; }
+export interface LearningMethodStep { title: string; detail: string; }
 export interface DraftingComparison { title: string; weak: string; better: string; why: string; }
 export interface ContractGuide {
   scenario: string;
@@ -37,12 +39,14 @@ export interface WorkedExample {
   review: string[];
   references: { lawId: string; title: string }[];
   disclaimer?: string;
-  exercise?: { question: string; answer: string };
+  exercise: { question: string; answer: string };
+  pitfall?: string;
 }
 
 const d = data as { topics: ContractTopic[]; contracts: ContractTemplate[] };
 const e = education as {
   steps: DraftingStep[];
+  method: LearningMethodStep[];
   comparisons: DraftingComparison[];
   guides: Record<string, ContractGuide>;
 };
@@ -50,10 +54,11 @@ const e = education as {
 export const CONTRACT_TOPICS: ContractTopic[] = d.topics;
 export const CONTRACTS: ContractTemplate[] = d.contracts;
 export const DRAFTING_STEPS = e.steps;
+export const LEARNING_METHOD = e.method;
 export const DRAFTING_COMPARISONS = e.comparisons;
 export const CONTRACT_GUIDES = e.guides;
 export const WORKED_EXAMPLES: WorkedExample[] = [
-  ...workedExamples.examples, ...additionalExamples.examples, ...practiceExamples.examples,
+  ...workedExamples.examples, ...additionalExamples.examples, ...practiceExamples.examples, ...deepDiveExamples.examples,
 ];
 const learningData = learning as { topics: Record<string, TopicLearning>; contractGoals: Record<string, string> };
 export function getTopicLearning(topicId: string) { return learningData.topics[topicId]; }
