@@ -165,7 +165,7 @@ function SplashScreen({
 
       <footer className="mt-8 space-y-1 text-center text-[11px] leading-5 text-muted-foreground">
         <p className="flex items-center justify-center gap-1">
-          <Database size={12} /> جمع‌آوری و تدوین: وکیل پایه یک دادگستری لیلا آبکه
+          <Database size={12} /> جمع‌آوری و تدوین: لیلا آبکه وکیل دادگستری، عضو رسمی کانون وکلای دادگستری قزوین
         </p>
         <p>
           توسعه نرم‌افزار:{' '}
