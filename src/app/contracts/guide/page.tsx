@@ -50,6 +50,9 @@ export default function ContractGuidePage() {
           </Card>
         ))}
       </div>
+      <Link href="/contracts/examples" className="mt-6 block rounded-xl border border-primary/20 bg-primary/5 p-4 text-[12px] font-semibold text-primary hover:bg-primary/10">
+        مرور همه {toFaDigits(WORKED_EXAMPLES.length)} مثال و خودآزمایی در ۷ دسته ←
+      </Link>
       <h2 className="mt-7 text-[14px] font-bold">از مثال‌های واقع‌نما شروع کنید</h2>
       <p className="mt-1 text-[11.5px] leading-6 text-muted-foreground">برای هر دسته یک موقعیت رایج با داده‌های فرضی، بندهای پیشنهادی و نکات بررسی ببینید.</p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">

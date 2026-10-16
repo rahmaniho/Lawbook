@@ -68,7 +68,10 @@ export default function ContractViewer() {
         </Card>
       ) : null}
       <p className="mt-4 text-[11px] leading-6 text-muted-foreground">این صفحه مشاوره حقوقی یا سند قابل امضا نیست. قانون و تشریفات لازم را متناسب با موضوع و تاریخ معامله بررسی کنید.</p>
-      <Link href="/contracts/guide" className="mt-3 inline-flex items-center gap-2 text-[12px] font-medium text-primary">مطالعه راهنمای گام‌به‌گام <ArrowRight size={14} className="rotate-180" /></Link>
+      <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+        <Link href="/contracts/guide" className="inline-flex items-center gap-2 text-[12px] font-medium text-primary">مطالعه راهنمای گام‌به‌گام <ArrowRight size={14} className="rotate-180" /></Link>
+        <Link href="/contracts/examples" className="inline-flex items-center gap-2 text-[12px] font-medium text-primary">مرور مثال‌های همه دسته‌ها <ArrowRight size={14} className="rotate-180" /></Link>
+      </div>
     </div>
   );
 }

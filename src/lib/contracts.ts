@@ -1,6 +1,7 @@
 import data from '@data/contracts/contracts.json';
 import education from '@data/contracts/education.json';
 import workedExamples from '@data/contracts/case-studies.json';
+import additionalExamples from '@data/contracts/case-studies-additional.json';
 
 export interface ContractClause { title: string; text: string; }
 export interface ContractTemplate {
@@ -32,6 +33,7 @@ export interface WorkedExample {
   review: string[];
   references: { lawId: string; title: string }[];
   disclaimer?: string;
+  exercise?: { question: string; answer: string };
 }
 
 const d = data as { topics: ContractTopic[]; contracts: ContractTemplate[] };
@@ -46,9 +48,13 @@ export const CONTRACTS: ContractTemplate[] = d.contracts;
 export const DRAFTING_STEPS = e.steps;
 export const DRAFTING_COMPARISONS = e.comparisons;
 export const CONTRACT_GUIDES = e.guides;
-export const WORKED_EXAMPLES: WorkedExample[] = workedExamples.examples;
+export const WORKED_EXAMPLES: WorkedExample[] = [...workedExamples.examples, ...additionalExamples.examples];
 
 export function workedExamplesForContract(id: string) { return WORKED_EXAMPLES.filter((example) => example.contractId === id); }
+export function workedExamplesForTopic(topicId: string) {
+  const ids = new Set(contractsByTopic(topicId).map((contract) => contract.id));
+  return WORKED_EXAMPLES.filter((example) => ids.has(example.contractId));
+}
 export function getTopic(id: string) { return CONTRACT_TOPICS.find((t) => t.id === id); }
 export function getContract(id: string) { return CONTRACTS.find((c) => c.id === id); }
 export function getContractGuide(id: string) { return CONTRACT_GUIDES[id]; }
