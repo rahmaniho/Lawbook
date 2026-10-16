@@ -2,6 +2,8 @@ import data from '@data/contracts/contracts.json';
 import education from '@data/contracts/education.json';
 import workedExamples from '@data/contracts/case-studies.json';
 import additionalExamples from '@data/contracts/case-studies-additional.json';
+import practiceExamples from '@data/contracts/case-studies-practice.json';
+import learning from '@data/contracts/learning-goals.json';
 
 export interface ContractClause { title: string; text: string; }
 export interface ContractTemplate {
@@ -22,6 +24,8 @@ export interface ContractGuide {
   lesson: string;
   checklist: string[];
 }
+export interface LearningGoal { id: string; title: string; outcome: string; }
+export interface TopicLearning { goals: LearningGoal[]; criticalPoints: string[]; }
 export interface WorkedExample {
   id: string;
   contractId: string;
@@ -48,7 +52,15 @@ export const CONTRACTS: ContractTemplate[] = d.contracts;
 export const DRAFTING_STEPS = e.steps;
 export const DRAFTING_COMPARISONS = e.comparisons;
 export const CONTRACT_GUIDES = e.guides;
-export const WORKED_EXAMPLES: WorkedExample[] = [...workedExamples.examples, ...additionalExamples.examples];
+export const WORKED_EXAMPLES: WorkedExample[] = [
+  ...workedExamples.examples, ...additionalExamples.examples, ...practiceExamples.examples,
+];
+const learningData = learning as { topics: Record<string, TopicLearning>; contractGoals: Record<string, string> };
+export function getTopicLearning(topicId: string) { return learningData.topics[topicId]; }
+export function getExampleGoal(contractId: string) {
+  const topicId = getContract(contractId)?.topic;
+  return topicId ? getTopicLearning(topicId)?.goals.find((goal) => goal.id === learningData.contractGoals[contractId]) : undefined;
+}
 
 export function workedExamplesForContract(id: string) { return WORKED_EXAMPLES.filter((example) => example.contractId === id); }
 export function workedExamplesForTopic(topicId: string) {

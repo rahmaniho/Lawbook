@@ -7,7 +7,9 @@ const { topics, contracts } = read('contracts.json');
 const { guides, steps, comparisons } = read('education.json');
 const { examples: originalExamples } = read('case-studies.json');
 const { examples: additionalExamples } = read('case-studies-additional.json');
-const examples = [...originalExamples, ...additionalExamples];
+const { examples: practiceExamples } = read('case-studies-practice.json');
+const learning = read('learning-goals.json');
+const examples = [...originalExamples, ...additionalExamples, ...practiceExamples];
 const { laws } = JSON.parse(fs.readFileSync(new URL('../data/curated/catalog.json', import.meta.url), 'utf8'));
 
 test('هر نوع قرارداد، راهنمای مثال عملی و چک‌لیست اختصاصی دارد', () => {
@@ -33,6 +35,22 @@ test('راهنمای عمومی، مثال‌های بازنویسی متنوع 
   }
 });
 
+test('هدف‌های آموزشی هر دسته و پیوند همه قراردادها معتبر است', () => {
+  assert.deepEqual(Object.keys(learning.topics).sort(), topics.map((t) => t.id).sort());
+  assert.deepEqual(Object.keys(learning.contractGoals).sort(), contracts.map((c) => c.id).sort());
+  for (const topic of topics) {
+    const plan = learning.topics[topic.id];
+    assert.ok(plan.goals.length >= 3 && plan.criticalPoints.length >= 3, `${topic.id}: هدف یا نکته کم است`);
+    assert.equal(new Set(plan.goals.map((goal) => goal.id)).size, plan.goals.length);
+    const mapped = contracts.filter((c) => c.topic === topic.id).map((c) => learning.contractGoals[c.id]);
+    for (const goal of plan.goals) {
+      assert.ok(goal.title && goal.outcome.length > 70, `${topic.id}: هدف مبهم`);
+      assert.ok(mapped.includes(goal.id), `${topic.id}: برای ${goal.id} هیچ قراردادی نیست`);
+    }
+    assert.ok(plan.criticalPoints.every((point) => point.length > 55), `${topic.id}: نکته سطحی`);
+  }
+});
+
 test('مطالعه‌های موردی همه موضوع‌ها را پوشش می‌دهند و به قوانین موجود متصل‌اند', () => {
   assert.ok(examples.length >= contracts.length, 'مطالعه‌های موردی کافی نیستند');
   assert.equal(new Set(examples.map((x) => x.id)).size, examples.length, 'شناسه نمونه تکراری است');
@@ -45,6 +63,8 @@ test('مطالعه‌های موردی همه موضوع‌ها را پوشش م
     const contract = contractsById.get(example.contractId);
     assert.ok(contract, `${example.id}: نوع قرارداد نامعتبر`);
     counts.set(contract.topic, counts.get(contract.topic) + 1);
+    assert.ok(learning.topics[contract.topic].goals.some((goal) => goal.id === learning.contractGoals[contract.id]),
+      `${example.id}: هدف آموزشی معتبر ندارد`);
     assert.ok(example.title && example.situation.length > 30 && example.facts.length >= 2, `${example.id}: موقعیت ناکامل`);
     assert.ok(example.clauses.length >= 2 && example.clauses.every((cl) =>
       cl.heading && cl.wording.length > 70 && cl.rationale.length > 35 && !/\.{4,}/.test(cl.wording),
@@ -59,12 +79,13 @@ test('مطالعه‌های موردی همه موضوع‌ها را پوشش م
     }
   }
   for (const [topicId, count] of counts) {
-    assert.ok(count >= 10, `${topicId}: هر دسته باید دست‌کم ۱۰ مثال داشته باشد (فعلی: ${count})`);
+    assert.ok(count >= 12, `${topicId}: هر دسته باید دست‌کم ۱۲ مثال داشته باشد (فعلی: ${count})`);
   }
   assert.equal(additionalExamples.length, 39, 'مجموعه آموزشی جدید باید ۳۹ مثال متنوع داشته باشد');
   assert.equal(new Set(additionalExamples.map((example) => example.title)).size, additionalExamples.length,
     'عنوان مطالعه‌های تازه نباید تکراری باشد');
-  for (const example of additionalExamples) {
+  assert.equal(practiceExamples.length, 14, 'مجموعه تمرینی باید برای هر دسته دو مورد تازه داشته باشد');
+  for (const example of [...additionalExamples, ...practiceExamples]) {
     assert.ok(example.exercise?.question.length > 20 && example.exercise.answer.length > 30,
       `${example.id}: پرسش و پاسخ آموزشی ناقص است`);
     const topicId = contractsById.get(example.contractId).topic;
