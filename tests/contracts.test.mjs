@@ -4,12 +4,13 @@ import fs from 'node:fs';
 
 const read = (name) => JSON.parse(fs.readFileSync(new URL(`../data/contracts/${name}`, import.meta.url), 'utf8'));
 const { topics, contracts } = read('contracts.json');
-const { guides, steps, comparisons } = read('education.json');
+const { guides, steps, method, comparisons } = read('education.json');
 const { examples: originalExamples } = read('case-studies.json');
 const { examples: additionalExamples } = read('case-studies-additional.json');
 const { examples: practiceExamples } = read('case-studies-practice.json');
+const { examples: deepDiveExamples } = read('case-studies-deep-dive.json');
 const learning = read('learning-goals.json');
-const examples = [...originalExamples, ...additionalExamples, ...practiceExamples];
+const examples = [...originalExamples, ...additionalExamples, ...practiceExamples, ...deepDiveExamples];
 const { laws } = JSON.parse(fs.readFileSync(new URL('../data/curated/catalog.json', import.meta.url), 'utf8'));
 
 test('هر نوع قرارداد، راهنمای مثال عملی و چک‌لیست اختصاصی دارد', () => {
@@ -29,6 +30,7 @@ test('هر نوع قرارداد، راهنمای مثال عملی و چک‌ل
 
 test('راهنمای عمومی، مثال‌های بازنویسی متنوع و دارای توضیح دارد', () => {
   assert.ok(steps.length >= 5);
+  assert.ok(method.length >= 4 && method.every((step) => step.title && step.detail.length > 70));
   assert.ok(comparisons.length >= 5);
   for (const comparison of comparisons) {
     assert.ok(comparison.weak && comparison.better.length > comparison.weak.length && comparison.why);
@@ -79,20 +81,24 @@ test('مطالعه‌های موردی همه موضوع‌ها را پوشش م
     }
   }
   for (const [topicId, count] of counts) {
-    assert.ok(count >= 12, `${topicId}: هر دسته باید دست‌کم ۱۲ مثال داشته باشد (فعلی: ${count})`);
+    assert.ok(count >= 14, `${topicId}: هر دسته باید دست‌کم ۱۴ مثال داشته باشد (فعلی: ${count})`);
   }
   assert.equal(additionalExamples.length, 39, 'مجموعه آموزشی جدید باید ۳۹ مثال متنوع داشته باشد');
   assert.equal(new Set(additionalExamples.map((example) => example.title)).size, additionalExamples.length,
     'عنوان مطالعه‌های تازه نباید تکراری باشد');
-  assert.equal(practiceExamples.length, 14, 'مجموعه تمرینی باید برای هر دسته دو مورد تازه داشته باشد');
-  for (const example of [...additionalExamples, ...practiceExamples]) {
+  assert.equal(practiceExamples.length, 14, 'مجموعه تمرینی باید برای هر دسته دو مورد داشته باشد');
+  assert.equal(deepDiveExamples.length, 14, 'مجموعه تکمیلی باید برای هر دسته دو مورد داشته باشد');
+  for (const example of examples) {
     assert.ok(example.exercise?.question.length > 20 && example.exercise.answer.length > 30,
       `${example.id}: پرسش و پاسخ آموزشی ناقص است`);
+  }
+  for (const example of [...additionalExamples, ...practiceExamples, ...deepDiveExamples]) {
     const topicId = contractsById.get(example.contractId).topic;
     if (topicId === 'family' || topicId === 'real-estate') {
       assert.ok(example.disclaimer?.length > 25, `${example.id}: هشدار موضوع حساس لازم است`);
     }
   }
+  assert.ok(deepDiveExamples.every((example) => example.pitfall?.length > 70), 'اشتباه رایج هر مطالعه تکمیلی باید توضیح داده شود');
 });
 
 test('نمونه SLA محاسبه درست و موضوعات حساس هشدار صریح دارند', () => {

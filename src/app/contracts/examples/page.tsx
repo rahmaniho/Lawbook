@@ -37,7 +37,7 @@ export default function ContractExamplesPage() {
       </Link>
       <SectionHeading title="تمرین با موقعیت‌های روزمره" subtitle={`${toFaDigits(WORKED_EXAMPLES.length)} مطالعه موردی؛ دست‌کم ${toFaDigits(minExamples)} مثال در هر دسته`} />
       <Card className="mt-3 border-primary/20 bg-primary/5 p-4 text-[11.5px] leading-6">
-        موقعیت‌ها واقع‌نما ولی ساختگی‌اند؛ نام‌ها، تاریخ‌ها و مبالغ برای تمرین انتخاب شده‌اند و سند واقعی یا فرم آماده امضا نیستند. بند نمونه و دلیل نگارش آن را بخوانید؛ در {toFaDigits(exerciseCount)} مثال نیز می‌توانید پاسخ پرسش خودآزمایی را باز کنید.
+        موقعیت‌ها واقع‌نما ولی ساختگی‌اند؛ نام‌ها، تاریخ‌ها و مبالغ برای تمرین انتخاب شده‌اند و سند واقعی یا فرم آماده امضا نیستند. ابتدا به پرسش هر موقعیت فکر کنید، سپس پاسخ پیشنهادی، بند نمونه و دلیل نگارش آن را بخوانید. همهٔ {toFaDigits(exerciseCount)} مثال خودآزمایی دارند.
       </Card>
       <div className="sticky top-[var(--topbar-h)] z-20 -mx-4 space-y-2 bg-background/95 px-4 py-3 backdrop-blur">
         <div className="relative">
