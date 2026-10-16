@@ -1852,6 +1852,203 @@
         "kind": "corpus",
         "file": "advisory-opinions.txt"
       }
+    },
+    {
+      "id": "official-experts-association-law",
+      "title": "قانون کانون کارشناسان رسمی دادگستری",
+      "shortTitle": "کانون کارشناسان",
+      "category": "aein",
+      "hierarchy": "statute",
+      "documentType": "قانون",
+      "approvalDate": "1381/01/18",
+      "approvalSort": 13810118,
+      "status": "لازم‌الاجرا",
+      "source": {
+        "kind": "corpus",
+        "file": "official-experts-association-law.txt"
+      },
+      "summary": "تشکیل و ادارهٔ کانون‌های کارشناسان رسمی دادگستری در استان‌ها، شورای عالی کارشناسان، ارکان کانون، انتخاب و گزینش کارشناسان و رسیدگی انتظامی (۴۱ ماده با اصلاحات بعدی).",
+      "keywords": [
+        "کارشناس رسمی",
+        "کانون کارشناسان",
+        "شورای عالی کارشناسان",
+        "پروانه کارشناسی",
+        "کارشناسی"
+      ],
+      "checklist": [
+        "official-experts"
+      ],
+      "note": "",
+      "articleRange": "1-41",
+      "updatedAt": "2026-10-16",
+      "articleCount": 41,
+      "chapters": [],
+      "gaps": {
+        "count": 0,
+        "items": []
+      },
+      "range": {
+        "from": 1,
+        "to": 41
+      },
+      "hash": ""
+    },
+    {
+      "id": "official-experts-tariff",
+      "title": "تعرفه دستمزد کارشناسان رسمی دادگستری",
+      "shortTitle": "تعرفه دستمزد کارشناسی",
+      "category": "aein",
+      "hierarchy": "regulation",
+      "documentType": "تعرفه",
+      "approvalDate": "1398/12/25",
+      "approvalSort": 13981225,
+      "status": "لازم‌الاجرا",
+      "source": {
+        "kind": "corpus",
+        "file": "official-experts-tariff.txt"
+      },
+      "summary": "دستمزد کارشناسان رسمی در ۱۲ گروه تخصصی از مهندسی تا پزشکی و مالی، ارزیابی اموال به صورت پلکانی، فوق‌العادهٔ مأموریت و کاهش دستمزد برای مناطق محروم (۵۸ ماده؛ متن ۱۳۹۸ با اصلاحات ۱۴۰۲).",
+      "keywords": [
+        "تعرفه",
+        "دستمزد کارشناسی",
+        "حق‌الزحمه کارشناس",
+        "ارزیابی اموال",
+        "دستمزد"
+      ],
+      "checklist": [
+        "official-experts"
+      ],
+      "note": "",
+      "articleRange": "1-58",
+      "updatedAt": "2026-10-16",
+      "articleCount": 58,
+      "chapters": [],
+      "gaps": {
+        "count": 0,
+        "items": []
+      },
+      "range": {
+        "from": 1,
+        "to": 58
+      },
+      "hash": ""
+    },
+    {
+      "id": "official-experts-trainee-bylaw",
+      "title": "نظام‌نامه کارآموزی کارشناسان رسمی دادگستری",
+      "shortTitle": "کارآموزی کارشناسان",
+      "category": "aein",
+      "hierarchy": "regulation",
+      "documentType": "نظام‌نامه",
+      "approvalDate": "1403/11/02",
+      "approvalSort": 14031102,
+      "status": "لازم‌الاجرا",
+      "source": {
+        "kind": "corpus",
+        "file": "official-experts-trainee-bylaw.txt"
+      },
+      "summary": "شرایط پذیرش دورهٔ کارآموزی کارشناسی رسمی، تکالیف و آموزش کارآموز، نقش کارشناس راهنما و ارزشیابی پایانی (۳۰ ماده و ۱۷ تبصره — مصوب شورای عالی کارشناسان).",
+      "keywords": [
+        "کارآموزی",
+        "کارآموز کارشناسی",
+        "کارشناس راهنما",
+        "آزمون کارشناسی"
+      ],
+      "checklist": [
+        "official-experts"
+      ],
+      "note": "",
+      "articleRange": "1-30",
+      "updatedAt": "2026-10-16",
+      "articleCount": 30,
+      "chapters": [],
+      "gaps": {
+        "count": 0,
+        "items": []
+      },
+      "range": {
+        "from": 1,
+        "to": 30
+      },
+      "hash": ""
+    },
+    {
+      "id": "official-experts-executive-bodies-bylaw",
+      "title": "آیین‌نامه نحوه تعیین کارشناس برای دستگاه‌های اجرایی",
+      "shortTitle": "کارشناس دستگاه‌های اجرایی",
+      "category": "aein",
+      "hierarchy": "regulation",
+      "documentType": "آیین‌نامه",
+      "approvalDate": "1402/07/09",
+      "approvalSort": 14020709,
+      "status": "لازم‌الاجرا",
+      "source": {
+        "kind": "corpus",
+        "file": "official-experts-executive-bodies-bylaw.txt"
+      },
+      "summary": "انتخاب کارشناس یا هیئت کارشناسی توسط دستگاه‌های اجرایی صرفاً از طریق سامانهٔ ملی کارشناسی با انتخاب اتفاقی، شناسهٔ یکتای گزارش و نظارت بر ارجاعات (مصوب هیئت وزیران).",
+      "keywords": [
+        "سامانه ملی کارشناسی",
+        "دستگاه‌های اجرایی",
+        "انتخاب کارشناس",
+        "هیئت کارشناسی"
+      ],
+      "checklist": [
+        "official-experts"
+      ],
+      "note": "",
+      "articleRange": "1-14",
+      "updatedAt": "2026-10-16",
+      "articleCount": 14,
+      "chapters": [],
+      "gaps": {
+        "count": 0,
+        "items": []
+      },
+      "range": {
+        "from": 1,
+        "to": 14
+      },
+      "hash": ""
+    },
+    {
+      "id": "official-experts-competency-system",
+      "title": "نظام تشخیص صلاحیت کارشناسان و مشاوران",
+      "shortTitle": "تشخیص صلاحیت کارشناسان",
+      "category": "aein",
+      "hierarchy": "regulation",
+      "documentType": "تصویب‌نامه",
+      "approvalDate": "1393/10/21",
+      "approvalSort": 13931021,
+      "status": "لازم‌الاجرا",
+      "source": {
+        "kind": "corpus",
+        "file": "official-experts-competency-system.txt"
+      },
+      "summary": "رتبه‌بندی و تشخیص صلاحیت کارشناسان و مشاوران دستگاه‌های اجرایی، جدول رشته‌های تخصصی و دستگاه‌های مسئول تشخیص صلاحیت و سامانهٔ ساجات (موضوع ماده ۶۳ برنامهٔ پنجم توسعه).",
+      "keywords": [
+        "تشخیص صلاحیت",
+        "رتبه‌بندی کارشناسان",
+        "ساجات",
+        "مشاوران"
+      ],
+      "checklist": [
+        "official-experts"
+      ],
+      "note": "",
+      "articleRange": "1-17",
+      "updatedAt": "2026-10-16",
+      "articleCount": 17,
+      "chapters": [],
+      "gaps": {
+        "count": 0,
+        "items": []
+      },
+      "range": {
+        "from": 1,
+        "to": 17
+      },
+      "hash": ""
     }
   ],
   "checklist": [
@@ -2135,6 +2332,32 @@
       ]
     },
     {
+      "id": "official-experts",
+      "label": "کارشناسان رسمی دادگستری (کانون، تعرفهٔ دستمزد، کارآموزی، تشخیص صلاحیت)",
+      "status": "included",
+      "laws": [
+        "official-experts-association-law",
+        "official-experts-tariff",
+        "official-experts-trainee-bylaw",
+        "official-experts-executive-bodies-bylaw",
+        "official-experts-competency-system"
+      ]
+    },
+    {
+      "id": "official-experts-executive-bylaw",
+      "label": "آیین‌نامه اجرایی قانون کانون کارشناسان رسمی دادگستری",
+      "status": "pending",
+      "laws": [],
+      "note": "متن ماده‌به‌مادهٔ این آیین‌نامه در منابع آزاد در دسترس نبود؛ باید از سامانه ملی قوانین (qavanin.ir) یا روزنامه رسمی دریافت و بازبینی شود."
+    },
+    {
+      "id": "military-experts-bylaw",
+      "label": "آیین‌نامه نحوه تعیین کارشناس در امور نظامی",
+      "status": "pending",
+      "laws": [],
+      "note": "متن کامل در منبع آزاد موجود است اما تاریخ مصوب رسمی در متن درج نشده و نیازمند راستی‌آزمایی از روزنامه رسمی است؛ پس از احراز تاریخ افزوده می‌شود."
+    },
+    {
       "id": "environment-main-law",
       "label": "قانون حفاظت و بهسازی محیط زیست (۱۳۵۳)",
       "status": "pending",
@@ -2148,5 +2371,8 @@
       "laws": [],
       "note": "این مواد در منابع آزاد موجود نبود (به احتمال زیاد به موجب قوانین بعدی نسخ یا حذف شده‌اند)؛ پس از دریافت متن رسمی از سامانه ملی قوانین تکمیل می‌شوند."
     }
-  ]
+  ],
+  "stats": {
+    "lawCount": 73
+  }
 }
