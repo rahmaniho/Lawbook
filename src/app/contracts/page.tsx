@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ArrowRight, BookOpen, FileText, Search } from 'lucide-react';
-import { CONTRACT_TOPICS, CONTRACTS, getContractGuide } from '@/lib/contracts';
+import { CONTRACT_TOPICS, CONTRACTS, WORKED_EXAMPLES, getContractGuide, workedExamplesForContract } from '@/lib/contracts';
 import { SectionHeading } from '@/components/bits';
 import { Card, Input } from '@/components/ui/primitives';
 import { normalizeForSearch } from '@/lib/fa';
@@ -19,7 +19,8 @@ export default function ContractsPage() {
       if (topic !== 'all' && c.topic !== topic) return false;
       if (!q) return true;
       const t = CONTRACT_TOPICS.find((x) => x.id === c.topic);
-      return normalizeForSearch(`${c.title} ${c.summary} ${t?.title ?? ''} ${getContractGuide(c.id)?.scenario ?? ''}`).includes(q);
+      const examples = workedExamplesForContract(c.id);
+      return normalizeForSearch(`${c.title} ${c.summary} ${t?.title ?? ''} ${getContractGuide(c.id)?.scenario ?? ''} ${examples.map((example) => `${example.title} ${example.situation}`).join(' ')}`).includes(q);
     });
   }, [topic, query]);
 
@@ -31,7 +32,7 @@ export default function ContractsPage() {
 
       <SectionHeading
         title="آموزش قرارداد نویسی"
-        subtitle={`${toFaDigits(CONTRACTS.length)} مثال قراردادی در ${toFaDigits(CONTRACT_TOPICS.length)} موضوع`}
+        subtitle={`${toFaDigits(CONTRACTS.length)} موضوع و ${toFaDigits(WORKED_EXAMPLES.length)} مطالعه موردی واقع‌نما`}
       />
 
       <Link href="/contracts/guide" className="mt-3 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10">
@@ -42,7 +43,7 @@ export default function ContractsPage() {
         </span>
         <ArrowRight size={16} className="rotate-180 text-primary" />
       </Link>
-      <p className="mt-3 text-[11px] leading-5 text-muted-foreground">این متن‌ها مثال آموزشی و سرفصل بررسی‌اند، نه فرم آماده امضا. برای معاملات مهم، مقررات روز و مدارک را بررسی کنید.</p>
+      <p className="mt-3 text-[11px] leading-5 text-muted-foreground">مطالعه‌های موردی از موقعیت‌های رایج الهام گرفته‌اند، اما اشخاص، مبالغ و تاریخ‌ها ساختگی‌اند؛ فرم آماده امضا یا شرح پرونده واقعی نیستند. مقررات روز و مدارک را بررسی کنید.</p>
 
       <div className="sticky top-[var(--topbar-h)] z-20 -mx-4 space-y-2.5 bg-background/95 px-4 py-2.5 backdrop-blur">
         <div className="relative">
@@ -74,6 +75,11 @@ export default function ContractsPage() {
                       <p className="truncate text-[13px] font-semibold">{c.title}</p>
                       <p className="mt-0.5 text-[11px] text-muted-foreground">{t.title} • {toFaDigits(c.clauses.length)} سرفصل</p>
                       <p className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">مثال: {getContractGuide(c.id)?.scenario}</p>
+                      {workedExamplesForContract(c.id).length > 0 ? (
+                        <span className="mt-2 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                          {toFaDigits(workedExamplesForContract(c.id).length)} مطالعه موردی
+                        </span>
+                      ) : null}
                     </div>
                     <ArrowRight size={16} className="text-muted-foreground" />
                   </div>

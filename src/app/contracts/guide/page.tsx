@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, BookOpen, CheckCircle2 } from 'lucide-react';
-import { DRAFTING_COMPARISONS, DRAFTING_STEPS } from '@/lib/contracts';
+import { CONTRACTS, CONTRACT_TOPICS, DRAFTING_COMPARISONS, DRAFTING_STEPS, WORKED_EXAMPLES } from '@/lib/contracts';
+import type { ContractTopic, WorkedExample } from '@/lib/contracts';
 import { SectionHeading } from '@/components/bits';
 import { Card } from '@/components/ui/primitives';
 import { toFaDigits } from '@/lib/fa';
@@ -8,6 +9,11 @@ import { toFaDigits } from '@/lib/fa';
 export const metadata = { title: 'راهنمای گام‌به‌گام قرارداد‌نویسی' };
 
 export default function ContractGuidePage() {
+  const featured = CONTRACT_TOPICS.map((topic) => ({
+    topic,
+    example: WORKED_EXAMPLES.find((item) => CONTRACTS.find((contract) => contract.id === item.contractId)?.topic === topic.id),
+  })).filter((item): item is { topic: ContractTopic; example: WorkedExample } => item.example !== undefined);
+
   return (
     <div className="app-container pb-10">
       <Link href="/contracts" className="mt-3 inline-flex items-center gap-1 text-[11.5px] text-muted-foreground">
@@ -44,8 +50,18 @@ export default function ContractGuidePage() {
           </Card>
         ))}
       </div>
+      <h2 className="mt-7 text-[14px] font-bold">از مثال‌های واقع‌نما شروع کنید</h2>
+      <p className="mt-1 text-[11.5px] leading-6 text-muted-foreground">برای هر دسته یک موقعیت رایج با داده‌های فرضی، بندهای پیشنهادی و نکات بررسی ببینید.</p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {featured.map(({ topic, example }) => (
+          <Link key={topic.id} href={`/contracts/${example.contractId}`} className="rounded-xl border bg-card p-3 transition-colors hover:border-primary/40">
+            <span className="block text-[10px] text-muted-foreground">{topic.title}</span>
+            <span className="mt-1 block text-[12px] font-semibold text-primary">{example.title}</span>
+          </Link>
+        ))}
+      </div>
       <Link href="/contracts" className="mt-6 inline-flex items-center gap-2 text-[12px] font-medium text-primary">
-        مشاهده مثال‌های هر نوع قرارداد <ArrowRight size={14} className="rotate-180" />
+        مشاهده همه موضوعات <ArrowRight size={14} className="rotate-180" />
       </Link>
     </div>
   );
