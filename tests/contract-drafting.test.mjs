@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { BASIC_FIELDS, draftFields, emptyDraft, prepareDraft } from '../src/lib/contract-drafting';
+import { BASIC_FIELDS, draftFields, emptyDraft, hasUnresolvedPrompt, prepareDraft, suggestionReferences, suggestionsForClause } from '../src/lib/contract-drafting';
 
 const read = (name) => JSON.parse(fs.readFileSync(new URL(`../data/contracts/${name}`, import.meta.url), 'utf8'));
 const { contracts, topics } = read('contracts.json');
 const config = read('draft-config.json');
+const suggestionCatalog = read('clause-suggestions.json');
 
 const sorted = (items) => [...items].sort();
 
@@ -66,4 +67,51 @@ test('بند افزوده ناقص اجازه چاپ از دکمه را نمی�
   assert.equal(preview.additions.length, 0);
   assert.ok(preview.issues.some((item) => item.includes('بندهای افزوده‌شده')));
   assert.match(preview.formalNotice, /سند نکاح نیست/);
+});
+
+test('هر قرارداد دو پیشنهاد اختصاصی برای بندهای معتبر و ارجاع به متن موجود ماده دارد', () => {
+  assert.deepEqual(sorted(Object.keys(suggestionCatalog.suggestions)), sorted(contracts.map(({ id }) => id)));
+  const version = JSON.parse(fs.readFileSync(new URL('../public/data/version.json', import.meta.url), 'utf8'));
+  const laws = new Map(version.laws.map((law) => [law.id, law]));
+  const referencedArticles = new Set();
+  for (const [lawId, title] of Object.entries(suggestionCatalog.sources)) {
+    assert.ok(laws.has(lawId) && title.length > 5, `منبع ${lawId} ناشناخته است`);
+    for (const part of laws.get(lawId).parts) {
+      const content = JSON.parse(fs.readFileSync(new URL(`../public${part.path}`, import.meta.url), 'utf8'));
+      for (const article of content.articles) if (article.text?.trim()) referencedArticles.add(article.id);
+    }
+  }
+  for (const contract of contracts) {
+    const suggestions = suggestionCatalog.suggestions[contract.id];
+    assert.equal(suggestions.length, 2, `${contract.id}: برای هر نوع دو پیشنهاد لازم است`);
+    assert.equal(new Set(suggestions.map((item) => item.clauseIndex)).size, suggestions.length);
+    for (const suggestion of suggestions) {
+      assert.ok(contract.clauses[suggestion.clauseIndex], `${contract.id}: سرفصل نامعتبر`);
+      assert.ok(suggestion.text.length > 75 && suggestion.reason.length > 25, `${contract.id}: پیشنهاد مبهم`);
+      assert.ok(suggestion.articleIds.length > 0, `${contract.id}: بدون ارجاع`);
+      assert.ok(suggestion.articleIds.every((id) => referencedArticles.has(id)), `${contract.id}: ماده موجود نیست`);
+      assert.ok(suggestionReferences(suggestionCatalog, suggestion).every((ref) => ref.lawTitle && ref.number));
+      assert.ok(suggestionsForClause(suggestionCatalog, contract.id, suggestion.clauseIndex).includes(suggestion));
+    }
+  }
+});
+
+test('پیشنهاد تنها پس از درج آگاهانه وارد متن می‌شود و تا تکمیل جای‌خالی چاپ فعال نیست', () => {
+  const contract = contracts.find(({ id }) => id === 'civil-sale-movable');
+  const input = emptyDraft();
+  input.basics = { partyOne: 'الف', partyTwo: 'ب', subject: 'فروش میز' };
+  const suggestion = suggestionCatalog.suggestions[contract.id][0];
+  assert.equal(prepareDraft(config, contract, input).clauses.length, 0, 'نمایش پیشنهاد نباید متن چاپی بسازد');
+  input.clauses[String(suggestion.clauseIndex)] = suggestion.text;
+  assert.ok(hasUnresolvedPrompt(suggestion.text));
+  assert.ok(hasUnresolvedPrompt('عبارت ⟦نیمه‌کاره'));
+  assert.ok(hasUnresolvedPrompt('عبارت نیمه‌کاره⟧'));
+  const incomplete = prepareDraft(config, contract, input);
+  assert.equal(incomplete.printable, false);
+  assert.ok(incomplete.issues.some((issue) => issue.includes('جای‌خالی')));
+  input.clauses[String(suggestion.clauseIndex)] = suggestion.text.replace(/⟦[^⟧]+⟧/g, 'اطلاعات واقعی');
+  const revised = prepareDraft(config, contract, input);
+  assert.equal(revised.printable, true);
+  assert.equal(revised.clauses[0].text, input.clauses[String(suggestion.clauseIndex)]);
+  assert.ok(!JSON.stringify(revised).includes(suggestion.articleIds[0]), 'ارجاع مطالعه نباید خودکار تبدیل به بند شود');
 });

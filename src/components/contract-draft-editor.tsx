@@ -2,16 +2,18 @@
 
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import { ArrowRight, Plus, Printer, RotateCcw, Trash2 } from 'lucide-react';
+import { ArrowRight, BookOpen, Plus, Printer, RotateCcw, Trash2 } from 'lucide-react';
 import configJson from '@data/contracts/draft-config.json';
+import suggestionJson from '@data/contracts/clause-suggestions.json';
 import { getContract, getTopicLearning } from '@/lib/contracts';
-import { BASIC_FIELDS, draftFields, emptyDraft, prepareDraft } from '@/lib/contract-drafting';
-import type { DraftConfig, DraftInput } from '@/lib/contract-drafting';
+import { BASIC_FIELDS, draftFields, emptyDraft, prepareDraft, suggestionReferences, suggestionsForClause } from '@/lib/contract-drafting';
+import type { DraftConfig, DraftInput, SuggestionCatalog } from '@/lib/contract-drafting';
 import { toFaDigits } from '@/lib/fa';
 import { SectionHeading } from '@/components/bits';
 import { Button, Card, Input, Textarea } from '@/components/ui/primitives';
 
 const config = configJson as DraftConfig;
+const suggestionCatalog = suggestionJson as SuggestionCatalog;
 
 export function ContractDraftEditor({ contractId }: { contractId: string }) {
   const contract = getContract(contractId)!;
@@ -28,6 +30,11 @@ export function ContractDraftEditor({ contractId }: { contractId: string }) {
   function changeAdded(id: string, field: 'title' | 'text', value: string) {
     setDraft((current) => ({ ...current, additions: current.additions.map((item) => item.id === id ? { ...item, [field]: value } : item) }));
   }
+  function insertSuggestion(index: number, text: string) {
+    if ((draft.clauses[String(index)] ?? '').trim() && !window.confirm('متن فعلی این بند با پیشنهاد جایگزین شود؟')) return;
+    change('clauses', String(index), text);
+    requestAnimationFrame(() => document.getElementById(`clause-${index}`)?.focus());
+  }
 
   return (
     <div className="contract-draft-page app-container pb-10">
@@ -36,7 +43,7 @@ export function ContractDraftEditor({ contractId }: { contractId: string }) {
         <SectionHeading title={`تنظیم ${contract.title}`} subtitle={isWorksheet ? 'کاربرگ جمع‌آوری اطلاعات؛ جای سند رسمی نیست' : 'پیش‌نویس قابل بازبینی و چاپ'} />
         <Card className="mt-3 border-amber-500/30 bg-amber-500/5 p-4 text-[12px] leading-7">
           <strong className="block">پیش از نوشتن و چاپ</strong>
-          فقط متن‌هایی که خودتان وارد می‌کنید به برگه چاپی می‌روند؛ عبارت‌های راهنما بند قرارداد نیستند. {preview.formalNotice || 'این ابزار اعتبار حقوقی شروط را بررسی نمی‌کند؛ پیش از امضا با قانون روز و متخصص تطبیق دهید.'}
+          فقط متن‌هایی که خودتان می‌نویسید یا آگاهانه از پیشنهادها انتخاب و ویرایش می‌کنید به برگه چاپی می‌روند. منابع قانونی برای مطالعه‌اند و تأیید خودکار اعتبار متن نیستند. {preview.formalNotice || 'این ابزار اعتبار حقوقی شروط را بررسی نمی‌کند؛ پیش از امضا با قانون روز و متخصص تطبیق دهید.'}
           <span className="mt-1 block text-[11px] text-muted-foreground">اطلاعات فرم روی سرور فرستاده یا در مرورگر ذخیره نمی‌شوند؛ با بستن یا تازه‌کردن صفحه از دست می‌روند.</span>
         </Card>
 
@@ -61,15 +68,40 @@ export function ContractDraftEditor({ contractId }: { contractId: string }) {
           ))}
         </Card>
 
-        <SectionHeading title="۳. بندهای توافقی" subtitle="راهنما را بخوانید، اما متن توافق واقعی را خودتان بنویسید" />
+        <SectionHeading title="۳. بندهای توافقی" subtitle="پیشنهاد مستند را با متن قانون تطبیق دهید؛ فقط در صورت انتخاب شما وارد بند می‌شود" />
         <div className="space-y-2.5">
-          {contract.clauses.map((clause, index) => (
-            <Card key={index} className="p-4">
-              <label htmlFor={`clause-${index}`} className="text-[12.5px] font-semibold text-primary">{clause.title}</label>
-              <p className="mt-1 text-[11px] leading-6 text-muted-foreground">راهنمای آموزشی (چاپ نمی‌شود): {clause.text}</p>
-              <Textarea id={`clause-${index}`} rows={3} value={draft.clauses[String(index)] ?? ''} onChange={(event) => change('clauses', String(index), event.target.value)} className="mt-2" placeholder="متن توافق‌شده را با مبلغ، تاریخ، مرجع یا پیوست واقعی بنویسید…" />
-            </Card>
-          ))}
+          {contract.clauses.map((clause, index) => {
+            const suggestions = suggestionsForClause(suggestionCatalog, contract.id, index);
+            return (
+              <Card key={index} className="p-4">
+                <label htmlFor={`clause-${index}`} className="text-[12.5px] font-semibold text-primary">{clause.title}</label>
+                <p className="mt-1 text-[11px] leading-6 text-muted-foreground">راهنمای آموزشی (چاپ نمی‌شود): {clause.text}</p>
+                {suggestions.length > 0 ? (
+                  <details className="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-3 text-[11.5px] leading-6">
+                    <summary className="flex cursor-pointer items-center gap-2 font-semibold text-primary"><BookOpen size={15} /> {isWorksheet ? 'پیشنهاد متن برای بررسی در کاربرگ' : 'پیشنهاد متن با مواد قانونی مرتبط'}</summary>
+                    <p className="mt-2 text-[11px] text-muted-foreground">متن و ماده‌ها را باز کنید و با شرایط واقعی و قانون روز بسنجید؛ این ارجاع‌ها خودکار در چاپ درج نمی‌شوند.</p>
+                    {suggestions.map((suggestion, suggestionIndex) => (
+                      <div key={suggestionIndex} className="mt-2 rounded-lg border bg-card p-3">
+                        <p className="whitespace-pre-wrap break-words leading-7">{suggestion.text}</p>
+                        <p className="mt-2 text-[10.5px] leading-5 text-muted-foreground">نکته بررسی: {suggestion.reason}</p>
+                        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                          {suggestionReferences(suggestionCatalog, suggestion).map((reference) => (
+                            <Link key={reference.id} href={`/article/${reference.id}`} target="_blank" rel="noopener noreferrer" className="text-[10.5px] font-medium text-primary underline underline-offset-2" aria-label={`مطالعه ماده ${toFaDigits(reference.number)} ${reference.lawTitle} در زبانه جدید`}>
+                              ماده {toFaDigits(reference.number)} {reference.lawTitle} ↗
+                            </Link>
+                          ))}
+                        </div>
+                        <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => insertSuggestion(index, suggestion.text)} disabled={draft.clauses[String(index)] === suggestion.text}>
+                          {draft.clauses[String(index)] === suggestion.text ? 'درج شد؛ جای‌خالی‌ها را تکمیل کنید' : 'درج و ویرایش در این بند'}
+                        </Button>
+                      </div>
+                    ))}
+                  </details>
+                ) : null}
+                <Textarea id={`clause-${index}`} rows={3} value={draft.clauses[String(index)] ?? ''} onChange={(event) => change('clauses', String(index), event.target.value)} className="mt-2" placeholder="متن توافق‌شده را با مبلغ، تاریخ، مرجع یا پیوست واقعی بنویسید…" />
+              </Card>
+            );
+          })}
           {draft.additions.map((item, index) => (
             <Card key={item.id} className="p-4">
               <div className="flex items-center justify-between gap-2">
