@@ -11,10 +11,10 @@ const config = configJson as DraftConfig;
 export default function DraftContractsPage() {
   return (
     <div className="app-container pb-10">
-      <SectionHeading title="قراردادنویس" subtitle="انتخاب نوع، ورود اطلاعات، نوشتن بندها و چاپ پیش‌نویس" />
+      <SectionHeading title="قراردادنویس" subtitle="ورود اطلاعات، پیشنهاد متن با مواد مرتبط، ویرایش بندها و چاپ" />
       <Card className="border-primary/20 bg-primary/5 p-4 text-[12px] leading-7">
         <FilePenLine size={20} className="mb-2 text-primary" />
-        از میان {CONTRACTS.length.toLocaleString('fa-IR')} عنوان یکی را انتخاب کنید. راهنماها متن آماده قرارداد نیستند؛ برای هر بند باید متن واقعی توافق خود را وارد کنید. فرم روی همین دستگاه باقی می‌ماند و با خروج از صفحه پاک می‌شود. چاپ، جای بازبینی حقوقی یا تشریفات رسمی را نمی‌گیرد.
+        از میان {CONTRACTS.length.toLocaleString('fa-IR')} عنوان یکی را انتخاب کنید. برای دو بند هر عنوان، پیشنهاد متنی همراه با پیوند ماده‌های مرتبط ارائه شده است؛ می‌توانید آن را آگاهانه درج و ویرایش کنید یا متن خودتان را بنویسید. جای‌خالی‌ها باید تکمیل شوند. فرم روی همین دستگاه باقی می‌ماند و با خروج از صفحه پاک می‌شود. استنادهای پیشنهادی، جای بازبینی حقوقی یا تشریفات رسمی را نمی‌گیرند.
       </Card>
       <div className="mt-5 space-y-5">
         {CONTRACT_TOPICS.map((topic) => {
