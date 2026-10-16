@@ -60,6 +60,12 @@ export function ContractWorkedExamples({ examples }: { examples: WorkedExample[]
                 <ul className="mt-1 list-inside list-disc space-y-1 text-[11.5px] leading-6 text-muted-foreground">
                   {example.review.map((item) => <li key={item}>{item}</li>)}
                 </ul>
+                {example.exercise ? (
+                  <details className="mt-4 rounded-xl border border-primary/20 p-3 text-[11.5px] leading-6">
+                    <summary className="cursor-pointer font-semibold text-primary">خودآزمایی: {example.exercise.question}</summary>
+                    <p className="mt-2 text-foreground">{example.exercise.answer}</p>
+                  </details>
+                ) : null}
                 {example.disclaimer ? <p className="mt-3 rounded-lg bg-amber-500/10 p-3 text-[11px] leading-6">{example.disclaimer}</p> : null}
                 <div className="mt-4 border-t pt-3 text-[11px] text-muted-foreground">
                   <p className="mb-2">قوانین مرتبط برای مطالعه (نه منبع این داستان فرضی):</p>

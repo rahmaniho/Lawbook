@@ -5,7 +5,9 @@ import fs from 'node:fs';
 const read = (name) => JSON.parse(fs.readFileSync(new URL(`../data/contracts/${name}`, import.meta.url), 'utf8'));
 const { topics, contracts } = read('contracts.json');
 const { guides, steps, comparisons } = read('education.json');
-const { examples } = read('case-studies.json');
+const { examples: originalExamples } = read('case-studies.json');
+const { examples: additionalExamples } = read('case-studies-additional.json');
+const examples = [...originalExamples, ...additionalExamples];
 const { laws } = JSON.parse(fs.readFileSync(new URL('../data/curated/catalog.json', import.meta.url), 'utf8'));
 
 test('هر نوع قرارداد، راهنمای مثال عملی و چک‌لیست اختصاصی دارد', () => {
@@ -38,11 +40,11 @@ test('مطالعه‌های موردی همه موضوع‌ها را پوشش م
     'هر نوع قرارداد باید دست‌کم یک مطالعه موردی داشته باشد');
   const contractsById = new Map(contracts.map((c) => [c.id, c]));
   const lawIds = new Set(laws.map((law) => law.id));
-  const representedTopics = new Set();
+  const counts = new Map(topics.map((topic) => [topic.id, 0]));
   for (const example of examples) {
     const contract = contractsById.get(example.contractId);
     assert.ok(contract, `${example.id}: نوع قرارداد نامعتبر`);
-    representedTopics.add(contract.topic);
+    counts.set(contract.topic, counts.get(contract.topic) + 1);
     assert.ok(example.title && example.situation.length > 30 && example.facts.length >= 2, `${example.id}: موقعیت ناکامل`);
     assert.ok(example.clauses.length >= 2 && example.clauses.every((cl) =>
       cl.heading && cl.wording.length > 70 && cl.rationale.length > 35 && !/\.{4,}/.test(cl.wording),
@@ -56,7 +58,20 @@ test('مطالعه‌های موردی همه موضوع‌ها را پوشش م
         example.payments.totalRials, `${example.id}: جمع مبالغ نادرست`);
     }
   }
-  assert.deepEqual([...representedTopics].sort(), topics.map((t) => t.id).sort(), 'همه موضوع‌ها مثال تکمیل‌شده ندارند');
+  for (const [topicId, count] of counts) {
+    assert.ok(count >= 10, `${topicId}: هر دسته باید دست‌کم ۱۰ مثال داشته باشد (فعلی: ${count})`);
+  }
+  assert.equal(additionalExamples.length, 39, 'مجموعه آموزشی جدید باید ۳۹ مثال متنوع داشته باشد');
+  assert.equal(new Set(additionalExamples.map((example) => example.title)).size, additionalExamples.length,
+    'عنوان مطالعه‌های تازه نباید تکراری باشد');
+  for (const example of additionalExamples) {
+    assert.ok(example.exercise?.question.length > 20 && example.exercise.answer.length > 30,
+      `${example.id}: پرسش و پاسخ آموزشی ناقص است`);
+    const topicId = contractsById.get(example.contractId).topic;
+    if (topicId === 'family' || topicId === 'real-estate') {
+      assert.ok(example.disclaimer?.length > 25, `${example.id}: هشدار موضوع حساس لازم است`);
+    }
+  }
 });
 
 test('نمونه SLA محاسبه درست و موضوعات حساس هشدار صریح دارند', () => {

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ArrowRight, BookOpen, FileText, Search } from 'lucide-react';
-import { CONTRACT_TOPICS, CONTRACTS, WORKED_EXAMPLES, getContractGuide, workedExamplesForContract } from '@/lib/contracts';
+import { CONTRACT_TOPICS, CONTRACTS, WORKED_EXAMPLES, getContractGuide, workedExamplesForContract, workedExamplesForTopic } from '@/lib/contracts';
 import { SectionHeading } from '@/components/bits';
 import { Card, Input } from '@/components/ui/primitives';
 import { normalizeForSearch } from '@/lib/fa';
@@ -43,6 +43,10 @@ export default function ContractsPage() {
         </span>
         <ArrowRight size={16} className="rotate-180 text-primary" />
       </Link>
+      <Link href="/contracts/examples" className="mt-2 flex items-center justify-between rounded-2xl border p-3 text-[12px] font-semibold text-primary hover:border-primary/40">
+        <span>مرور {toFaDigits(WORKED_EXAMPLES.length)} مثال واقع‌نما و پرسش‌های خودآزمایی</span>
+        <ArrowRight size={16} className="rotate-180" />
+      </Link>
       <p className="mt-3 text-[11px] leading-5 text-muted-foreground">مطالعه‌های موردی از موقعیت‌های رایج الهام گرفته‌اند، اما اشخاص، مبالغ و تاریخ‌ها ساختگی‌اند؛ فرم آماده امضا یا شرح پرونده واقعی نیستند. مقررات روز و مدارک را بررسی کنید.</p>
 
       <div className="sticky top-[var(--topbar-h)] z-20 -mx-4 space-y-2.5 bg-background/95 px-4 py-2.5 backdrop-blur">
@@ -53,7 +57,7 @@ export default function ContractsPage() {
         <div className="flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button onClick={() => setTopic('all')} className={'shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-all active:scale-95 ' + (topic === 'all' ? 'border-primary bg-primary text-primary-foreground shadow-card' : 'bg-card text-muted-foreground hover:border-primary/40')}>همه</button>
           {CONTRACT_TOPICS.map((t) => (
-            <button key={t.id} onClick={() => setTopic(t.id)} className={'shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-all active:scale-95 ' + (topic === t.id ? 'border-primary bg-primary text-primary-foreground shadow-card' : 'bg-card text-muted-foreground hover:border-primary/40')}>{t.title}</button>
+            <button key={t.id} onClick={() => setTopic(t.id)} aria-pressed={topic === t.id} className={'shrink-0 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-all active:scale-95 ' + (topic === t.id ? 'border-primary bg-primary text-primary-foreground shadow-card' : 'bg-card text-muted-foreground hover:border-primary/40')}>{t.title} · {toFaDigits(workedExamplesForTopic(t.id).length)} مثال</button>
           ))}
         </div>
       </div>
