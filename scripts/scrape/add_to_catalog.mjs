@@ -84,6 +84,7 @@ if (arg('checklist')) {
     item.laws = [...new Set([...(item.laws || []), id])];
   }
 }
+catalog.stats = catalog.stats || {};
 catalog.stats.lawCount = catalog.laws.length;
 
 fs.writeFileSync(CATALOG, JSON.stringify(catalog, null, 2) + '\n', 'utf8');
