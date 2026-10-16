@@ -283,7 +283,7 @@ export default function SettingsPage() {
       <p className="mt-6 text-center text-[10.5px] leading-5 text-muted-foreground">
         {catalog?.appName} — نسخه {toFaDigits(catalog?.appVersion ?? '1.0.0')}
         <br />
-        جمع‌آوری و تدوین: وکیل دادگستری، عضو رسمی کانون وکلای دادگستری قزوین • توسعه: کارن سافت
+        توسعه: کارن سافت
       </p>
     </div>
   );

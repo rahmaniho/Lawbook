@@ -1,6 +1,6 @@
 'use client';
 
-import { Database, ExternalLink, Heart, Landmark, Scale, ShieldCheck, Sparkles } from 'lucide-react';
+import { Database, ExternalLink, Heart, Landmark, ShieldCheck, Sparkles } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { Card } from '@/components/ui/primitives';
 import { SectionHeading } from '@/components/bits';
@@ -31,15 +31,6 @@ export default function AboutPage() {
       <SectionHeading title="اعتبار علمی و حقوقی" />
       <Card className="space-y-3 p-4">
         <div className="flex items-start gap-3">
-          <span className="rounded-xl bg-primary/10 p-2 text-primary">
-            <Scale size={18} />
-          </span>
-          <div>
-            <p className="text-[13px] font-semibold">{catalog.credits.legal.name}</p>
-            <p className="mt-0.5 text-[11.5px] leading-6 text-muted-foreground">{catalog.credits.legal.role}</p>
-          </div>
-        </div>
-        <div className="flex items-start gap-3 border-t pt-3">
           <span className="rounded-xl bg-primary/10 p-2 text-primary">
             <Heart size={18} />
           </span>
