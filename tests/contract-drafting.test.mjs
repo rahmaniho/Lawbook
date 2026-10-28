@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { BASIC_FIELDS, draftFields, emptyDraft, hasUnresolvedPrompt, prepareDraft, suggestionReferences, suggestionsForClause } from '../src/lib/contract-drafting';
+import { BASIC_FIELDS, contextualFieldLabel, draftFields, emptyDraft, hasUnresolvedPrompt, prepareDraft, suggestionReferences, suggestionsForClause } from '../src/lib/contract-drafting';
 
 const read = (name) => JSON.parse(fs.readFileSync(new URL(`../data/contracts/${name}`, import.meta.url), 'utf8'));
 const { contracts, topics } = read('contracts.json');
@@ -14,12 +14,17 @@ test('فرم برای همه ۳۰ نوع و ۷ دسته تعریف شده و ف�
   assert.equal(contracts.length, 30);
   assert.deepEqual(sorted(Object.keys(config.contractFields)), sorted(contracts.map(({ id }) => id)));
   assert.deepEqual(sorted(Object.keys(config.topicFields)), sorted(topics.map(({ id }) => id)));
+  assert.deepEqual(sorted(Object.keys(config.topicReviews)), sorted(topics.map(({ id }) => id)));
+  for (const topic of topics) {
+    assert.equal(config.topicReviews[topic.id].length, 3, `${topic.id}: چک‌لیست تخصصی ناقص است`);
+    assert.ok(config.topicReviews[topic.id].every((point) => point.length > 100));
+  }
   assert.equal(new Set(BASIC_FIELDS.map((field) => field.id)).size, BASIC_FIELDS.length);
   for (const contract of contracts) {
     const fields = draftFields(config, contract);
     assert.ok(fields.length >= 3, `${contract.id}: جزئیات اختصاصی ناکافی است`);
     assert.equal(new Set(fields.map((field) => field.id)).size, fields.length, `${contract.id}: شناسه فیلد تکراری است`);
-    assert.ok(fields.every((field) => field.id && field.label && field.hint?.length >= 15), `${contract.id}: فیلد ناقص است`);
+    assert.ok(fields.every((field) => field.id && field.label && field.hint?.length >= 70), `${contract.id}: فیلد اختصاصی یا راهنمای تخصصی ناقص است`);
   }
   const official = Object.keys(config.formalWorkbooks);
   assert.equal(official.length, 9);
@@ -69,8 +74,9 @@ test('بند افزوده ناقص اجازه چاپ از دکمه را نمی�
   assert.match(preview.formalNotice, /سند نکاح نیست/);
 });
 
-test('هر قرارداد دو پیشنهاد اختصاصی برای بندهای معتبر و ارجاع به متن موجود ماده دارد', () => {
+test('هر ۱۷۷ سرفصل، متن مستقل و قابل تکمیل دارد؛ ارجاع تنها برای بندهای دارای منبع مشخص است', () => {
   assert.deepEqual(sorted(Object.keys(suggestionCatalog.suggestions)), sorted(contracts.map(({ id }) => id)));
+  assert.deepEqual(sorted(Object.keys(suggestionCatalog.introductions)), sorted(contracts.map(({ id }) => id)));
   const version = JSON.parse(fs.readFileSync(new URL('../public/data/version.json', import.meta.url), 'utf8'));
   const laws = new Map(version.laws.map((law) => [law.id, law]));
   const referencedArticles = new Set();
@@ -81,19 +87,30 @@ test('هر قرارداد دو پیشنهاد اختصاصی برای بندها
       for (const article of content.articles) if (article.text?.trim()) referencedArticles.add(article.id);
     }
   }
+  const allTexts = new Set();
+  let total = 0;
   for (const contract of contracts) {
     const suggestions = suggestionCatalog.suggestions[contract.id];
-    assert.equal(suggestions.length, 2, `${contract.id}: برای هر نوع دو پیشنهاد لازم است`);
-    assert.equal(new Set(suggestions.map((item) => item.clauseIndex)).size, suggestions.length);
+    assert.ok(suggestionCatalog.introductions[contract.id].length > 120, `${contract.id}: معرفی تخصصی ناقص است`);
+    assert.equal(suggestions.length, contract.clauses.length, `${contract.id}: پوشش همه بندها لازم است`);
+    assert.deepEqual(suggestions.map((item) => item.clauseIndex), contract.clauses.map((_, index) => index));
+    assert.equal(suggestions.filter((item) => item.articleIds.length > 0).length, 2, `${contract.id}: ارجاع‌های موجود باید حفظ شوند، نه برای پرکردن پوشش جعل شوند`);
     for (const suggestion of suggestions) {
-      assert.ok(contract.clauses[suggestion.clauseIndex], `${contract.id}: سرفصل نامعتبر`);
-      assert.ok(suggestion.text.length > 75 && suggestion.reason.length > 25, `${contract.id}: پیشنهاد مبهم`);
-      assert.ok(suggestion.articleIds.length > 0, `${contract.id}: بدون ارجاع`);
-      assert.ok(suggestion.articleIds.every((id) => referencedArticles.has(id)), `${contract.id}: ماده موجود نیست`);
+      total++;
+      assert.ok(suggestion.text.length > 200 && suggestion.reason.length > 40, `${contract.id}: متن یا محور کنترل سطحی است`);
+      assert.ok(hasUnresolvedPrompt(suggestion.text), `${contract.id}: داده واقعی باید تکمیل شود`);
+      assert.equal((suggestion.text.match(/⟦/g) ?? []).length, (suggestion.text.match(/⟧/g) ?? []).length, `${contract.id}: نشانگر ناقص`);
+      assert.ok(!allTexts.has(suggestion.text), `${contract.id}: متن تکراری است`);
+      allTexts.add(suggestion.text);
+      assert.ok(suggestion.articleIds.every((id) => referencedArticles.has(id)), `${contract.id}: شناسه ماده وجود ندارد`);
       assert.ok(suggestionReferences(suggestionCatalog, suggestion).every((ref) => ref.lawTitle && ref.number));
-      assert.ok(suggestionsForClause(suggestionCatalog, contract.id, suggestion.clauseIndex).includes(suggestion));
+      assert.deepEqual(suggestionsForClause(suggestionCatalog, contract.id, suggestion.clauseIndex), [suggestion]);
+      if (config.formalWorkbooks[contract.id]) {
+        assert.ok(suggestion.text.startsWith('برای بررسی'), `${contract.id}: متن کاربرگ نباید شرط اجرایی قرارداد جلوه کند`);
+      }
     }
   }
+  assert.equal(total, 177);
 });
 
 test('پیشنهاد تنها پس از درج آگاهانه وارد متن می‌شود و تا تکمیل جای‌خالی چاپ فعال نیست', () => {
@@ -114,4 +131,23 @@ test('پیشنهاد تنها پس از درج آگاهانه وارد متن م
   assert.equal(revised.printable, true);
   assert.equal(revised.clauses[0].text, input.clauses[String(suggestion.clauseIndex)]);
   assert.ok(!JSON.stringify(revised).includes(suggestion.articleIds[0]), 'ارجاع مطالعه نباید خودکار تبدیل به بند شود');
+});
+
+test('نقش طرفین در فرم و چاپ یکسان است و جای‌خالی در هر بخش چاپ را متوقف می‌کند', () => {
+  const contract = contracts.find(({ id }) => id === 'civil-sale-movable');
+  const input = emptyDraft();
+  input.basics = { partyOne: 'الف', partyTwo: 'ب', subject: 'میز ⟦نوع⟧' };
+  input.details = { description: 'مال مشخص' };
+  input.clauses = { 0: 'فروش مال مشخص با مشخصات پیوست' };
+  assert.match(contextualFieldLabel(contract, 'partyOne', BASIC_FIELDS[0].label), /فروشنده/);
+  assert.match(prepareDraft(config, contract, input).basics[0].label, /فروشنده/);
+  assert.equal(prepareDraft(config, contract, input).printable, false);
+  input.basics.subject = 'میز مشخص';
+  input.details.description = 'مال ⟦وضعیت⟧';
+  assert.equal(prepareDraft(config, contract, input).printable, false);
+  input.details.description = 'میز چوبی';
+  input.additions = [{ id: 'extra-1', title: 'تعهد ⟦عنوان⟧', text: 'متن واقعی' }];
+  assert.equal(prepareDraft(config, contract, input).printable, false);
+  input.additions[0].title = 'تعهد تکمیلی';
+  assert.equal(prepareDraft(config, contract, input).printable, true);
 });
