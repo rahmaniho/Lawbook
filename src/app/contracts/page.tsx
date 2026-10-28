@@ -37,7 +37,7 @@ export default function ContractsPage() {
 
       <Link href="/contracts/draft" className="mt-3 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10">
         <FilePenLine size={22} className="shrink-0 text-primary" />
-        <span className="flex-1"><span className="block text-[13px] font-semibold">قراردادنویس</span><span className="mt-1 block text-[11px] leading-5 text-muted-foreground">انتخاب نوع، ورود اطلاعات، نوشتن بندها و چاپ پیش‌نویس</span></span>
+        <span className="flex-1"><span className="block text-[13px] font-semibold">قراردادنویس تخصصی</span><span className="mt-1 block text-[11px] leading-5 text-muted-foreground">متن اختصاصی برای هر بند، کنترل حقوقی و پیش‌نویس یا کاربرگِ قابل بازبینی</span></span>
         <ArrowRight size={16} className="rotate-180 text-primary" />
       </Link>
       <Link href="/contracts/guide" className="mt-2 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 transition-colors hover:bg-primary/10">
