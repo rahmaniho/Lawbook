@@ -46,6 +46,7 @@ export default function HomePage() {
         <QuickLink href="/cases" icon={<Gavel size={18} />} title="آراء قضایی" />
         <QuickLink href="/calculator/inheritance" icon={<Calculator size={18} />} title="محاسبه‌گر ارث" />
         <QuickLink href="/calculator/diyyeh" icon={<Calculator size={18} />} title="محاسبه‌گر دیه" />
+        <QuickLink href="/calculator/late-payment" icon={<Calculator size={18} />} title="خسارت تأخیر تأدیه" />
         <QuickLink href="/coverage" icon={<FileCheck2 size={18} />} title="پوشش داده‌ها" />
         <QuickLink href="/contracts" icon={<FileText size={18} />} title="آموزش قرارداد نویسی" />
         <QuickLink href="/contracts/draft" icon={<FilePenLine size={18} />} title="قراردادنویس" />

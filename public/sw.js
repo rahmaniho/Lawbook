@@ -11,7 +11,7 @@
  * آدرس سرویس‌ورکر استخراج می‌شود تا هم برای استقرار در ریشه و هم زیر /Lawbook
  * درست کار کند.
  */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL_CACHE = `ghanoun-shell-${VERSION}`;
 const ASSET_CACHE = `ghanoun-assets-${VERSION}`;
 const DATA_CACHE = `ghanoun-data-${VERSION}`;
@@ -29,6 +29,7 @@ const OFFLINE_URL = u('/offline/');
 
 const SHELL_ROUTES = [
   '/', '/laws/', '/exam/', '/search/', '/bookmarks/', '/settings/', '/about/', '/offline/', '/coverage/',
+  '/calculator/inheritance/', '/calculator/diyyeh/', '/calculator/late-payment/',
 ].map(u);
 
 self.addEventListener('install', (event) => {
