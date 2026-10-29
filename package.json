@@ -40,6 +40,7 @@
     "dexie-react-hooks": "^1.1.7",
     "framer-motion": "^11.11.17",
     "fuse.js": "^7.0.0",
+    "jalaali-js": "1.2.8",
     "lucide-react": "^0.454.0",
     "minisearch": "^7.2.0",
     "next": "14.2.33",
@@ -52,6 +53,7 @@
     "zustand": "^5.0.1"
   },
   "devDependencies": {
+    "@types/jalaali-js": "1.2.0",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

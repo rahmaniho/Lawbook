@@ -6,7 +6,7 @@ import path from 'node:path';
 
 import {
   amountForInput, calculateLatePayment, formatAmountRial, formatIranianMonth,
-  parseAmountRial, parseIranianMonth, MAX_PARTIAL_PAYMENTS,
+  parseAmountRial, parseIranianDate, parseIranianMonth, MAX_PARTIAL_PAYMENTS,
 } from '../src/lib/calc/late-payment';
 
 const form = (overrides = {}) => ({
@@ -62,6 +62,9 @@ test('ماه شمسی نرمال می‌شود ولی روز یا ماه نام�
   assert.equal(parseIranianMonth(' ۱۴۰۳ / ۷ '), '1403/07');
   assert.equal(parseIranianMonth('١٤٠٣-07'), '1403/07');
   assert.equal(formatIranianMonth('1403/07'), '۱۴۰۳/۰۷');
+  assert.deepEqual(parseIranianDate('۱۴۰۳۰۱۱۵'), { month: '1403/01', day: 15, label: '1403/01/15' });
+  assert.equal(parseIranianMonth('۱۴۰۳۰۱'), '1403/01');
+  assert.equal(parseIranianDate('۱۴۰۳-۱۲-۳۰')?.label, '1403/12/30'); // سال ۱۴۰۳ کبیسه است
   for (const invalid of ['1403/00', '1403/13', '1403/01/15', '1403', '1403-0', '130/01', '1500/01']) {
     assert.equal(parseIranianMonth(invalid), null, invalid);
   }
@@ -69,10 +72,51 @@ test('ماه شمسی نرمال می‌شود ولی روز یا ماه نام�
   fails({ settlementMonth: '1400/11' }, /پیش از ماه مبدأ/);
 });
 
+test('تاریخ کامل شمسی به ماه شاخص تبدیل می‌شود و ترتیب روزها نیز کنترل می‌شود', () => {
+  const r = result({
+    dueMonth: '۱۴۰۳/۰۱/۰۱', demandMonth: '۱۴۰۳/۰۱/۱۵',
+    settlementMonth: '۱۴۰۳/۰۵/۰۱',
+  });
+  assert.equal(r.startMonth, '1403/01');
+  assert.equal(r.startDate, '1403/01/15');
+  assert.equal(r.settlementDate, '1403/05/01');
+  assert.equal(r.dueRial, 2000n);
+  fails({ dueMonth: '1403/01/20', demandMonth: '1403/01/10' }, /پیش از سررسید/);
+  fails({ demandMonth: '1403/01/20', settlementMonth: '1403/01/10' }, /پیش از.*مبدأ/);
+  fails({ dueMonth: '1404/12/30', demandMonth: '1405/01/01' }, /سررسید/);
+  assert.equal(parseIranianDate('1404/12/30'), null);
+  assert.equal(parseIranianDate('1403/07/31'), null);
+  assert.equal(result({ dueMonth: '1403/12/30', demandMonth: '1404/01/01', settlementMonth: '1404/02/01' }).startMonth, '1404/01');
+  assert.equal(result({ dueMonth: '۱۴۰۳۰۱۰۱', demandMonth: '۱۴۰۳۰۱۱۵', settlementMonth: '۱۴۰۳۰۵۰۱' }).dueRial, 2000n);
+});
+
+test('پرداخت هم‌ماه با مبدأ/مقصد، شاخص همان ماه را بدون ورود دوباره می‌گیرد', () => {
+  const a = result({ payments: [{ month: '1401/02', amount: '200', index: '' }] });
+  assert.equal(a.dueRial, 1600n);
+  assert.equal(a.steps[0].index, '100');
+  const b = result({ payments: [{ month: '1402/01', amount: '500', index: '' }] });
+  assert.equal(b.dueRial, 1500n);
+  assert.equal(b.steps[0].index, '200');
+  fails({ payments: [{ month: '1401/08', amount: '10', index: '' }] }, /شاخص پرداخت شماره/);
+});
+
+test('پرداخت قبل از مبدأ یا بعد از محاسبه در همان ماه با روز دقیق رد می‌شود', () => {
+  fails({
+    kind: 'judgment', orderedMonth: '1401/02/20', settlementMonth: '1401/03/05',
+    payments: [{ month: '1401/02/10', amount: '10', index: '100' }],
+  }, /بین مبدأ و ماه محاسبه/);
+  fails({
+    kind: 'judgment', orderedMonth: '1401/02/01', settlementMonth: '1401/03/05',
+    payments: [{ month: '1401/03/10', amount: '10', index: '200' }],
+  }, /بین مبدأ و ماه محاسبه/);
+});
+
 test('ریالِ صحیح، تومانِ یک‌دهمی، ارقام فارسی/عربی و جداکنندهٔ هزارگان دقیق‌اند', () => {
   assert.equal(parseAmountRial('۱٬۲۳۴٬۵۶۷٫۱', 'toman'), 12_345_671n);
   assert.equal(parseAmountRial('١,٢٣٤,٥٦٧.١', 'toman'), 12_345_671n);
   assert.equal(parseAmountRial('1,234', 'rial'), 1234n);
+  assert.equal(parseAmountRial('۱ ۰۰۰ ۰۰۰', 'toman'), 10_000_000n);
+  assert.equal(parseAmountRial('۱\u202f۰۰۰\u202f۰۰۰', 'rial'), 1_000_000n);
   assert.equal(amountForInput(12_345_671n, 'toman'), '1234567.1');
   assert.equal(amountForInput(12_345_671n, 'rial'), '12345671');
   assert.equal(formatAmountRial(12_345_671n, 'toman'), '۱٬۲۳۴٬۵۶۷٫۱ تومان');
@@ -84,6 +128,37 @@ test('ریالِ صحیح، تومانِ یک‌دهمی، ارقام فارسی
   fails({ principal: '-10' }, /اصل دین/);
   fails({ principal: '0' }, /اصل دین/);
   assert.equal(result({ unit: 'toman', principal: '۱۰٫۱', startIndex: '100', endIndex: '100' }).dueRial, 101n);
+});
+
+test('ورودی رایجِ تاریخ کامل و مبلغ فاصله‌دار بدون دادهٔ حدسی خروجی درست می‌دهد', () => {
+  const r = result({
+    unit: 'toman', principal: '۱ ۰۰۰ ۰۰۰',
+    dueMonth: '۱۴۰۳/۰۱/۰۱', demandMonth: '۱۴۰۳/۰۱/۱۵', settlementMonth: '۱۴۰۳/۰۵/۰۱',
+    baseYear: '۱۴۰۰', startIndex: '۱۰۰', endIndex: '۱۵۰',
+  });
+  assert.equal(r.principalRial, 10_000_000n);
+  assert.equal(r.dueRial, 15_000_000n);
+  assert.equal(r.damageRial, 5_000_000n);
+  assert.equal(r.datePrecisionWarning, false);
+});
+
+test('خطاها به فیلد دقیق نسبت داده می‌شوند؛ مبهم‌بودن روز در ماه مشترک هشدار دارد', () => {
+  const bad = calculateLatePayment(form({
+    principal: '1,23', dueMonth: '1401/02/20', demandMonth: '1401/02/10',
+    settlementMonth: '1401/02/05',
+  }));
+  assert.equal(bad.ok, false);
+  assert.ok(bad.fieldErrors.principal);
+  assert.ok(bad.fieldErrors.demandMonth);
+  const a = result({ dueMonth: '1401/02', demandMonth: '1401/02', settlementMonth: '1401/02', endIndex: '100' });
+  assert.equal(a.datePrecisionWarning, true);
+  const b = result({ dueMonth: '1401/02/02', demandMonth: '1401/02/04', settlementMonth: '1401/02/11', endIndex: '100' });
+  assert.equal(b.datePrecisionWarning, false);
+  const c = result({ payments: [
+    { month: '1401/08', amount: '10', index: '150' },
+    { month: '1401/08/15', amount: '10', index: '150' },
+  ] });
+  assert.equal(c.datePrecisionWarning, true, 'روزِ یکی از دو پرداخت هم‌ماه نامعلوم است');
 });
 
 test('شاخص‌ها عدد مثبت‌اند؛ درصد، ممیز بیش از شش رقم و تقسیم بر صفر مجاز نیست', () => {
@@ -136,8 +211,12 @@ test('پرداخت جزئی از دینِ شاخص‌خوردهٔ همان ما�
   assert.deepEqual([r.steps[0].beforeRial, r.steps[0].paidRial, r.steps[0].afterRial], [1500n, 300n, 1200n]);
   assert.equal(r.paidRial, 300n);
   assert.equal(r.dueRial, 1600n); // ۸۰۰ ریال از اصل هنوز تسویه نشده، × ۲
+  assert.equal(r.remainingPrincipalRial, 800n);
+  assert.equal(r.remainingDamageRial, 800n);
+  assert.equal(r.paidDamageRial, 100n);
   assert.equal(r.totalRial, 1900n);
   assert.equal(r.damageRial, 900n);
+  assert.equal(r.paidDamageRial + r.remainingDamageRial, r.damageRial);
 });
 
 test('چند پرداخت نامرتب زمانی مرتب می‌شوند؛ تسویه کامل خسارت بعدی تولید نمی‌کند', () => {
@@ -152,6 +231,30 @@ test('چند پرداخت نامرتب زمانی مرتب می‌شوند؛ ت�
   const full = result({ payments: [{ month: '1401/08', amount: '1500', index: '150' }] });
   assert.equal(full.dueRial, 0n);
   assert.equal(full.damageRial, 500n);
+});
+
+test('پرداخت‌های یک ماه با روز معلوم به ترتیب واقعی پردازش می‌شوند', () => {
+  const r = result({
+    kind: 'judgment', orderedMonth: '1401/02/01', settlementMonth: '1401/03/20', endIndex: '150',
+    payments: [
+      { month: '1401/03/15', amount: '5', index: '' },
+      { month: '1401/03/05', amount: '7', index: '' },
+    ],
+  });
+  assert.deepEqual(r.steps.map((step) => step.date), ['1401/03/05', '1401/03/15']);
+  assert.equal(r.dueRial, 1488n);
+  assert.equal(r.steps[0].index, '150');
+  const mixed = result({
+    kind: 'judgment', orderedMonth: '1401/02/01', settlementMonth: '1401/03/20', endIndex: '150',
+    payments: [
+      { month: '1401/03/15', amount: '5', index: '' },
+      { month: '1401/03', amount: '5', index: '' },
+      { month: '1401/03/05', amount: '5', index: '' },
+    ],
+  });
+  assert.deepEqual(mixed.steps.map((step) => step.date), ['1401/03/05', '1401/03/15', '1401/03']);
+  assert.equal(mixed.datePrecisionWarning, true);
+  assert.equal(mixed.dueRial, 1485n);
 });
 
 test('در نوسان نزولی نیز پرداخت به اصلِ بدهی بیش از سهم واقعی اعتبار نمی‌دهد', () => {
