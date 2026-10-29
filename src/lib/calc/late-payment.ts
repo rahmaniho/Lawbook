@@ -68,6 +68,8 @@ export type LatePaymentOutcome =
   | { ok: false; errors: string[]; fieldErrors: Record<string, string> };
 
 export const MAX_PARTIAL_PAYMENTS = 20;
+export const JALALI_MIN_YEAR = 1300;
+export const JALALI_MAX_YEAR = 1499;
 
 interface Fraction { n: bigint; d: bigint }
 const ONE: Fraction = { n: 1n, d: 1n };
@@ -109,7 +111,7 @@ export function parseIranianDate(value: string): IranianDate | null {
   const year = Number(match[1]);
   const month = Number(match[2]);
   const day = match[3] === undefined ? null : Number(match[3]);
-  if (year < 1300 || year > 1499 || !jalaali.isValidJalaaliDate(year, month, day ?? 1)) return null;
+  if (year < JALALI_MIN_YEAR || year > JALALI_MAX_YEAR || !jalaali.isValidJalaaliDate(year, month, day ?? 1)) return null;
   const normalizedMonth = `${year}/${String(month).padStart(2, '0')}`;
   return { month: normalizedMonth, day, label: day === null ? normalizedMonth : `${normalizedMonth}/${String(day).padStart(2, '0')}` };
 }

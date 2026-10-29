@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ArrowRight, Calculator, CircleHelp, Info, Plus, RotateCcw, Scale, ShieldAlert, Trash2, TriangleAlert } from 'lucide-react';
 import { Button, Card, Input, Segmented } from '@/components/ui/primitives';
 import { SectionHeading } from '@/components/bits';
+import { DateInput, MoneyInput } from './form-fields';
+import { formatMoneyInput } from '@/lib/calc/late-payment-input';
 import {
   amountForInput, calculateLatePayment, compareIranianDates, formatAmountRial, formatIranianDate, formatIranianMonth,
   MAX_PARTIAL_PAYMENTS, parseAmountRial, parseIranianDate,
@@ -43,7 +45,7 @@ export default function LatePaymentPage() {
       const converted = (raw: string) => {
         if (!raw.trim()) return '';
         const rial = parseAmountRial(raw, prev.unit);
-        return rial === null ? raw : amountForInput(rial, unit);
+        return rial === null ? raw : formatMoneyInput(amountForInput(rial, unit));
       };
       return {
         ...prev, unit,
@@ -93,7 +95,7 @@ export default function LatePaymentPage() {
       </section>
 
       <form onSubmit={submit} noValidate>
-        <SectionHeading title="۱. نوع مطالبه و تاریخ‌های شمسی" subtitle="تاریخ ۱۴۰۳/۰۱/۱۵ یا ۱۴۰۳۰۱۱۵ را وارد کنید؛ اگر روز معلوم نیست، ماهِ ۱۴۰۳/۰۱ یا ۱۴۰۳۰۱ کافی است." />
+        <SectionHeading title="۱. نوع مطالبه و تاریخ‌های شمسی" subtitle="۸ رقم مانند ۱۴۰۵۰۱۰۱ تایپ کنید تا ۱۴۰۵/۰۱/۰۱ درج شود، یا تاریخ را از تقویم شمسی برگزینید؛ ماهِ بدون روز هم پذیرفته است." />
         <Card className="space-y-4 p-4">
           <div>
             <p className="mb-2 text-[11.5px] font-medium">مبنای حقوقی مبدأ</p>
@@ -113,24 +115,24 @@ export default function LatePaymentPage() {
           {form.kind === 'ordinary' ? (
             <div className="grid grid-cols-1 gap-3 xs:grid-cols-2">
               <Field label="تاریخ یا ماه سررسید دین" htmlFor="due-month" error={fieldErrors.dueMonth}>
-                <DateInput id="due-month" value={form.dueMonth} error={fieldErrors.dueMonth} onChange={(v) => change('dueMonth', v)} />
+                <DateInput id="due-month" label="تاریخ یا ماه سررسید دین" value={form.dueMonth} error={fieldErrors.dueMonth} onChange={(v) => change('dueMonth', v)} />
               </Field>
               <Field label="تاریخ یا ماه مطالبهٔ مستند" htmlFor="demand-month" error={fieldErrors.demandMonth}>
-                <DateInput id="demand-month" value={form.demandMonth} error={fieldErrors.demandMonth} onChange={(v) => change('demandMonth', v)} />
+                <DateInput id="demand-month" label="تاریخ یا ماه مطالبهٔ مستند" value={form.demandMonth} error={fieldErrors.demandMonth} onChange={(v) => change('demandMonth', v)} />
               </Field>
             </div>
           ) : form.kind === 'check' ? (
             <Field label="تاریخ مندرج در چک" htmlFor="check-month" error={fieldErrors.checkMonth}>
-              <DateInput id="check-month" value={form.checkMonth} error={fieldErrors.checkMonth} onChange={(v) => change('checkMonth', v)} />
+              <DateInput id="check-month" label="تاریخ مندرج در چک" value={form.checkMonth} error={fieldErrors.checkMonth} onChange={(v) => change('checkMonth', v)} />
             </Field>
           ) : (
             <Field label="مبدأ مقرر در رأی / اجراییه" htmlFor="ordered-month" error={fieldErrors.orderedMonth}>
-              <DateInput id="ordered-month" value={form.orderedMonth} error={fieldErrors.orderedMonth} onChange={(v) => change('orderedMonth', v)} />
+              <DateInput id="ordered-month" label="مبدأ مقرر در رأی / اجراییه" value={form.orderedMonth} error={fieldErrors.orderedMonth} onChange={(v) => change('orderedMonth', v)} />
             </Field>
           )}
 
           <Field label="تاریخ پرداخت یا برآورد" htmlFor="settlement-month" error={fieldErrors.settlementMonth}>
-            <DateInput id="settlement-month" value={form.settlementMonth} error={fieldErrors.settlementMonth} onChange={(v) => change('settlementMonth', v)} />
+            <DateInput id="settlement-month" label="تاریخ پرداخت یا برآورد" value={form.settlementMonth} error={fieldErrors.settlementMonth} onChange={(v) => change('settlementMonth', v)} />
           </Field>
           {startDate ? (
             <p className="rounded-xl bg-primary/10 px-3 py-2 text-[11.5px] leading-6 text-primary">
@@ -155,14 +157,10 @@ export default function LatePaymentPage() {
             <p className="mt-1 text-[10px] text-muted-foreground">تعویض واحد، ارزش مبلغ واردشده را حفظ می‌کند.</p>
           </div>
           <Field label={`اصل دین (${unitName})`} htmlFor="principal" error={fieldErrors.principal}>
-            <Input
-              id="principal" dir="ltr" inputMode="decimal" autoComplete="off" maxLength={38}
-              className="text-left tabular-nums" value={form.principal}
-              aria-invalid={Boolean(fieldErrors.principal)} aria-describedby={fieldErrors.principal ? 'principal-error' : undefined}
-              onChange={(e) => change('principal', e.target.value)} placeholder="۱۰۰٬۰۰۰٬۰۰۰"
-            />
+            <MoneyInput id="principal" value={form.principal} error={fieldErrors.principal}
+              onChange={(v) => change('principal', v)} placeholder="۱۰۰٬۰۰۰٬۰۰۰" />
           </Field>
-          <p className="text-[10.5px] leading-5 text-muted-foreground">عدد را با ارقام فارسی/انگلیسی، ویرگول یا فاصلهٔ سه‌رقمی وارد کنید؛ تومان تا یک رقم اعشار (یک ریال) پذیرفته می‌شود. واحد را پیش از ورود مبلغ بررسی کنید.</p>
+          <p className="text-[10.5px] leading-5 text-muted-foreground">هنگام تایپ، مبلغ به‌طور خودکار سه‌رقمی جدا می‌شود (مثلاً ۱۰۰۰۰۰۰ ← ۱٬۰۰۰٬۰۰۰). ارقام فارسی/انگلیسی و چسباندن مبلغ گروه‌بندی‌شده هم پذیرفته است؛ تومان تا یک رقم اعشار (یک ریال) دارد. واحد را پیش از ورود مبلغ بررسی کنید.</p>
           <div className="border-t pt-4">
             <Field label="سال پایهٔ مشترکِ جدول شاخص‌ها" htmlFor="base-year" error={fieldErrors.baseYear}>
               <Input
@@ -222,16 +220,11 @@ export default function LatePaymentPage() {
                     </div>
                     <div className="grid grid-cols-1 gap-2 xs:grid-cols-2">
                       <Field label="تاریخ یا ماه پرداخت" htmlFor={`paid-month-${p.id}`} error={fieldErrors[`payments.${i}.month`]}>
-                        <DateInput id={`paid-month-${p.id}`} value={p.month} error={fieldErrors[`payments.${i}.month`]} onChange={(v) => updatePayment(p.id, 'month', v)} />
+                        <DateInput id={`paid-month-${p.id}`} label={`تاریخ یا ماه پرداخت ${toFaDigits(i + 1)}`} value={p.month} error={fieldErrors[`payments.${i}.month`]} onChange={(v) => updatePayment(p.id, 'month', v)} />
                       </Field>
                       <Field label={`مبلغ پرداختی (${unitName})`} htmlFor={`paid-amount-${p.id}`} error={fieldErrors[`payments.${i}.amount`]}>
-                        <Input
-                          id={`paid-amount-${p.id}`} dir="ltr" inputMode="decimal" autoComplete="off"
-                          className="text-left tabular-nums" maxLength={38} placeholder="مثلاً ۱۰٬۰۰۰٬۰۰۰"
-                          aria-invalid={Boolean(fieldErrors[`payments.${i}.amount`])}
-                          aria-describedby={fieldErrors[`payments.${i}.amount`] ? `paid-amount-${p.id}-error` : undefined}
-                          value={p.amount} onChange={(e) => updatePayment(p.id, 'amount', e.target.value)}
-                        />
+                        <MoneyInput id={`paid-amount-${p.id}`} value={p.amount} error={fieldErrors[`payments.${i}.amount`]}
+                          placeholder="مثلاً ۱۰٬۰۰۰٬۰۰۰" onChange={(v) => updatePayment(p.id, 'amount', v)} />
                       </Field>
                     </div>
                     <div className="mt-2">
@@ -360,17 +353,6 @@ function Field({ label, htmlFor, children, error }: { label: string; htmlFor: st
       {children}
       {error ? <p id={`${htmlFor}-error`} className="mt-1 text-[10.5px] leading-5 text-destructive">{error}</p> : null}
     </div>
-  );
-}
-
-function DateInput({ id, value, onChange, error }: { id: string; value: string; onChange: (v: string) => void; error?: string }) {
-  return (
-    <Input
-      id={id} dir="ltr" inputMode="numeric" autoComplete="off" maxLength={10}
-      className="text-left tabular-nums" placeholder="۱۴۰۳/۰۱/۱۵" value={value}
-      aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined}
-      onChange={(e) => onChange(e.target.value)}
-    />
   );
 }
 
