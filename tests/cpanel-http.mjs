@@ -7,6 +7,12 @@ import { spawn, execFileSync } from 'node:child_process';
 import { once } from 'node:events';
 import net from 'node:net';
 
+process.on('uncaughtException', (error) => {
+  const message = (error.stack ?? String(error)).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+  console.error(`::error title=PHP MySQL integration::${message}`);
+  process.exit(1);
+});
+
 if (process.env.LAWBOOK_TEST_DATABASE !== 'disposable') throw Error('Requires explicit disposable database opt-in');
 const root = path.resolve(import.meta.dirname, '..');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'lawbook-http-'));
