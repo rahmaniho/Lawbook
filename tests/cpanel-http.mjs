@@ -23,7 +23,8 @@ fs.cpSync(path.join(root, 'deploy/cpanel/private'), priv, { recursive: true });
 const helper = `$db=new PDO(getenv('TEST_MYSQL_DSN'),getenv('TEST_MYSQL_USER'),getenv('TEST_MYSQL_PASSWORD'),[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]); $db->exec("SET time_zone = '+00:00'");`;
 const sql = (query) => JSON.parse(execFileSync('php', ['-r', helper + ' $q=$db->query($argv[1]); echo json_encode($q->columnCount() ? $q->fetchAll(PDO::FETCH_ASSOC) : []);', query], { encoding: 'utf8' }));
 execFileSync('php', ['-r', helper + ' $db->exec(file_get_contents($argv[1]));', path.join(priv, 'schema.sql')]);
-fs.writeFileSync(path.join(priv, 'config.php'), `<?php return ['dsn'=>getenv('TEST_MYSQL_DSN'),'db_user'=>getenv('TEST_MYSQL_USER'),'db_password'=>getenv('TEST_MYSQL_PASSWORD'),'rate_limit_secret'=>'isolated-ci-test-secret-32-chars-minimum','sales_enabled'=>true,'site_name'=>'Test','payment_instructions'=>'Test','support_contact'=>'Test','allow_http_local'=>true];`);
+fs.writeFileSync(path.join(priv, 'test-dsn.txt'), process.env.TEST_MYSQL_DSN);
+fs.writeFileSync(path.join(priv, 'config.php'), `<?php return ['dsn'=>trim(file_get_contents(__DIR__.'/test-dsn.txt')),'db_user'=>getenv('TEST_MYSQL_USER'),'db_password'=>getenv('TEST_MYSQL_PASSWORD'),'rate_limit_secret'=>'isolated-ci-test-secret-32-chars-minimum','sales_enabled'=>true,'site_name'=>'Test','payment_instructions'=>'Test','support_contact'=>'Test','allow_http_local'=>true];`);
 fs.mkdirSync(path.join(priv, 'app/_next'), { recursive: true });
 fs.writeFileSync(path.join(priv, 'app/index.html'), 'PRIVATE_PAID_HTML');
 fs.writeFileSync(path.join(priv, 'app/_next/test.js'), 'PRIVATE_PAID_JS');
@@ -114,7 +115,8 @@ try {
   assert.equal((await member.request('/index.php?page=subscribe',{action:'logout'})).status,303);
   assert.equal((await member.request('/app/data.json')).status,403);
   // Connection failure must never open paid files, including for a former member.
-  fs.writeFileSync(path.join(priv,'config.php'),`<?php return ['dsn'=>'mysql:host=127.0.0.1;port=1;dbname=invalid','db_user'=>'invalid','db_password'=>'invalid','rate_limit_secret'=>'isolated-ci-test-secret-32-chars-minimum','allow_http_local'=>true];`);
+  // Mutate plain data, not PHP source: OPcache can legitimately cache config.php.
+  fs.writeFileSync(path.join(priv,'test-dsn.txt'),'mysql:host=127.0.0.1;port=1;dbname=invalid');
   assert.equal((await member.request('/app/data.json')).status,503);
   console.log('PASS PHP/MySQL HTTP integration: anonymous access, CSRF, register, roles, manual request, approval, duplicate approval, renewal, expiry, revoke, disable, private JS/JSON, offline worker, database fail-closed');
 } catch(error) {
