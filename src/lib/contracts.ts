@@ -1,3 +1,5 @@
+import draftTemplates from '@data/contracts/draft-templates.json';
+import expandedExamples from '@data/contracts/case-studies-expanded.json';
 import data from '@data/contracts/contracts.json';
 import education from '@data/contracts/education.json';
 import workedExamples from '@data/contracts/case-studies.json';
@@ -15,6 +17,7 @@ export interface ContractTemplate {
   parties: string[];
   clauses: ContractClause[];
   notes?: string;
+  example?: { label: string; clauses: ContractClause[] };
 }
 export interface ContractTopic { id: string; title: string; description: string; color: string; }
 export interface DraftingStep { title: string; detail: string; }
@@ -58,7 +61,7 @@ export const LEARNING_METHOD = e.method;
 export const DRAFTING_COMPARISONS = e.comparisons;
 export const CONTRACT_GUIDES = e.guides;
 export const WORKED_EXAMPLES: WorkedExample[] = [
-  ...workedExamples.examples, ...additionalExamples.examples, ...practiceExamples.examples, ...deepDiveExamples.examples,
+  ...workedExamples.examples, ...additionalExamples.examples, ...practiceExamples.examples, ...deepDiveExamples.examples, ...expandedExamples.examples,
 ];
 const learningData = learning as { topics: Record<string, TopicLearning>; contractGoals: Record<string, string> };
 export function getTopicLearning(topicId: string) { return learningData.topics[topicId]; }
@@ -76,3 +79,13 @@ export function getTopic(id: string) { return CONTRACT_TOPICS.find((t) => t.id =
 export function getContract(id: string) { return CONTRACTS.find((c) => c.id === id); }
 export function getContractGuide(id: string) { return CONTRACT_GUIDES[id]; }
 export function contractsByTopic(topicId: string) { return CONTRACTS.filter((c) => c.topic === topicId); }
+
+export interface ContractLesson { id: string; title: string; sections: {title: string; text: string}[]; checklist: string[]; exercise: string; }
+export interface TopicContractGuide { topic: string; title: string; text: string; checklist: string[]; }
+export const CONTRACT_LESSONS: ContractLesson[] = education.lessons;
+export const CONTRACT_TOPIC_GUIDES: TopicContractGuide[] = education.topicGuides;
+export const CONTRACT_DISCLAIMER = education.disclaimer;
+export const DRAFT_CONTRACTS: ContractTemplate[] = draftTemplates.contracts;
+export const DRAFT_TOPICS: ContractTopic[] = draftTemplates.topics;
+export function getDraftContract(id: string) { return DRAFT_CONTRACTS.find((c) => c.id === id); }
+export function getTopicContractGuide(topic: string) { return CONTRACT_TOPIC_GUIDES.find((g) => g.topic === topic); }

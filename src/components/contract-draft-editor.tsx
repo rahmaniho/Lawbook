@@ -5,7 +5,7 @@ import { useRef, useState } from 'react';
 import { ArrowRight, BookOpen, Plus, Printer, RotateCcw, Trash2 } from 'lucide-react';
 import configJson from '@data/contracts/draft-config.json';
 import suggestionJson from '@data/contracts/clause-suggestions.json';
-import { getContract } from '@/lib/contracts';
+import { getDraftContract as getContract } from '@/lib/contracts';
 import { BASIC_FIELDS, contextualFieldLabel, draftFields, emptyDraft, hasUnresolvedPrompt, prepareDraft, suggestionReferences, suggestionsForClause } from '@/lib/contract-drafting';
 import type { DraftConfig, DraftInput, SuggestionCatalog } from '@/lib/contract-drafting';
 import { toFaDigits } from '@/lib/fa';

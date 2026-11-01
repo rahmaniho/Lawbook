@@ -1,0 +1,10 @@
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+RewriteEngine On
+# ALL requests go through the controller, including existing files. Never use
+# a !-f / !-d bypass: an old public JS/JSON copy would bypass authorization.
+RewriteRule ^index\.php$ - [END]
+RewriteRule ^ index.php [END]
+<FilesMatch "(?i)(\.(sql|log|bak|ini|env|map)$|^config|^\.)">
+    Require all denied
+</FilesMatch>

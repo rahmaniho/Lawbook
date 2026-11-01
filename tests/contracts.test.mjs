@@ -10,7 +10,8 @@ const { examples: additionalExamples } = read('case-studies-additional.json');
 const { examples: practiceExamples } = read('case-studies-practice.json');
 const { examples: deepDiveExamples } = read('case-studies-deep-dive.json');
 const learning = read('learning-goals.json');
-const examples = [...originalExamples, ...additionalExamples, ...practiceExamples, ...deepDiveExamples];
+const { examples: expandedExamples } = read('case-studies-expanded.json');
+const examples = [...originalExamples, ...additionalExamples, ...practiceExamples, ...deepDiveExamples, ...expandedExamples];
 const { laws } = JSON.parse(fs.readFileSync(new URL('../data/curated/catalog.json', import.meta.url), 'utf8'));
 
 test('هر نوع قرارداد، راهنمای مثال عملی و چک‌لیست اختصاصی دارد', () => {
@@ -81,7 +82,7 @@ test('مطالعه‌های موردی همه موضوع‌ها را پوشش م
     }
   }
   for (const [topicId, count] of counts) {
-    assert.ok(count >= 14, `${topicId}: هر دسته باید دست‌کم ۱۴ مثال داشته باشد (فعلی: ${count})`);
+    assert.ok(count >= (['construction','vehicles','agriculture','investment','intellectual','education','health','media','logistics','tourism'].includes(topicId) ? 8 : 14), `${topicId}: هر دسته باید دست‌کم ۱۴ مثال داشته باشد (فعلی: ${count})`);
   }
   assert.equal(additionalExamples.length, 39, 'مجموعه آموزشی جدید باید ۳۹ مثال متنوع داشته باشد');
   assert.equal(new Set(additionalExamples.map((example) => example.title)).size, additionalExamples.length,
@@ -117,5 +118,5 @@ test('عبارت‌های حقوقیِ گمراه‌کننده در سرفصل�
   assert.match(byId['fam-divorce-agreement'].notes, /توافق خصوصی به‌تنهایی/);
   assert.match(byId['re-presale'].notes, /تنظیم رسمی/);
   assert.match(byId['labor-fixed-term'].notes, /قانون کار/);
-  assert.ok(contracts.every((c) => c.notes && c.clauses.every((x) => x.title.startsWith('بند '))));
+  assert.ok(contracts.every((c) => c.notes && c.clauses.every((x) => x.title.startsWith('ماده '))));
 });

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { BASIC_FIELDS, contextualFieldLabel, draftFields, emptyDraft, hasUnresolvedPrompt, prepareDraft, suggestionReferences, suggestionsForClause } from '../src/lib/contract-drafting';
 
 const read = (name) => JSON.parse(fs.readFileSync(new URL(`../data/contracts/${name}`, import.meta.url), 'utf8'));
-const { contracts, topics } = read('contracts.json');
+const { contracts, topics } = read('draft-templates.json');
 const config = read('draft-config.json');
 const suggestionCatalog = read('clause-suggestions.json');
 

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, FilePenLine } from 'lucide-react';
 import { SectionHeading } from '@/components/bits';
 import { Badge, Card } from '@/components/ui/primitives';
-import { CONTRACTS, CONTRACT_TOPICS } from '@/lib/contracts';
+import { DRAFT_CONTRACTS as CONTRACTS, DRAFT_TOPICS as CONTRACT_TOPICS } from '@/lib/contracts';
 import { toFaDigits } from '@/lib/fa';
 import configJson from '@data/contracts/draft-config.json';
 import suggestionJson from '@data/contracts/clause-suggestions.json';

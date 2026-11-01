@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { AppShell } from '@/components/app-shell';
 import { DataBootstrap } from '@/components/data-bootstrap';
 import { ServiceWorkerRegistrar } from '@/components/pwa-register';
+import { LicenseGuard } from '@/components/license-guard';
 import { withBase } from '@/lib/base-path';
 
 const vazirmatn = localFont({
@@ -68,9 +69,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fa" dir="rtl" suppressHydrationWarning>
       <body className={`${vazirmatn.variable} font-sans`}>
         <ThemeProvider>
+          <LicenseGuard>
           <DataBootstrap>
             <AppShell>{children}</AppShell>
           </DataBootstrap>
+          </LicenseGuard>
           <ServiceWorkerRegistrar />
         </ThemeProvider>
       </body>

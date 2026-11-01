@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { ContractDraftEditor } from '@/components/contract-draft-editor';
-import { CONTRACTS, getContract } from '@/lib/contracts';
+import { DRAFT_CONTRACTS as CONTRACTS, getDraftContract as getContract } from '@/lib/contracts';
 
 export const dynamicParams = false;
 export function generateStaticParams() {
