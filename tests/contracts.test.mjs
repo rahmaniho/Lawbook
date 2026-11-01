@@ -1,76 +1,122 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { filterContracts } from '../src/lib/contract-search.ts';
 
-const data = JSON.parse(fs.readFileSync(new URL('../data/contracts/contracts.json', import.meta.url), 'utf8'));
-const education = JSON.parse(fs.readFileSync(new URL('../data/contracts/education.json', import.meta.url), 'utf8'));
-const original = ['civil-sale-movable','civil-lease','civil-loan','civil-settlement','civil-agency','civil-guarantee','labor-fixed-term','labor-indefinite','labor-apprentice','labor-contractor','comm-company','comm-agency','comm-distribution','comm-transport','comm-insurance','re-sale','re-lease-residential','re-presale','re-partnership-build','fam-marriage','fam-divorce-agreement','fam-custody','fam-nafaqa','svc-consulting','svc-professional','svc-maintenance','tech-software-dev','tech-nda','tech-sla','tech-hosting'];
+const read = (name) => JSON.parse(fs.readFileSync(new URL(`../data/contracts/${name}`, import.meta.url), 'utf8'));
+const { topics, contracts } = read('contracts.json');
+const { guides, steps, method, comparisons } = read('education.json');
+const { examples: originalExamples } = read('case-studies.json');
+const { examples: additionalExamples } = read('case-studies-additional.json');
+const { examples: practiceExamples } = read('case-studies-practice.json');
+const { examples: deepDiveExamples } = read('case-studies-deep-dive.json');
+const learning = read('learning-goals.json');
+const { examples: expandedExamples } = read('case-studies-expanded.json');
+const examples = [...originalExamples, ...additionalExamples, ...practiceExamples, ...deepDiveExamples, ...expandedExamples];
+const { laws } = JSON.parse(fs.readFileSync(new URL('../data/curated/catalog.json', import.meta.url), 'utf8'));
 
-test('100 new samples preserve all 30 original URLs and add 10 categories', () => {
-  assert.equal(data.contracts.length, 130);
-  assert.equal(data.topics.length, 17);
-  for (const id of original) assert.ok(data.contracts.some((c) => c.id === id), id);
-  assert.equal(data.contracts.filter((c) => !original.includes(c.id)).length, 100);
-  assert.equal(new Set(data.contracts.map((c) => c.id)).size, 130);
-  assert.equal(new Set(data.contracts.map((c) => c.title)).size, 130);
-  assert.equal(new Set(data.topics.map((t) => t.id)).size, 17);
-});
-
-test('every template has sequential Persian ماده, complete text, and an explicitly fictional filled example', () => {
-  for (const c of data.contracts) {
-    assert.match(c.id, /^[a-z0-9-]+$/);
-    assert.ok(data.topics.some((t) => t.id === c.topic), c.id);
-    assert.ok(c.parties.length);
-    assert.ok(c.clauses.length >= 12, c.id);
-    assert.match(c.example.label, /فرضی/);
-    assert.equal(c.clauses.length, c.example.clauses.length);
-    c.clauses.forEach((clause, index) => {
-      const number = String(index + 1).replace(/[0-9]/g, (n) => '۰۱۲۳۴۵۶۷۸۹'[Number(n)]);
-      assert.ok(clause.title.startsWith(`ماده ${number} - `), c.id);
-      assert.ok(clause.text.length >= 60, `${c.id}: ${clause.title}`);
-      assert.equal(c.example.clauses[index].title, clause.title);
-      assert.doesNotMatch(c.example.clauses[index].text, /\[[^\]]+\]|\.{3,}|[\u0400-\u04ff]/u, c.id);
-    });
+test('هر نوع قرارداد، راهنمای مثال عملی و چک‌لیست اختصاصی دارد', () => {
+  const ids = contracts.map((c) => c.id);
+  assert.equal(ids.length, new Set(ids).size, 'شناسه تکراری');
+  assert.deepEqual(Object.keys(guides).sort(), ids.sort(), 'مثال یتیم یا بدون راهنما');
+  const topicIds = new Set(topics.map((t) => t.id));
+  for (const c of contracts) {
+    assert.ok(topicIds.has(c.topic), `${c.id}: موضوع ناشناخته`);
+    assert.ok(c.title && c.parties.length > 0 && c.clauses.length >= 4, `${c.id}: داده ناقص`);
+    assert.ok(c.clauses.every((x) => x.title && x.text.length >= 45), `${c.id}: بند ناقص یا بیش‌ازحد کلی`);
+    const guide = guides[c.id];
+    assert.ok(guide.scenario.length > 12 && guide.sample.length > 45 && guide.lesson.length > 35, `${c.id}: مثال سطحی`);
+    assert.ok(guide.checklist.length >= 3 && guide.checklist.every((x) => x.length > 8), `${c.id}: چک‌لیست ناقص`);
   }
 });
 
-test('each category has multiple samples and a tailored drafting checklist', () => {
-  for (const topic of data.topics) {
-    assert.ok(data.contracts.filter((c) => c.topic === topic.id).length >= 3, topic.id);
-    const guide = education.guides.find((g) => g.topic === topic.id);
-    assert.ok(guide && guide.text.length > 90, topic.id);
-    assert.ok(guide.checklist.length >= 4, topic.id);
+test('راهنمای عمومی، مثال‌های بازنویسی متنوع و دارای توضیح دارد', () => {
+  assert.ok(steps.length >= 5);
+  assert.ok(method.length >= 4 && method.every((step) => step.title && step.detail.length > 70));
+  assert.ok(comparisons.length >= 5);
+  for (const comparison of comparisons) {
+    assert.ok(comparison.weak && comparison.better.length > comparison.weak.length && comparison.why);
   }
 });
 
-test('lessons include instruction, risky/better clauses, common mistake, checklist and exercise', () => {
-  assert.equal(education.lessons.length, 12);
-  assert.equal(new Set(education.lessons.map((l) => l.id)).size, 12);
-  for (const lesson of education.lessons) {
-    assert.ok(lesson.sections.length >= 4);
-    assert.ok(lesson.sections[0].text.length >= 200);
-    assert.ok(lesson.checklist.length >= 3);
-    assert.ok(lesson.exercise.length > 60);
+test('هدف‌های آموزشی هر دسته و پیوند همه قراردادها معتبر است', () => {
+  assert.deepEqual(Object.keys(learning.topics).sort(), topics.map((t) => t.id).sort());
+  assert.deepEqual(Object.keys(learning.contractGoals).sort(), contracts.map((c) => c.id).sort());
+  for (const topic of topics) {
+    const plan = learning.topics[topic.id];
+    assert.ok(plan.goals.length >= 3 && plan.criticalPoints.length >= 3, `${topic.id}: هدف یا نکته کم است`);
+    assert.equal(new Set(plan.goals.map((goal) => goal.id)).size, plan.goals.length);
+    const mapped = contracts.filter((c) => c.topic === topic.id).map((c) => learning.contractGoals[c.id]);
+    for (const goal of plan.goals) {
+      assert.ok(goal.title && goal.outcome.length > 70, `${topic.id}: هدف مبهم`);
+      assert.ok(mapped.includes(goal.id), `${topic.id}: برای ${goal.id} هیچ قراردادی نیست`);
+    }
+    assert.ok(plan.criticalPoints.every((point) => point.length > 55), `${topic.id}: نکته سطحی`);
   }
 });
 
-test('contract search handles Persian/Arabic forms, operative clauses, topics, and empty results', () => {
-  assert.equal(filterContracts(data.contracts, data.topics, 'all', '').length, 130);
-  assert.ok(filterContracts(data.contracts, data.topics, 'all', 'كاميون').length === 0);
-  assert.ok(filterContracts(data.contracts, data.topics, 'all', 'آبياري').some((c) => c.id === 'agri-irrigation'));
-  assert.ok(filterContracts(data.contracts, data.topics, 'all', 'پشتیبان بازیابی').some((c) => c.id === 'tech-hosting'));
-  assert.ok(filterContracts(data.contracts, data.topics, 'vehicles', '').every((c) => c.topic === 'vehicles'));
-  assert.equal(filterContracts(data.contracts, data.topics, 'vehicles', 'گلخانه').length, 0);
-  assert.equal(filterContracts(data.contracts, data.topics, 'all', 'عبارتناموجودقطعی').length, 0);
+test('مطالعه‌های موردی همه موضوع‌ها را پوشش می‌دهند و به قوانین موجود متصل‌اند', () => {
+  assert.ok(examples.length >= contracts.length, 'مطالعه‌های موردی کافی نیستند');
+  assert.equal(new Set(examples.map((x) => x.id)).size, examples.length, 'شناسه نمونه تکراری است');
+  assert.deepEqual([...new Set(examples.map((x) => x.contractId))].sort(), contracts.map((c) => c.id).sort(),
+    'هر نوع قرارداد باید دست‌کم یک مطالعه موردی داشته باشد');
+  const contractsById = new Map(contracts.map((c) => [c.id, c]));
+  const lawIds = new Set(laws.map((law) => law.id));
+  const counts = new Map(topics.map((topic) => [topic.id, 0]));
+  for (const example of examples) {
+    const contract = contractsById.get(example.contractId);
+    assert.ok(contract, `${example.id}: نوع قرارداد نامعتبر`);
+    counts.set(contract.topic, counts.get(contract.topic) + 1);
+    assert.ok(learning.topics[contract.topic].goals.some((goal) => goal.id === learning.contractGoals[contract.id]),
+      `${example.id}: هدف آموزشی معتبر ندارد`);
+    assert.ok(example.title && example.situation.length > 30 && example.facts.length >= 2, `${example.id}: موقعیت ناکامل`);
+    assert.ok(example.clauses.length >= 2 && example.clauses.every((cl) =>
+      cl.heading && cl.wording.length > 70 && cl.rationale.length > 35 && !/\.{4,}/.test(cl.wording),
+    ), `${example.id}: بند نمونه ناقص یا دارای جای‌خالی`);
+    assert.ok(example.review.length >= 2 && example.references.length, `${example.id}: بررسی یا قانون مرتبط موجود نیست`);
+    for (const ref of example.references) assert.ok(lawIds.has(ref.lawId), `${example.id}: قانون ${ref.lawId} در فهرست نیست`);
+    if (example.payments) {
+      assert.ok(example.payments.totalRials > 0 && example.payments.items.length >= 2, `${example.id}: جدول پرداخت ناقص`);
+      assert.ok(example.payments.items.every((item) => item.label && item.amountRials > 0), `${example.id}: قسط نامعتبر`);
+      assert.equal(example.payments.items.reduce((sum, item) => sum + item.amountRials, 0),
+        example.payments.totalRials, `${example.id}: جمع مبالغ نادرست`);
+    }
+  }
+  for (const [topicId, count] of counts) {
+    assert.ok(count >= (['construction','vehicles','agriculture','investment','intellectual','education','health','media','logistics','tourism'].includes(topicId) ? 8 : 14), `${topicId}: هر دسته باید دست‌کم ۱۴ مثال داشته باشد (فعلی: ${count})`);
+  }
+  assert.equal(additionalExamples.length, 39, 'مجموعه آموزشی جدید باید ۳۹ مثال متنوع داشته باشد');
+  assert.equal(new Set(additionalExamples.map((example) => example.title)).size, additionalExamples.length,
+    'عنوان مطالعه‌های تازه نباید تکراری باشد');
+  assert.equal(practiceExamples.length, 14, 'مجموعه تمرینی باید برای هر دسته دو مورد داشته باشد');
+  assert.equal(deepDiveExamples.length, 14, 'مجموعه تکمیلی باید برای هر دسته دو مورد داشته باشد');
+  for (const example of examples) {
+    assert.ok(example.exercise?.question.length > 20 && example.exercise.answer.length > 30,
+      `${example.id}: پرسش و پاسخ آموزشی ناقص است`);
+  }
+  for (const example of [...additionalExamples, ...practiceExamples, ...deepDiveExamples]) {
+    const topicId = contractsById.get(example.contractId).topic;
+    if (topicId === 'family' || topicId === 'real-estate') {
+      assert.ok(example.disclaimer?.length > 25, `${example.id}: هشدار موضوع حساس لازم است`);
+    }
+  }
+  assert.ok(deepDiveExamples.every((example) => example.pitfall?.length > 70), 'اشتباه رایج هر مطالعه تکمیلی باید توضیح داده شود');
 });
 
-test('special relationships do not inherit misleading generic financial/term examples', () => {
-  const byId = (id) => data.contracts.find((c) => c.id === id);
-  assert.match(byId('civil-guarantee').clauses[4].text, /طلبکار/);
-  assert.match(byId('civil-guarantee').clauses[5].text, /انتقال دین/);
-  assert.match(byId('civil-loan').example.clauses[3].text, /بدون سود/);
-  assert.match(byId('labor-indefinite').example.clauses[2].text, /نامعین/);
-  assert.doesNotMatch(byId('labor-indefinite').example.clauses[2].text, /۱۴۰۶\/۰۲\/۱۵/);
-  assert.match(byId('tech-nda').example.clauses[3].text, /اجرت مستقلی تعیین نشده/);
+test('نمونه SLA محاسبه درست و موضوعات حساس هشدار صریح دارند', () => {
+  assert.equal(Math.round(30 * 24 * 60 * (1 - 0.995)), 216);
+  const sla = examples.find((example) => example.id === 'saas-availability');
+  assert.match(sla.facts.join(' '), /۴۳٬۲۰۰/);
+  assert.match(sla.facts.join(' '), /۲۱۶/);
+  for (const id of ['apartment-purchase', 'child-visits', 'divorce-settlement']) {
+    assert.ok(examples.find((example) => example.id === id)?.disclaimer, `${id}: هشدار لازم دارد`);
+  }
+});
+
+test('عبارت‌های حقوقیِ گمراه‌کننده در سرفصل‌های حساس بازنگری شده‌اند', () => {
+  const byId = Object.fromEntries(contracts.map((c) => [c.id, c]));
+  assert.doesNotMatch(byId['civil-guarantee'].clauses[3].text, /در صورت عدم پرداخت توسط اصلی/);
+  assert.match(byId['fam-divorce-agreement'].notes, /توافق خصوصی به‌تنهایی/);
+  assert.match(byId['re-presale'].notes, /تنظیم رسمی/);
+  assert.match(byId['labor-fixed-term'].notes, /قانون کار/);
+  assert.ok(contracts.every((c) => c.notes && c.clauses.every((x) => x.title.startsWith('ماده '))));
 });

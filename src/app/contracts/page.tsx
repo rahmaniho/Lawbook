@@ -3,18 +3,23 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ArrowRight, FileText, Search } from 'lucide-react';
-import { CONTRACT_TOPICS, CONTRACTS } from '@/lib/contracts';
+import { CONTRACT_TOPICS, CONTRACTS, WORKED_EXAMPLES, getContractGuide, workedExamplesForContract } from '@/lib/contracts';
 import { SectionHeading } from '@/components/bits';
 import { Card, Input } from '@/components/ui/primitives';
 import { filterContracts } from '@/lib/contract-search';
 import { toFaDigits } from '@/lib/fa';
+
+const SEARCH_CONTEXT = Object.fromEntries(CONTRACTS.map((c) => [c.id, [
+  getContractGuide(c.id)?.scenario,
+  ...workedExamplesForContract(c.id).map((example) => `${example.title} ${example.situation} ${example.facts.join(' ')}`),
+].join(' ')]));
 
 export default function ContractsPage() {
   const [topic, setTopic] = useState<string | 'all'>('all');
   const [query, setQuery] = useState('');
 
   const [visible, setVisible] = useState(20);
-  const filtered = useMemo(() => filterContracts(CONTRACTS, CONTRACT_TOPICS, topic, query), [topic, query]);
+  const filtered = useMemo(() => filterContracts(CONTRACTS, CONTRACT_TOPICS, topic, query, SEARCH_CONTEXT), [topic, query]);
   function chooseTopic(value: string) { setTopic(value); setVisible(20); }
 
   return (
@@ -28,6 +33,11 @@ export default function ContractsPage() {
         subtitle={`${toFaDigits(CONTRACTS.length)} قرارداد در ${toFaDigits(CONTRACT_TOPICS.length)} موضوع`}
       />
 
+      <Card className="my-4 space-y-2 p-4 text-sm">
+        <Link href="/contracts/draft" className="block text-primary underline">قراردادنویس تخصصی؛ ویرایش ۳۰ عنوان اصلی</Link>
+        <Link href="/contracts/guide" className="block text-primary underline">راهنمای مقایسه بندهای مبهم و روشن</Link>
+        <Link href="/contracts/examples" className="block text-primary underline">مرور {toFaDigits(WORKED_EXAMPLES.length)} مطالعه موردی و خودآزمایی</Link>
+      </Card>
       <Card className="my-4 space-y-2 p-4">
         <Link href="/contracts/learn" className="font-semibold text-primary underline">آموزش گام‌به‌گام قرارداد‌نویسی و چک‌لیست پیش از امضا</Link>
         <p className="text-xs leading-6 text-muted-foreground">۱۲ درس کاربردی و راهنمای اختصاصی ۱۷ موضوع؛ هر قرارداد دارای الگوی قابل تکمیل و نمونه تکمیل‌شده با اطلاعات فرضی است. نمونه‌ها جای بررسی حقوقی یا سند رسمی لازم را نمی‌گیرند.</p>

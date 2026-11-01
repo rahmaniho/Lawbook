@@ -281,6 +281,9 @@ test('sw.js زیر basePath پوسته را با همان پیشوند کش می
     '/Lawbook/about/',
     '/Lawbook/offline/',
     '/Lawbook/coverage/',
+    '/Lawbook/calculator/inheritance/',
+    '/Lawbook/calculator/diyyeh/',
+    '/Lawbook/calculator/late-payment/',
     '/Lawbook/manifest.webmanifest',
   ]);
 });
@@ -298,6 +301,9 @@ test('sw.js در استقرار روی ریشهٔ دامنه هم درست کا�
     '/about/',
     '/offline/',
     '/coverage/',
+    '/calculator/inheritance/',
+    '/calculator/diyyeh/',
+    '/calculator/late-payment/',
     '/manifest.webmanifest',
   ]);
 });

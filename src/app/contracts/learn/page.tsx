@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CONTRACT_DISCLAIMER, CONTRACT_GUIDES, CONTRACT_LESSONS, contractsByTopic } from '@/lib/contracts';
+import { CONTRACT_DISCLAIMER, CONTRACT_TOPIC_GUIDES, CONTRACT_LESSONS, contractsByTopic } from '@/lib/contracts';
 import { SectionHeading } from '@/components/bits';
 import { Card } from '@/components/ui/primitives';
 import { toFaDigits } from '@/lib/fa';
@@ -25,7 +25,7 @@ export default function ContractLessons() {
       </Card>)}
     </div>
     <h2 id="topics" className="my-5 scroll-mt-24 text-lg font-bold">راهنمای اختصاصی انواع قرارداد</h2>
-    <div className="space-y-4">{CONTRACT_GUIDES.map((guide) => <Card key={guide.topic} id={guide.topic} className="scroll-mt-24 p-4 text-sm leading-8">
+    <div className="space-y-4">{CONTRACT_TOPIC_GUIDES.map((guide) => <Card key={guide.topic} id={guide.topic} className="scroll-mt-24 p-4 text-sm leading-8">
       <h3 className="font-semibold text-primary">{guide.title}</h3><p>{guide.text}</p>
       <ul className="list-inside list-disc">{guide.checklist.map((item) => <li key={item}>{item}</li>)}</ul>
       <p className="mt-2 font-semibold">تمرین روی نمونه‌های این موضوع:</p>

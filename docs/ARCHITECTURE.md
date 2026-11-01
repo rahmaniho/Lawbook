@@ -49,7 +49,7 @@
 | `fa.ts` | دوقلوی مرورگر `fa.mjs` (نرمال‌سازی، ارقام، تجزیه پرس‌وجو، برجسته‌سازی) |
 | `format.ts` | قالب‌بندی عدد فارسی، تاریخ جلالی، فاصله زمانی، حجم |
 | `share.ts` | اشتراک‌گذاری بومی (`navigator.share`) با بازگشت به کلیپ‌بورد |
-| `calc/` | منطق محاسبه‌گر ارث (مواد ۸۶۲–۹۴۹) و دیه (مواد ۵۶۳ به بعد) |
+| `calc/` | منطق محاسبه‌گر ارث، دیه و خسارت تأخیر تأدیه (کسر دقیق شاخص‌ها با `BigInt`) |
 | `store.ts` | وضعیت سراسری (Zustand): کاتالوگ، نسخه داده، تنظیمات مطالعه، پیشرفت |
 
 ### ۳) رابط کاربری (`src/app`, `src/components`)
@@ -63,7 +63,8 @@
   دکمه‌های عملیات ماده، ویرایشگر یادداشت، نوار آمار.
 - `article-card.tsx` — کارت ماده با کشیدن: راست → نشان‌گذاری، چپ → اشتراک، لمس → متن کامل.
 - صفحات: `/`، `/laws`، `/laws/[lawId]`، `/article/[articleId]`، `/search`، `/bookmarks`،
-  `/settings`، `/coverage`، `/calculator/inheritance`، `/calculator/diyyeh`، `/about`، `/offline`.
+  `/settings`، `/coverage`، `/calculator/inheritance`، `/calculator/diyyeh`،
+  `/calculator/late-payment`، `/about`، `/offline`.
 
 ### ۴) PWA (`public/sw.js`)
 
