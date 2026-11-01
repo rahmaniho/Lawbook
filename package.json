@@ -17,7 +17,8 @@
     "scrape": "python3 scripts/scrape/scrape_qavanin.py",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/_loader-register.mjs --test \"tests/*.test.mjs\"",
-    "verify": "npm run data:build && npm run data:validate && npm run registry:verify && npm run typecheck && npm run lint && npm test"
+    "verify": "npm run data:build && npm run data:validate && npm run registry:verify && npm run typecheck && npm run lint && npm test",
+    "build:licensed": "node scripts/build-licensed.mjs"
   },
   "dependencies": {
     "@khmyznikov/pwa-install": "^0.5.6",

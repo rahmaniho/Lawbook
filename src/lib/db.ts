@@ -29,7 +29,7 @@ class GhanounDatabase extends Dexie {
   caseIndex!: Table<VerdictIndexEntry, string>;
 
   constructor() {
-    super('GhanounDB');
+    super(process.env.NEXT_PUBLIC_LICENSED_DEPLOYMENT === '1' ? 'GhanounLicensedDB' : 'GhanounDB');
     this.version(1).stores({
       laws: 'id, category, hierarchy, approvalSort',
       articles: 'id, lawId, numberValue, category, hierarchy, status, *keywords',

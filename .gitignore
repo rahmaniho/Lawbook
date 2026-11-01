@@ -49,3 +49,7 @@ scripts/scrape/.cache/
 
 # فایل خامِ حجیم مجموعهٔ آراء قضایی (در مخزن نگه‌داری نمی‌شود؛ دادهٔ ساخته‌شده در public/data می‌ماند)
 data/sources/cases/case.csv
+
+# Local licensed deployment settings (never commit real DB credentials)
+/deploy/cpanel/private/config.php
+/.cache/

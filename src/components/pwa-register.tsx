@@ -13,6 +13,7 @@ import { swUrl } from '@/lib/base-path';
  */
 export function ServiceWorkerRegistrar() {
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_LICENSED_DEPLOYMENT === '1') return;
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
     let updateTimer: ReturnType<typeof setInterval> | undefined;
     const register = async () => {

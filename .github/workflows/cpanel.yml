@@ -1,0 +1,41 @@
+name: cPanel PHP checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: lawbook_ci
+          MYSQL_USER: lawbook_ci
+          MYSQL_PASSWORD: disposable-ci-password
+          MYSQL_ROOT_PASSWORD: disposable-ci-root-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PHP syntax
+        run: find deploy/cpanel -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Check subscription expiry and protected file policy
+        run: php tests/cpanel-policy.php
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check complete PHP/MySQL subscription flow
+        env:
+          LAWBOOK_TEST_DATABASE: disposable
+          TEST_MYSQL_DSN: mysql:host=127.0.0.1;port=3306;dbname=lawbook_ci;charset=utf8mb4
+          TEST_MYSQL_USER: lawbook_ci
+          TEST_MYSQL_PASSWORD: disposable-ci-password
+        run: node tests/cpanel-http.mjs
